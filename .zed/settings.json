@@ -1,0 +1,81 @@
+{
+    "lsp": {
+        "pylsp": {
+            "settings": {
+                "configurationSources": ["flake8"],
+                "plugins": {
+                    "mypy": {
+                        "enabled": true
+                    },
+                    "flake8": {
+                        "enabled": true
+                    },
+                    "mccabe": {
+                        "enabled": false
+                    },
+                    "pycodestyle": {
+                        "enabled": false
+                    },
+                    "pyflakes": {
+                        "enabled": false
+                    }
+                }
+            }
+        },
+        "pyright": {
+            "settings": {
+                "python.analysis": {
+                    "diagnosticMode": "workspace",
+                    "typeCheckingMode": "standard",
+                    "pythonVersion": "3.11"
+                }
+            }
+        },
+        "ruff": {
+            "initialization_options": {
+                "settings": {
+                    "lint": {
+                        "lineLength": 88,
+                        "extendSelect": ["E4", "E7", "E9", "F"]
+                    }
+                }
+            }
+        }
+    },
+    "languages": {
+        "Python": {
+            "language_servers": ["pyright", "pylsp", "ruff"],
+            "format_on_save": "on",
+            "formatter": [
+                // {
+                //     "language_server": {
+                //         "name": "ruff"
+                //     }
+                // },
+                // {
+                //     "code_actions": {
+                //         "source.organizeImports.ruff": true,
+                //         "source.fixAll.ruff": true
+                //     }
+                // }
+                {
+                    "language_server": {
+                        "name": "pylsp"
+                    }
+                },
+                {
+                    "external": {
+                        "command": "isort",
+                        "arguments": ["-"]
+                    }
+                },
+                {
+                    "external": {
+                        "command": "black",
+                        "arguments": ["-"]
+                    }
+                }
+            ]
+        }
+    }
+}
