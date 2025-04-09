@@ -3,9 +3,10 @@ from typing import Any, Union
 
 import numpy
 from numpy.typing import NDArray
+from stream.core import source
 from typing_extensions import Protocol, TypeAlias
 
-from ..models.parameters import LCLStreamerParameters
+from ..models.parameters import DataSourceParameters, Parameters
 
 StrFloatIntNDArray: TypeAlias = Union[
     NDArray[numpy.str_], NDArray[numpy.float_], NDArray[numpy.int_]
@@ -15,17 +16,16 @@ StrFloatIntNDArray: TypeAlias = Union[
 class EventSourceProtocol(Protocol):
     def __init__(
         self,
-        *,
-        source_string: str,
         node_pool_size: int,
-        parameters: LCLStreamerParameters,
+        parameters: Parameters,
     ) -> None:
         """
         Initializes the event source
         """
         ...
 
-    def get_data(self) -> Generator[dict[str, StrFloatIntNDArray]]:
+    @source
+    def get_events(self) -> Generator[dict[str, StrFloatIntNDArray]]:
         """
         Gets the next event from event source
         """
@@ -35,12 +35,12 @@ class EventSourceProtocol(Protocol):
 class DataSourceProtocol(Protocol):
     def __init__(
         self,
-        *,
-        parameters: LCLStreamerParameters,
+        name: str,
+        parameters: DataSourceParameters,
     ):
         """Initializes the data source"""
         ...
 
-    def get_data(self, *, event: Any) -> StrFloatIntNDArray:
+    def get_data(self, event: Any) -> StrFloatIntNDArray:
         """Extracts data from an event"""
         ...

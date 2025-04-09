@@ -4,14 +4,13 @@ from typing import TextIO
 from yaml import safe_load  # type:ignore
 from yaml.parser import ParserError  # type:ignore
 
-from ..models.parameters import LCLStreamerParameters
+from ..models.parameters import Parameters
 from ..protocols.backend import StrFloatIntNDArray
 
 
 def load_configuration_parameters(
-    *,
     filename: Path,
-) -> LCLStreamerParameters:
+) -> Parameters:
     """
     Loads configuration parameters
 
@@ -21,8 +20,7 @@ def load_configuration_parameters(
     """
     if not filename.exists():
         raise RuntimeError(
-            f"Cannot read the configuration file {
-                filename}: The file does not exist"
+            f"Cannot read the configuration file {filename}: The file does not exist"
         )
     try:
         open_file: TextIO
@@ -30,18 +28,14 @@ def load_configuration_parameters(
             yaml_parameters: dict[str, StrFloatIntNDArray] = safe_load(open_file)
     except OSError:
         raise RuntimeError(
-            f"Cannot read the configuration file {
-                filename}: Cannot open the file"
+            f"Cannot read the configuration file {filename}: Cannot open the file"
         )
         # pyright: ignore[reportAttributeAccessIssue]
     except ParserError:
         raise RuntimeError(
-            f"Cannot read the configuration file {
-                filename}: Cannot pare the file"
+            f"Cannot read the configuration file {filename}: Cannot pare the file"
         )
 
-    parameters: LCLStreamerParameters = LCLStreamerParameters.model_validate(
-        yaml_parameters
-    )
+    parameters: Parameters = Parameters.model_validate(yaml_parameters)
 
     return parameters

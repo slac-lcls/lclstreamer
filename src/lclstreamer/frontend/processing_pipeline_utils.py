@@ -1,51 +1,17 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 import numpy
 from numpy.typing import DTypeLike
 
-from ..models.parameters import LCLStreamerParameters
 from ..protocols.backend import StrFloatIntNDArray
-from ..protocols.frontend import ProcessingPipelineProtocol
-
-
-class ProcessingPipeline:
-
-    def __init__(
-        self,
-        *,
-        parameters: LCLStreamerParameters,
-    ) -> None:
-        """ """
-        try:
-            self._processing_pipeline: ProcessingPipelineProtocol = globals()[
-                parameters.processing_pipeline
-            ](
-                parameters=parameters,
-            )
-        except NameError:
-            raise RuntimeError(
-                f"Event source {parameters.event_source} is not available"
-            )
-
-    def process_data(
-        self, data: dict[str, StrFloatIntNDArray]
-    ) -> dict[str, StrFloatIntNDArray]:
-        """"""
-        return self._processing_pipeline.process_data(data)
-
-    def collect_results(
-        self, data: dict[str, StrFloatIntNDArray]
-    ) -> dict[str, StrFloatIntNDArray]:
-
-        return self._processing_pipeline.collect_results(data)
 
 
 @dataclass
 class DataContainer:
-    data: list[StrFloatIntNDArray] = []
+    data: list[StrFloatIntNDArray] = field(default_factory=list)
     dtype: Optional[DTypeLike] = None
-    shape: tuple[int, ...] = (0, 0)
+    shape: Optional[tuple[int, ...]] = None
 
 
 class DataStorage:
@@ -54,7 +20,7 @@ class DataStorage:
 
         self._data_containers: dict[str, DataContainer] = {}
 
-    def add_data(self, *, data: dict[str, StrFloatIntNDArray]) -> None:
+    def add_data(self, data: dict[str, StrFloatIntNDArray]) -> None:
 
         if len(self._data_containers) == 0:
             data_source_name: str
@@ -93,8 +59,9 @@ class DataStorage:
 
         data_source_name: str
         for data_source_name in self._data_containers:
-            stored_data[data_source_name] = numpy.array(
-                self._data_containers[data_source_name]
+            stored_data[data_source_name] = numpy.stack(
+                self._data_containers[data_source_name].data,
+                dtype=self._data_containers[data_source_name].dtype,
             )
 
         return stored_data
