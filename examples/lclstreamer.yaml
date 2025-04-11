@@ -1,46 +1,42 @@
 lclstreamer:
-  source_identifier: exp=xpptut15:run=430
-  batch_size: 20
-  event_source: Psana1EventSource
-  processing_pipeline: NoOpProcessingPipeline
-  data_serializer: Hdf5Serializer
-  data_handlers:
-    - BinaryFileWritingDataHandler
-    - BinaryDataStreamingDataHandler
+    source_identifier: exp=xpptut15:run=430
+    batch_size: 20
+    event_source: Psana1EventSource
+    processing_pipeline: NoOpProcessingPipeline
+    data_serializer: Hdf5Serializer
+    data_handlers:
+        - BinaryFileWritingDataHandler
+        - BinaryDataStreamingDataHandler
 
 data_sources:
+    timestamp:
+        type: Psana1Timestamp
 
-  timestamp:
-    type: Psana1Timestamp
-  
-  detector_data:
-    type: Psana1AreaDetector
-    psana_name: Jungfrau1M
-    calibration: true
+    detector_data:
+        type: Psana1AreaDetector
+        psana_name: Jungfrau1M
+        calibration: true
 
 processing_pipeline:
-
-  NoOpProcessingPipeline:
+    NoOpProcessingPipeline: {}
 
 data_serializer:
-
-  Hdf5Serializer:
-    compression_level: 3
-    compression: zfp
-    fields:
-      timestamp: /data/timestamp
-      detector_data: /data/data
+    Hdf5Serializer:
+        compression_level: 3
+        compression: zfp
+        fields:
+            timestamp: /data/timestamp
+            detector_data: /data/data
 
 data_handlers:
+    BinaryFileWritingDataHandler:
+        file_prefix: ""
+        file_suffix: h5
+        write_directory: /sdf/home/v/valmar/Projects/lclstreamer/workspace/output
 
-  BinaryFileWritingDataHandler:
-    file_prefix: ""
-    file_suffix: h5
-    write_directory: /sdf/home/v/valmar/Projects/lclstreamer/workspace/output
-
-  BinaryDataStreamingDataHandler:
-    urls: 
-      - "tcp://127.0.0.1:12321"
-    role: client
-    library: nng
-    socket_type: push
+    BinaryDataStreamingDataHandler:
+        urls:
+            - "tcp://127.0.0.1:12321"
+        role: client
+        library: nng
+        socket_type: push
