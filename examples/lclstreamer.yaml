@@ -17,6 +17,9 @@ data_sources:
         psana_name: Jungfrau1M
         calibration: true
 
+event_source:
+    Psana1EventSource: {}
+
 processing_pipeline:
     NoOpProcessingPipeline: {}
 

@@ -3,11 +3,13 @@ from typing import Literal, Optional, Self
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
-
 class CustomBaseModel(BaseModel):
     model_config = ConfigDict(
         extra="forbid",  # Allows extra attributes during validation
     )
+
+
+class Psana1EventSourceParameters(CustomBaseModel): ...  # noqa: E701
 
 
 class HDF5SerializerParameters(CustomBaseModel):
@@ -54,6 +56,11 @@ class LclstreamerParameters(CustomBaseModel):
     data_handlers: list[str]
 
 
+class EventSourceParameters(CustomBaseModel):
+
+    Psana1EventSource: Optional[Psana1EventSourceParameters] = None
+
+
 class ProcessingPipelineParameters(CustomBaseModel):
 
     NoOpProcessingPipeline: Optional[NoOpProcessingPipelineParameters] = None
@@ -77,6 +84,7 @@ class DataHandlerParameters(CustomBaseModel):
 
 class Parameters(CustomBaseModel):
 
+    event_source: EventSourceParameters
     lclstreamer: LclstreamerParameters
     data_sources: dict[str, DataSourceParameters]
     data_serializer: DataSerializerParameters
@@ -85,18 +93,24 @@ class Parameters(CustomBaseModel):
 
     @model_validator(mode="after")
     def check_model(self) -> Self:
+        if getattr(self.event_source, self.lclstreamer.event_source) is None:
+            raise ValueError(
+                f"No configuration found for {self.lclstreamer.event_source} event "
+                "source"
+            )
         if (
             getattr(self.processing_pipeline, self.lclstreamer.processing_pipeline)
             is None
         ):
             raise ValueError(
-                f"No configuration found for {self.processing_pipeline} "
+                f"No configuration found for {self.lclstreamer.processing_pipeline} "
                 "processing pipeline"
             )
 
         if getattr(self.data_serializer, self.lclstreamer.data_serializer) is None:
             raise ValueError(
-                f"No configuration found for {self.data_serializer} data serializer"
+                f"No configuration found for {self.lclstreamer.data_serializer} data "
+                "serializer"
             )
 
         data_handler_name: str
