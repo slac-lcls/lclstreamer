@@ -4,8 +4,8 @@ import numpy
 from numpy.typing import NDArray
 from psana import Detector, EventId  # type: ignore
 
-from ..models.parameters import DataSourceParameters
-from ..protocols.backend import DataSourceProtocol
+from ...models.parameters import DataSourceParameters
+from ...protocols.backend import DataSourceProtocol
 
 
 class Psana1Timestamp(DataSourceProtocol):
@@ -19,9 +19,13 @@ class Psana1Timestamp(DataSourceProtocol):
         parameters: DataSourceParameters,
     ):
         """
-        Intialized recovery of timestamp information from psana.
+        Initializes a psana1 Timestamp data source.
 
-        No initialization needed, the function does nothing
+        Arguments:
+
+            name: An identifier for the data source
+
+            parameters: The configuration parameters
         """
         del name
         del parameters
@@ -29,6 +33,15 @@ class Psana1Timestamp(DataSourceProtocol):
     def get_data(self, event: Any) -> NDArray[numpy.float_]:
         """
         Retrieves timestamp information for an event
+
+        Arguments:
+
+            event: A psana1 event
+
+        Returns:
+
+            timestamp: a 1D numpy array of type float64 containing the timestamp
+            information
         """
         psana_event_id: Any = event.get(
             EventId  # pyright: ignore[reportAttributeAccessIssue]
@@ -51,7 +64,15 @@ class Psana1AreaDetector(DataSourceProtocol):
         name: str,
         parameters: DataSourceParameters,
     ):
-        """"""
+        """
+        Initializes a psana1 Timestamp data source.
+
+        Arguments:
+
+            name: An identifier for the data source
+
+            parameters: The configuration parameters
+        """
         extra_parameters: Optional[dict[str, Any]] = parameters.__pydantic_extra__
 
         if extra_parameters is None:
@@ -78,7 +99,15 @@ class Psana1AreaDetector(DataSourceProtocol):
 
     def get_data(self, event: Any) -> NDArray[numpy.float_]:
         """
-        Retrieves timestamp information for an event
-        """
+        Retrieves a detector frame an event
 
+        Arguments:
+
+            event: A psana1 event
+
+         Returns:
+
+            timestamp: A 2d numpy array of storing the detector frame as a
+            grayscale image
+        """
         return numpy.array(self._data_retrieval_function(event), dtype=numpy.float_)

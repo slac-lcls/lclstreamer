@@ -4,15 +4,29 @@ from typing import Any
 import h5py  # type: ignore
 import hdf5plugin  # type: ignore
 
-from ..models.parameters import HDF5SerializerParameters, Parameters
-from ..protocols.backend import StrFloatIntNDArray
-from ..protocols.frontend import DataSerializerProtocol
+from ...models.parameters import HDF5SerializerParameters, Parameters
+from ...protocols.backend import StrFloatIntNDArray
+from ...protocols.frontend import DataSerializerProtocol
 
 
 class Hdf5Serializer(DataSerializerProtocol):
+    """
+    See documentation of the `__init__` function.
+    """
 
     def __init__(self, parameters: Parameters):
+        """
+        Initializes an HDF5 dataserializer
 
+        This serializers turns a dictionary of numpy arrays into
+        a binary blob with the internal structure of an HDF5 file,
+        according to the preferences specified by the configuration
+        parameters
+
+        Arguments:
+
+            parameters: The configuration parameters
+        """
         if parameters.data_serializer.Hdf5Serializer is None:
             raise RuntimeError("No configuration parameters found for Hdf5Serializer")
 
@@ -54,7 +68,17 @@ class Hdf5Serializer(DataSerializerProtocol):
         self._hdf5_fields: dict[str, str] = data_serializer_parameters.fields
 
     def serialize_data(self, data: dict[str, StrFloatIntNDArray]) -> bytes:
-        """ """
+        """
+        Serializes data to a binary blob with an internal HDF5 structure
+
+        Arguments:
+
+            data: A dictionary storing numpy arrays
+
+        Returns
+
+            byte_block: A binary blob (a bytes object)
+        """
 
         depth_of_data_blocks: list[int] = [
             data[data_block].shape[0] for data_block in data

@@ -1,0 +1,110 @@
+from dataclasses import dataclass, field
+from typing import Optional
+
+import numpy
+from numpy.typing import DTypeLike
+
+from ...protocols.backend import StrFloatIntNDArray
+
+
+@dataclass
+class DataContainer:
+    """
+    Dataclass used for storing accumulated numpy arrays
+    """
+
+    data: list[StrFloatIntNDArray] = field(default_factory=list)
+    dtype: Optional[DTypeLike] = None
+    shape: Optional[tuple[int, ...]] = None
+
+
+class DataStorage:
+    """
+    See documentation of the `__init__` function.
+    """
+
+    def __init__(self) -> None:
+        """
+        Initializes aa Data Storage object
+
+        Data Storage objects are containers that can store numpy arrays and allow
+        bulk retrieval of the stored data
+        """
+
+        self._data_containers: dict[str, DataContainer] = {}
+
+    def add_data(self, data: dict[str, StrFloatIntNDArray]) -> None:
+        """
+        Adds data to the Data Storage object
+
+        The function takes a dictionary storing numpy arrays, each identified
+        by a dictionary key label. The first time this function is called, it uses
+        the incoming data to determine labels and dtypes of the numpy arrays to
+        accumulate. All subsequent calls of the function will only accept data arrays
+        with the same labels and dtypes as the initial call.
+
+        Arguments:
+
+            data: a dictionary storing numpy arrays.
+        """
+        if len(self._data_containers) == 0:
+            data_source_name: str
+            for data_source_name in data:
+                data_container = DataContainer(
+                    data=[data[data_source_name]],
+                    dtype=data[data_source_name].dtype,
+                    shape=data[data_source_name].shape,
+                )
+                self._data_containers[data_source_name] = data_container
+        else:
+            if sorted(data.keys()) != sorted(self._data_containers.keys()):
+                raise RuntimeError(
+                    "The data labels in the current event do not match the labels "
+                    "used to initialize the Data Storage container"
+                )
+            for data_source_name in data:
+                data_container = self._data_containers[data_source_name]
+                if data[data_source_name].dtype != data_container.dtype:
+                    raise RuntimeError(
+                        f"The dtype of the data entry {data_source_name} in the "
+                        "current event does not match the dtype of the data "
+                        "with which this label was originally initialized"
+                    )
+                if data[data_source_name].shape != data_container.shape:
+                    raise RuntimeError(
+                        f"The shape of the data entry {data_source_name} in the "
+                        "current event does not match the shape of the data "
+                        "with which this label was originally initialized"
+                    )
+                data_container.data.append(data[data_source_name])
+
+    def retrieve_stored_data(self) -> dict[str, StrFloatIntNDArray]:
+        """
+        Retuns the data stored in the Data Storage container object
+
+        The data is returned as dictionary of numpy arrays. The keys of the
+        dictionary match the labels of the stored data. The array associated
+        with each label stores the accumulated data, with the fist axis
+        representing each subsequent data addition, and the rest of the axes
+        representing the added data.
+
+        Returns:
+
+            stored_data: A dictionary containing the data accumulated by the
+                Data Storage container
+        """
+        stored_data: dict[str, StrFloatIntNDArray] = {}
+
+        data_source_name: str
+        for data_source_name in self._data_containers:
+            stored_data[data_source_name] = numpy.stack(
+                self._data_containers[data_source_name].data,
+                dtype=self._data_containers[data_source_name].dtype,
+            )
+
+        return stored_data
+
+    def reset_data_storage(self) -> None:
+        "Resets the Data Storage container"
+
+        self._data_containers = {}

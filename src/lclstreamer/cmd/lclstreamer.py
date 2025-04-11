@@ -12,11 +12,11 @@ from mpi4py import MPI
 from stream.core import Source, stream
 from stream.ops import chop, map, take, tap
 
-from ..backend.event_sources import initialize_event_source
+from ..backend.event_source import initialize_event_source
 from ..frontend.data_handling import initialize_data_handlers
-from ..frontend.data_serializers import initialize_data_serializer
+from ..frontend.data_serializer import initialize_data_serializer
 from ..frontend.parameters import load_configuration_parameters
-from ..frontend.processing_pipelines import initialize_processing_pipeline
+from ..frontend.processing_pipeline import initialize_processing_pipeline
 from ..frontend.stream_utils import clock
 from ..models.parameters import LclstreamerParameters, Parameters
 from ..protocols.backend import EventSourceProtocol, StrFloatIntNDArray
@@ -33,7 +33,17 @@ app = typer.Typer()
 def filter_incomplete_events(
     events: Iterator[dict[str, StrFloatIntNDArray]], max_consecutive: int = 100
 ) -> Iterator[dict[str, StrFloatIntNDArray]]:
-    """ """
+    """
+    A stream function that drops events that are incomplete
+
+    Arguments:
+
+        events: An event iterator
+
+    Returns:
+
+        events: An event iterator
+    """
     errs = []
     consecutive: int = 0
     ev_num: int = 0
@@ -56,6 +66,17 @@ def filter_incomplete_events(
 
 
 def data_counter(data: bytes) -> int:
+    """
+    Computes the size of the input data
+
+    Arguments:
+
+        data: A byte object storing the data
+
+    Returns:
+
+        size: The size fo the input data in bytes
+    """
     return len(data)
 
 
@@ -77,7 +98,12 @@ def main(
         ),
     ] = 0,
 ) -> None:
-
+    """
+    An application that retrieves event data from an event source, serializes it,
+    and passes it to a series of data handlers that stores it or streams it. The
+    event source, serialization strategy, and specific data handlers can be defined
+    by the user.
+    """
     # 1. Read and recover configuration parameters
     mpi_size: int = MPI.COMM_WORLD.Get_size()
     mpi_rank: int = MPI.COMM_WORLD.Get_rank()
@@ -95,7 +121,8 @@ def main(
 
     source: EventSourceProtocol = initialize_event_source(
         parameters=parameters,
-        node_pool_size=mpi_size,
+        worker_pool_size=mpi_size,
+        worker_rank=mpi_rank,
     )
 
     print(f"[Rank {mpi_rank}] Initializing event source: Done!")

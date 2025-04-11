@@ -1,12 +1,22 @@
 from ..models.parameters import LclstreamerParameters, Parameters
 from ..protocols.frontend import DataSerializerProtocol
-from .file_format_serializers import Hdf5Serializer  # noqa: F401
+from .data_serializers.file_formats import Hdf5Serializer  # noqa: F401
 
 
 def initialize_data_serializer(
     parameters: Parameters,
 ) -> DataSerializerProtocol:
-    """ """
+    """
+    Initializes the data serializer specified by the configuration parameters
+
+    Arguments:
+
+        parameters: The configuration parameters
+
+    Returns:
+
+        data_serializer: An initialized data serializer
+    """
     lclstreamer_parameters: LclstreamerParameters = parameters.lclstreamer
 
     try:

@@ -14,10 +14,15 @@ StrFloatIntNDArray: TypeAlias = Union[
 
 
 class EventSourceProtocol(Protocol):
+    """
+    See documentation of the `__init__` function.
+    """
+
     def __init__(
         self,
-        node_pool_size: int,
         parameters: Parameters,
+        worker_pool_size: int,
+        worker_rank: int,
     ) -> None:
         """
         Initializes the event source
@@ -33,6 +38,10 @@ class EventSourceProtocol(Protocol):
 
 
 class DataSourceProtocol(Protocol):
+    """
+    See documentation of the `__init__` function.
+    """
+
     def __init__(
         self,
         name: str,

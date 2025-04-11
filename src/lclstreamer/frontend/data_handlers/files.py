@@ -1,14 +1,26 @@
 from pathlib import Path
 from socket import gethostname
 
-from ..models.parameters import BinaryFileWritingDataHandlerParameters, Parameters
-from ..protocols.frontend import DataHandlerProtocol
+from ...models.parameters import BinaryFileWritingDataHandlerParameters, Parameters
+from ...protocols.frontend import DataHandlerProtocol
 
 
 class BinaryFileWritingDataHandler(DataHandlerProtocol):
+    """
+    See documentation of the `__init__` function.
+    """
 
     def __init__(self, parameters: Parameters):
+        """
+        Initializes a binary file writing data handler
 
+        This data handler writes a byte object to the filesystem as a single
+        file.
+
+        Arguments:
+
+              parameters: The configuration parameters
+        """
         if parameters.data_handlers.BinaryFileWritingDataHandler is None:
             raise RuntimeError(
                 "No configuration parameters found for BinaryFileWritingDataHandler"
@@ -29,7 +41,13 @@ class BinaryFileWritingDataHandler(DataHandlerProtocol):
         self._file_counter: int = 0
 
     def handle_data(self, data: bytes) -> None:
+        """
+        Writes a bytes object to the filesystem as a single file.
 
+        Arguments:
+
+            data: A bytes object
+        """
         filename: Path = (
             self._write_directory
             / f"{self._prefix}{self._hostname}_{self._file_counter}.{self._suffix}"

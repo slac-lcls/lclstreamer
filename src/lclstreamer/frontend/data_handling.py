@@ -1,13 +1,23 @@
 from ..models.parameters import LclstreamerParameters, Parameters
 from ..protocols.frontend import DataHandlerProtocol
-from .file_data_handlers import BinaryFileWritingDataHandler  # noqa: F401
-from .streaming_data_handlers import BinaryDataStreamingDataHandler  # noqa: F401
+from .data_handlers.files import BinaryFileWritingDataHandler  # noqa: F401
+from .data_handlers.streaming import BinaryDataStreamingDataHandler  # noqa: F401
 
 
 def initialize_data_handlers(
     parameters: Parameters,
 ) -> list[DataHandlerProtocol]:
-    """ """
+    """
+    Initializes the data handlers specified by the configuration parameters
+
+    Arguments:
+
+        parameters: The configuration parameters
+
+    Returns:
+
+        data_handlers: a list of initialized DataHandlers
+    """
     lclstreamer_parameters: LclstreamerParameters = parameters.lclstreamer
 
     data_handlers: list[DataHandlerProtocol] = []

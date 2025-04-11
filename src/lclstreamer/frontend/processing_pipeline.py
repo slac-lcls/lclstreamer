@@ -1,6 +1,6 @@
 from ..models.parameters import LclstreamerParameters, Parameters
 from ..protocols.frontend import ProcessingPipelineProtocol
-from .generic_processing_pipelines import NoOpProcessingPipeline  # noqa: F401
+from .processing_pipelines.generic import NoOpProcessingPipeline  # noqa: F401
 
 
 def initialize_processing_pipeline(

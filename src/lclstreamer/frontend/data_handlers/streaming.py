@@ -3,14 +3,25 @@ from typing import Any, Union
 from pynng import ConnectionRefused, Push0  # type: ignore
 from zmq import PUSH, Context, Socket, ZMQError
 
-from ..models.parameters import BinaryDataStreamingDataHandlerParameters, Parameters
-from ..protocols.frontend import DataHandlerProtocol
+from ...models.parameters import BinaryDataStreamingDataHandlerParameters, Parameters
+from ...protocols.frontend import DataHandlerProtocol
 
 
 class BinaryDataStreamingDataHandler(DataHandlerProtocol):
+    """
+    See documentation of the `__init__` function.
+    """
 
     def __init__(self, parameters: Parameters):
+        """
+        Initializes a binary data streaming data handler
 
+        This data handler streams a byte object over a Zmq or Nng socket.
+
+        Arguments:
+
+              parameters: The configuration parameters
+        """
         if parameters.data_handlers.BinaryDataStreamingDataHandler is None:
             raise RuntimeError(
                 "No configuration parameters found forBinaryStreamingPushDataHandler"
@@ -28,16 +39,32 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
             self._streaming = BinaryStreamingPushDataHandlerZmq(data_handler_parameters)
 
     def handle_data(self, data: bytes) -> None:
+        """
+        Stream a bytes object through a Zmq or Nng socket.
 
+        Arguments:
+
+            data: A bytes object
+        """
         self._streaming.handle_data(data)
 
 
 class BinaryStreamingPushDataHandlerNng:
+    """
+    See documentation of the `__init__` function.
+    """
 
     def __init__(
         self, data_handler_parameters: BinaryDataStreamingDataHandlerParameters
     ):
+        """
+        Initializes an Nng binary data streaming socket
 
+        Arguments:
+
+            data_handler_parameters: The configuration parameters for the streaming
+                data_handler
+        """
         self._socket: Any = Push0()
 
         url: str
@@ -54,10 +81,19 @@ class BinaryStreamingPushDataHandlerNng:
                 )
 
     def handle_data(self, data: bytes) -> None:
+        """
+        Sends a binary object through the Nng socket
 
+        Arguments:
+
+            data: a bytes object
+        """
         self._socket.send(data)
 
     def __del__(self) -> None:
+        """
+        Destructor
+        """
         self._socket.close()
 
 
@@ -66,7 +102,14 @@ class BinaryStreamingPushDataHandlerZmq:
     def __init__(
         self, data_handler_parameters: BinaryDataStreamingDataHandlerParameters
     ):
+        """
+        Initializes a Zmq binary data streaming socket
 
+        Arguments:
+
+            data_handler_parameters: The configuration parameters for the streaming
+                data_handler
+        """
         self._context: Context[Socket[bytes]] = Context()
         self._socket: Socket[bytes] = self._context.socket(PUSH)
 
@@ -84,9 +127,18 @@ class BinaryStreamingPushDataHandlerZmq:
                 )
 
     def handle_data(self, data: bytes) -> None:
+        """
+        Sends a binary object through the Nng socket
 
+        Arguments:
+
+            data: a bytes object
+        """
         self._socket.send(data)
 
     def __del__(self) -> None:
+        """
+        Destructor
+        """
         self._socket.close()
         self._context.destroy()

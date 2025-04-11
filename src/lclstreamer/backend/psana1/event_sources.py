@@ -6,19 +6,36 @@ from typing import Any, cast
 from psana import DataSource, MPIDataSource  # type: ignore
 from stream.core import source
 
-from ..models.parameters import DataSourceParameters, LclstreamerParameters, Parameters
-from ..protocols.backend import (
+from ...models.parameters import DataSourceParameters, LclstreamerParameters, Parameters
+from ...protocols.backend import (
     DataSourceProtocol,
     EventSourceProtocol,
     StrFloatIntNDArray,
 )
-from .psana1_data_sources import Psana1AreaDetector, Psana1Timestamp  # noqa: F401
+from .data_sources import Psana1AreaDetector, Psana1Timestamp  # noqa: F401
 
 
 class Psana1EventSource(EventSourceProtocol):
-    def __init__(self, parameters: Parameters, node_pool_size: int) -> None:
-        """"""
-        del node_pool_size
+    """
+    See documentation of the `__init__` function.
+    """
+
+    def __init__(
+        self, parameters: Parameters, worker_pool_size: int, worker_rank: int
+    ) -> None:
+        """
+        Initializes a psana1 event source
+
+        Arguments:
+
+            parameters: The configuration parameters
+
+            worker_pool_size: The size of the worker pool
+
+            worker_rank: The rank of the worker calling the function
+        """
+        del worker_pool_size
+        del worker_rank
 
         lclstreamer_parameters: LclstreamerParameters = parameters.lclstreamer
         data_source_parameters: dict[str, DataSourceParameters] = (
@@ -61,7 +78,13 @@ class Psana1EventSource(EventSourceProtocol):
     def get_events(
         self,
     ) -> Generator[dict[str, StrFloatIntNDArray]]:
-        """"""
+        """
+        Retrieves an event from the data source
+
+        Returns:
+
+            data: A dictionary storing data for a single event
+        """
         psana_event: Any
         for psana_event in self._event_source:
             data: dict[str, StrFloatIntNDArray] = {}

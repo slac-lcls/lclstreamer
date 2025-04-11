@@ -1,8 +1,7 @@
 from pathlib import Path
 from typing import Literal, Optional, Self
 
-from h5py._hl.base import ValuesView
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
+from pydantic import BaseModel, ConfigDict, model_validator
 
 
 class CustomBaseModel(BaseModel):
@@ -12,7 +11,7 @@ class CustomBaseModel(BaseModel):
 
 
 class HDF5SerializerParameters(CustomBaseModel):
-    compression_level: int = Field(default=3)
+    compression_level: int = 3
     compression: Optional[
         Literal[
             "gzip",
@@ -21,32 +20,29 @@ class HDF5SerializerParameters(CustomBaseModel):
             "bitshuffle_with_zstd",
             "zfp",
         ]
-    ] = Field(default=None)
+    ] = None
     fields: dict[str, str]
 
 
-class NoOpProcessingPipelineParameters(CustomBaseModel):
-    pass
+class NoOpProcessingPipelineParameters(CustomBaseModel): ...  # noqa: E701
 
 
 class BinaryDataStreamingDataHandlerParameters(CustomBaseModel):
-    urls: list[str] = Field(default=["0.0.0.0:12321"])
-    role: Literal["server", "client"] = Field(default="server")
-    library: Literal["zmq", "nng"] = Field(default="nng")
-    socket_type: Literal["push"] = Field(default="push")
+    urls: list[str] = ["0.0.0.0:12321"]
+    role: Literal["server", "client"] = "server"
+    library: Literal["zmq", "nng"] = "nng"
+    socket_type: Literal["push"] = "push"
 
 
 class BinaryFileWritingDataHandlerParameters(CustomBaseModel):
-    file_prefix: str = Field(default="")
-    file_suffix: str = Field(default="")
-    write_directory: Path = Field(default=Path.cwd())
+    file_prefix: str = ""
+    file_suffix: str = ""
+    write_directory: Path = Path.cwd()
 
 
 class DataSourceParameters(CustomBaseModel):
     type: str
-    model_config = ConfigDict(
-        extra="allow",  # Allows extra attributes during validation
-    )
+    model_config = ConfigDict(extra="allow")
 
 
 class LclstreamerParameters(CustomBaseModel):
@@ -89,32 +85,25 @@ class Parameters(CustomBaseModel):
 
     @model_validator(mode="after")
     def check_model(self) -> Self:
-        if self.lclstreamer.processing_pipeline != "NoOpProcessingPipeline":
-            if (
-                getattr(self.processing_pipeline, self.lclstreamer.processing_pipeline)
-                is None
-            ):
-                raise ValueError(
-                    f"No configuration found for {self.processing_pipeline} "
-                    "processing pipeline"
-                )
+        if (
+            getattr(self.processing_pipeline, self.lclstreamer.processing_pipeline)
+            is None
+        ):
+            raise ValueError(
+                f"No configuration found for {self.processing_pipeline} "
+                "processing pipeline"
+            )
 
         if getattr(self.data_serializer, self.lclstreamer.data_serializer) is None:
             raise ValueError(
-                f"No configuration found for {self.data_serializer} " "data serializer"
+                f"No configuration found for {self.data_serializer} data serializer"
             )
 
         data_handler_name: str
         for data_handler_name in self.lclstreamer.data_handlers:
-            if (
-                getattr(
-                    self.data_handlers,
-                    data_handler_name,
-                )
-                is None
-            ):
+            if getattr(self.data_handlers, data_handler_name) is None:
                 raise ValueError(
-                    f"No configuration found for {data_handler_name} " "data serializer"
+                    f"No configuration found for {data_handler_name} data handler"
                 )
 
         return self

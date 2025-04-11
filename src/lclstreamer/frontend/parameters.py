@@ -12,11 +12,15 @@ def load_configuration_parameters(
     filename: Path,
 ) -> Parameters:
     """
-    Loads configuration parameters
+    Loads and validates configuration parameters
 
     Arguments:
 
-        filename: Name of the file to read
+        filename: Path to the fil with the configuration parameters
+
+    Returns:
+
+        parameters: The configuration parameters
     """
     if not filename.exists():
         raise RuntimeError(

@@ -15,7 +15,17 @@ clock0: Callable[[], dict[str, Union[int, float]]] = lambda: {
 def rate_clock(
     state: dict[str, Union[int, float]], sz: int
 ) -> dict[str, Union[int, float]]:
+    """
+    Implements a rate clock
 
+    Arguments:
+
+        clock: the values of the clock at the previous step of the stream
+
+    Returns:
+
+        clock: the values of the clock at the current stop of the stream
+    """
     t = time()
     return {
         "count": state["count"] + 1,
@@ -26,8 +36,14 @@ def rate_clock(
 
 
 def clock() -> Stream[Any, Any]:
-    """Return a rate-clock counting from now.
+    """
+    Returns a rate - clock counting from now.
+
     This transforms a stream of counts into a stream
-    of dicts (describing the count rate).
+    of dicts(describing the count rate).
+
+    Returns:
+
+        clock: A Stream objet
     """
     return fold(rate_clock, clock0())
