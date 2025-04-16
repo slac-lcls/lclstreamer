@@ -2,7 +2,7 @@
 name = "lclstreamer"
 requires-python = ">= 3.11"
 version = "0.1.0"
-dependencies = ["typer>=0.15.2,<0.16", "numpy", "stream @ git+https://github.com/frobnitzem/stream.py", "pydantic>=2.10.6,<3", "pyyaml>=6.0.2,<7", "mpi4py", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9"]
+dependencies = ["typer>=0.15.2,<0.16", "numpy", "stream @ git+https://github.com/frobnitzem/stream.py", "pydantic>=2.10.6,<3", "pyyaml>=6.0.2,<7", "mpi4py", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2"]
 
 [build-system]
 build-backend = "setuptools.build_meta"
