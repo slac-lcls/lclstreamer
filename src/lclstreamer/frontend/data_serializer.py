@@ -22,11 +22,7 @@ def initialize_data_serializer(
     try:
         data_serializer: DataSerializerProtocol = globals()[
             lclstreamer_parameters.data_serializer
-        ](parameters)s
-
-
-
-
+        ](parameters)
     except NameError:
         raise RuntimeError(
             f"Data serializer {lclstreamer_parameters.data_serializer} is "

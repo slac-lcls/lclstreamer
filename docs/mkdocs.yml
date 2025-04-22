@@ -1,13 +1,17 @@
-site_name: My Docs
+site_name: LCLStream
 markdown_extensions:
-  - pymdownx.highlight:
-      anchor_linenums: true
-      line_spans: __span
-      pygments_lang_class: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.superfences
+    - pymdownx.highlight:
+          anchor_linenums: true
+          line_spans: __span
+          pygments_lang_class: true
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
+    - pymdownx.superfences:
+          custom_fences:
+              - name: mermaid
+                class: mermaid
+                format: "!!python/name:pymdownx.superfences.fence_code_format"
 theme:
-  name: material
-  features:
-    - content.code.copy
+    name: material
+    features:
+        - content.code.copy

@@ -3,13 +3,15 @@ from typing import Literal, Optional, Self
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
+
 class CustomBaseModel(BaseModel):
     model_config = ConfigDict(
         extra="forbid",  # Allows extra attributes during validation
     )
 
 
-class Psana1EventSourceParameters(CustomBaseModel): ...  # noqa: E701
+class Psana1EventSourceParameters(CustomBaseModel):
+    ...  # noqa: E701
 
 
 class HDF5SerializerParameters(CustomBaseModel):
@@ -26,11 +28,12 @@ class HDF5SerializerParameters(CustomBaseModel):
     fields: dict[str, str]
 
 
-class NoOpProcessingPipelineParameters(CustomBaseModel): ...  # noqa: E701
+class NoOpProcessingPipelineParameters(CustomBaseModel):
+    ...  # noqa: E701
 
 
 class BinaryDataStreamingDataHandlerParameters(CustomBaseModel):
-    urls: list[str] = ["0.0.0.0:12321"]
+    urls: list[str]
     role: Literal["server", "client"] = "server"
     library: Literal["zmq", "nng"] = "nng"
     socket_type: Literal["push"] = "push"
@@ -38,7 +41,7 @@ class BinaryDataStreamingDataHandlerParameters(CustomBaseModel):
 
 class BinaryFileWritingDataHandlerParameters(CustomBaseModel):
     file_prefix: str = ""
-    file_suffix: str = ""
+    file_suffix: str = "h5"
     write_directory: Path = Path.cwd()
 
 
