@@ -16,12 +16,11 @@ class Hdf5Serializer(DataSerializerProtocol):
 
     def __init__(self, parameters: Parameters):
         """
-        Initializes an HDF5 dataserializer
+        Initializes an HDF5 data serializer
 
-        This serializers turns a dictionary of numpy arrays into
-        a binary blob with the internal structure of an HDF5 file,
-        according to the preferences specified by the configuration
-        parameters
+        This serializers turns a dictionary of numpy arrays into a binary blob with the
+        internal structure of an HDF5 file, according to the preferences specified by
+        the configuration parameters.
 
         Arguments:
 

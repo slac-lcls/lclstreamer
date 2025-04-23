@@ -25,10 +25,10 @@ class DataStorage:
 
     def __init__(self) -> None:
         """
-        Initializes aa Data Storage object
+        Initializes a Data Storage object
 
         Data Storage objects are containers that can store numpy arrays and allow
-        bulk retrieval of the stored data
+        bulk retrieval of the stored data.
         """
 
         self._data_containers: dict[str, DataContainer] = {}
@@ -86,7 +86,7 @@ class DataStorage:
         dictionary match the labels of the stored data. The array associated
         with each label stores the accumulated data, with the fist axis
         representing each subsequent data addition, and the rest of the axes
-        representing the added data.
+        representing the data.
 
         Returns:
 

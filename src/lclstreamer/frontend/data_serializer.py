@@ -7,7 +7,7 @@ def initialize_data_serializer(
     parameters: Parameters,
 ) -> DataSerializerProtocol:
     """
-    Initializes the data serializer specified by the configuration parameters
+    Initializes the Data Serializer specified by the configuration parameters
 
     Arguments:
 
@@ -15,7 +15,7 @@ def initialize_data_serializer(
 
     Returns:
 
-        data_serializer: An initialized data serializer
+        data_serializer: An initialized Data Serializer
     """
     lclstreamer_parameters: LclstreamerParameters = parameters.lclstreamer
 

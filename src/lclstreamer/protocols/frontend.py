@@ -5,6 +5,10 @@ from .backend import StrFloatIntNDArray
 
 
 class ProcessingPipelineProtocol(Protocol):
+    """
+    See documentation of the `__init__` function.
+    """
+
     def __init__(
         self,
         parameters: Parameters,
@@ -15,13 +19,13 @@ class ProcessingPipelineProtocol(Protocol):
     def process_data(
         self, data: dict[str, StrFloatIntNDArray]
     ) -> dict[str, StrFloatIntNDArray]:
-        """Processes single data events and stores the results"""
+        """Processes a single data event and stores the results"""
         ...
 
     def collect_results(
         self, data: dict[str, StrFloatIntNDArray]
     ) -> dict[str, StrFloatIntNDArray]:
-        """Collects the stored processing results"""
+        """Returns the stored processing results"""
         ...
 
 

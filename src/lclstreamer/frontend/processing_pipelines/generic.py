@@ -14,7 +14,7 @@ class NoOpProcessingPipeline(ProcessingPipelineProtocol):
         Initializes a NoOp processing pipeline
 
         This pipeline performs no operations on the data: it simply collects
-        them.
+        it.
 
         Arguments:
 
@@ -26,7 +26,7 @@ class NoOpProcessingPipeline(ProcessingPipelineProtocol):
         self, data: dict[str, StrFloatIntNDArray]
     ) -> dict[str, StrFloatIntNDArray]:
         """
-        Processes a single data event and store the results
+        Processes a single data event and stores the results
 
         Since this is a NoOp processing pipeline, this function simply accumulates
         data from each event without performing any processing

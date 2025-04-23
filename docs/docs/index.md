@@ -34,9 +34,12 @@ stateDiagram-v2
 
 LCLStreamer can be run using different implementations of all its components, depending
 on the data source, the type of preprocessing that is peformed on the data, and the
-format and final destination (a file, a network socket) of the procesed data.
+format and final destination (a file, a network socket) of the processed data.
 
 * Please see how to install and run LCLStreamer here:
-  [Installation / Running](02. installation_running.md)
+  [Installation / Running](installation_running.md)
 
-* Please see how to configure LCLStreamer here: [Configuration](03. configuration.md)
+* Please see how to configure LCLStreamer here: [Configuration](configuration.md)
+
+* For an in-depth discussion of the data flow through the LCLStreamer application, please
+  see here: [LCLStreamer Data Workflow](lclstreamer_data_workflow.md)

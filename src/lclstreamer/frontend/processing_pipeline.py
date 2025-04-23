@@ -6,7 +6,17 @@ from .processing_pipelines.generic import NoOpProcessingPipeline  # noqa: F401
 def initialize_processing_pipeline(
     parameters: Parameters,
 ) -> ProcessingPipelineProtocol:
-    """ """
+    """
+    Initializes the Processing Pipeline specified by the configuration parameters
+
+    Arguments:
+
+        parameters: The configuration parameters
+
+    Returns:
+
+        data_handlers: An initialized Processing Pipeline
+    """
     lclstreamer_parameters: LclstreamerParameters = parameters.lclstreamer
 
     try:

@@ -83,7 +83,7 @@ class Psana1EventSource(EventSourceProtocol):
 
         Returns:
 
-            data: A dictionary storing data for a single event
+            data: A dictionary storing data for a an event
         """
         psana_event: Any
         for psana_event in self._event_source:

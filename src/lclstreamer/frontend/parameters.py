@@ -16,7 +16,7 @@ def load_configuration_parameters(
 
     Arguments:
 
-        filename: Path to the fil with the configuration parameters
+        filename: Path to a file storing the configuration parameters
 
     Returns:
 

@@ -1,4 +1,4 @@
-site_name: LCLStream
+site_name: "LCLStreamer: Data Retrieval and Streaming at LCLS"
 markdown_extensions:
     - pymdownx.highlight:
           anchor_linenums: true
@@ -10,8 +10,18 @@ markdown_extensions:
           custom_fences:
               - name: mermaid
                 class: mermaid
-                format: "!!python/name:pymdownx.superfences.fence_code_format"
+                format: !!python/name:pymdownx.superfences.fence_code_format
 theme:
     name: material
     features:
         - content.code.copy
+nav:
+    - "Introduction": index.md
+    - "Introduction: LCLStreamer Data Workflow": lclstreamer_data_workflow.md
+    - "Installation / Running": installation_running.md
+    - "Configuration": configuration.md
+    - "Configuration: Event Sources": configuration_event_sources.md
+    - "Configuration: Processing Pipelines": configuration_processing_pipelines.md
+    - "Configuration: Data Serializers": configuration_data_serializers.md
+    - "Configuration: Data Handlers": configuration_data_handlers.md
+    - "Configuration: Data Sources": configuration_data_sources.md

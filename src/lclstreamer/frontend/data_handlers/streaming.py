@@ -16,7 +16,7 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
         """
         Initializes a binary data streaming data handler
 
-        This data handler streams a byte object over a Zmq or Nng socket.
+        This data handler sends a byte object through a ZMQ or NNG socket.
 
         Arguments:
 
@@ -40,7 +40,7 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
 
     def handle_data(self, data: bytes) -> None:
         """
-        Stream a bytes object through a Zmq or Nng socket.
+        Stream a bytes object through a ZMQ or NNG socket.
 
         Arguments:
 
@@ -58,7 +58,7 @@ class BinaryStreamingPushDataHandlerNng:
         self, data_handler_parameters: BinaryDataStreamingDataHandlerParameters
     ):
         """
-        Initializes an Nng binary data streaming socket
+        Initializes an NNG binary data streaming socket
 
         Arguments:
 
@@ -82,7 +82,7 @@ class BinaryStreamingPushDataHandlerNng:
 
     def handle_data(self, data: bytes) -> None:
         """
-        Sends a binary object through the Nng socket
+        Sends a binary object through the NNG socket
 
         Arguments:
 
@@ -103,7 +103,7 @@ class BinaryStreamingPushDataHandlerZmq:
         self, data_handler_parameters: BinaryDataStreamingDataHandlerParameters
     ):
         """
-        Initializes a Zmq binary data streaming socket
+        Initializes a ZMQ binary data streaming socket
 
         Arguments:
 
@@ -128,7 +128,7 @@ class BinaryStreamingPushDataHandlerZmq:
 
     def handle_data(self, data: bytes) -> None:
         """
-        Sends a binary object through the Nng socket
+        Sends a binary object through the ZMQ socket
 
         Arguments:
 

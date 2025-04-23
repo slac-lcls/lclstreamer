@@ -75,7 +75,7 @@ def data_counter(data: bytes) -> int:
 
     Returns:
 
-        size: The size fo the input data in bytes
+        size: The size of the data in bytes
     """
     return len(data)
 
@@ -99,10 +99,10 @@ def main(
     ] = 0,
 ) -> None:
     """
-    An application that retrieves event data from an event source, serializes it,
-    and passes it to a series of data handlers that stores it or streams it. The
-    event source, serialization strategy, and specific data handlers can be defined
-    by the user.
+    An application that retrieves data from an event source, processes it, serializes
+    it, and passes it to a series of data handlers that forwards it to external
+    applications. The event source, data processing, serialization strategy, and
+    further data handling are defined by a configuration file.
     """
     # 1. Read and recover configuration parameters
     mpi_size: int = MPI.COMM_WORLD.Get_size()

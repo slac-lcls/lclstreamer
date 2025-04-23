@@ -8,7 +8,7 @@ def initialize_data_handlers(
     parameters: Parameters,
 ) -> list[DataHandlerProtocol]:
     """
-    Initializes the data handlers specified by the configuration parameters
+    Initializes the Data Handlers specified by the configuration parameters
 
     Arguments:
 
@@ -16,7 +16,7 @@ def initialize_data_handlers(
 
     Returns:
 
-        data_handlers: a list of initialized DataHandlers
+        data_handlers: a list of initialized Data Handlers
     """
     lclstreamer_parameters: LclstreamerParameters = parameters.lclstreamer
 

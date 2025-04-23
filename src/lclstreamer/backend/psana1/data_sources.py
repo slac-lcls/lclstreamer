@@ -32,7 +32,7 @@ class Psana1Timestamp(DataSourceProtocol):
 
     def get_data(self, event: Any) -> NDArray[numpy.float_]:
         """
-        Retrieves timestamp information for an event
+        Retrieves timestamp information from an event
 
         Arguments:
 
@@ -40,7 +40,7 @@ class Psana1Timestamp(DataSourceProtocol):
 
         Returns:
 
-            timestamp: a 1D numpy array of type float64 containing the timestamp
+            timestamp: a 1D numpy array (of type float64) containing the timestamp
             information
         """
         psana_event_id: Any = event.get(
@@ -65,7 +65,7 @@ class Psana1AreaDetector(DataSourceProtocol):
         parameters: DataSourceParameters,
     ):
         """
-        Initializes a psana1 Timestamp data source.
+        Initializes a psana1 area detector data source.
 
         Arguments:
 
@@ -99,7 +99,7 @@ class Psana1AreaDetector(DataSourceProtocol):
 
     def get_data(self, event: Any) -> NDArray[numpy.float_]:
         """
-        Retrieves a detector frame an event
+        Retrieves a detector frame from an event
 
         Arguments:
 
@@ -107,7 +107,7 @@ class Psana1AreaDetector(DataSourceProtocol):
 
          Returns:
 
-            timestamp: A 2d numpy array of storing the detector frame as a
-            grayscale image
+            timestamp: A 2d numpy array storing the detector frame as a grayscale
+            image
         """
         return numpy.array(self._data_retrieval_function(event), dtype=numpy.float_)

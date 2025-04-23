@@ -24,7 +24,7 @@ def rate_clock(
 
     Returns:
 
-        clock: the values of the clock at the current stop of the stream
+        clock: the values of the clock at the current step of the stream
     """
     t = time()
     return {
@@ -37,10 +37,10 @@ def rate_clock(
 
 def clock() -> Stream[Any, Any]:
     """
-    Returns a rate - clock counting from now.
+    Returns a rate clock counting from now.
 
-    This transforms a stream of counts into a stream
-    of dicts(describing the count rate).
+    This transforms a stream of counts into a stream of dicts(describing the count
+    rate).
 
     Returns:
 
