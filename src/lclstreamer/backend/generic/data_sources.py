@@ -56,7 +56,7 @@ class GenericRandomNumpyArray(DataSourceProtocol):
 
     def get_data(self, event: Any) -> NDArray[numpy.float_ | numpy.int_]:
         """
-        Retrieves timestamp information from an event
+        Retrieves an array of int of float random numbers
 
         Arguments:
 
@@ -64,10 +64,10 @@ class GenericRandomNumpyArray(DataSourceProtocol):
 
         Returns:
 
-            timestamp: a 1D numpy array (of type float64) containing the timestamp
-            information
+            random: an array of the type and size requested by the user, containing
+            random data (of integer or floating type)
         """
-
+        del event
         if numpy.issubdtype(self._array_dtype, numpy.integer):
             return numpy.random.randint(low=0, high=255, size=self._array_shape).astype(
                 self._array_dtype
