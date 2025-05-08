@@ -51,7 +51,9 @@ class GenericRandomNumpyArray(DataSourceProtocol):
                 extra_parameters["array_dtype"]
             )
         except TypeError:
-            log.error(f"Dtype {self._array_dtype} is not available in numpy")
+            log.error(
+                f"Dtype {extra_parameters['array_dtype']} is not available in numpy"
+            )
             sys.exit(1)
 
     def get_data(self, event: Any) -> NDArray[numpy.float_ | numpy.int_]:
