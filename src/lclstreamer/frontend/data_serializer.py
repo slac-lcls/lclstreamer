@@ -1,5 +1,8 @@
+import sys
+
 from ..models.parameters import LclstreamerParameters, Parameters
 from ..protocols.frontend import DataSerializerProtocol
+from ..utils.logging_utils import log
 from .data_serializers.file_formats import Hdf5Serializer  # noqa: F401
 
 
@@ -24,8 +27,9 @@ def initialize_data_serializer(
             lclstreamer_parameters.data_serializer
         ](parameters)
     except NameError:
-        raise RuntimeError(
+        log.error(
             f"Data serializer {lclstreamer_parameters.data_serializer} is "
             "not available"
         )
+        sys.exit(1)
     return data_serializer

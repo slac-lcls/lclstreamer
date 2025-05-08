@@ -1,3 +1,4 @@
+import sys
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -5,6 +6,7 @@ import numpy
 from numpy.typing import DTypeLike
 
 from ...protocols.backend import StrFloatIntNDArray
+from ...utils.logging_utils import log
 
 
 @dataclass
@@ -58,24 +60,27 @@ class DataStorage:
                 self._data_containers[data_source_name] = data_container
         else:
             if sorted(data.keys()) != sorted(self._data_containers.keys()):
-                raise RuntimeError(
+                log.error(
                     "The data labels in the current event do not match the labels "
                     "used to initialize the Data Storage container"
                 )
+                sys.exit(1)
             for data_source_name in data:
                 data_container = self._data_containers[data_source_name]
                 if data[data_source_name].dtype != data_container.dtype:
-                    raise RuntimeError(
+                    log.error(
                         f"The dtype of the data entry {data_source_name} in the "
                         "current event does not match the dtype of the data "
                         "with which this label was originally initialized"
                     )
+                    sys.exit(1)
                 if data[data_source_name].shape != data_container.shape:
-                    raise RuntimeError(
+                    log.error(
                         f"The shape of the data entry {data_source_name} in the "
                         "current event does not match the shape of the data "
                         "with which this label was originally initialized"
                     )
+                    sys.exit(1)
                 data_container.data.append(data[data_source_name])
 
     def retrieve_stored_data(self) -> dict[str, StrFloatIntNDArray]:
@@ -99,7 +104,6 @@ class DataStorage:
         for data_source_name in self._data_containers:
             stored_data[data_source_name] = numpy.stack(
                 self._data_containers[data_source_name].data,
-                dtype=self._data_containers[data_source_name].dtype,
             )
 
         return stored_data

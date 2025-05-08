@@ -1,4 +1,6 @@
 site_name: "LCLStreamer: Data Retrieval and Streaming at LCLS"
+site_url: https://slac-lcls.github.io/lclstreamer/
+repo_url: https://github.com/slac-lcls/lclstreamer
 markdown_extensions:
     - pymdownx.highlight:
           anchor_linenums: true
@@ -13,15 +15,20 @@ markdown_extensions:
                 format: !!python/name:pymdownx.superfences.fence_code_format
 theme:
     name: material
+    palette:
+        primary: deep purple
     features:
         - content.code.copy
+        - navigation.expand
 nav:
-    - "Introduction": index.md
-    - "Introduction: LCLStreamer Data Workflow": lclstreamer_data_workflow.md
+    - "LCLStreamer":
+          - "Introduction": index.md
+          - "LCLStreamer Data Workflow": lclstreamer_data_workflow.md
     - "Installation / Running": installation_running.md
-    - "Configuration": configuration.md
-    - "Configuration: Event Sources": configuration_event_sources.md
-    - "Configuration: Processing Pipelines": configuration_processing_pipelines.md
-    - "Configuration: Data Serializers": configuration_data_serializers.md
-    - "Configuration: Data Handlers": configuration_data_handlers.md
-    - "Configuration: Data Sources": configuration_data_sources.md
+    - "Configuration":
+          - "LCLStreamer": configuration_lclstreamer.md
+          - "Event Sources": configuration_event_sources.md
+          - "Processing Pipelines": configuration_processing_pipelines.md
+          - "Data Serializers": configuration_data_serializers.md
+          - "Data Handlers": configuration_data_handlers.md
+          - "Data Sources": configuration_data_sources.md

@@ -1,6 +1,5 @@
-from collections.abc import (
-    Generator,
-)
+import sys
+from collections.abc import Generator
 from typing import Any, cast
 
 from psana import DataSource, MPIDataSource  # type: ignore
@@ -12,6 +11,8 @@ from ...protocols.backend import (
     EventSourceProtocol,
     StrFloatIntNDArray,
 )
+from ...utils.logging_utils import log
+from ..generic.data_sources import GenericRandomNumpyArray
 from .data_sources import Psana1AreaDetector, Psana1Timestamp  # noqa: F401
 
 
@@ -69,10 +70,11 @@ class Psana1EventSource(EventSourceProtocol):
                     parameters=data_source_parameters[data_source_name],
                 )
             except NameError:
-                raise RuntimeError(
+                log.error(
                     f"Data source {data_source_name} is not available for backend "
                     "PsanaEventSource"
                 )
+                sys.exit(1)
 
     @source
     def get_events(

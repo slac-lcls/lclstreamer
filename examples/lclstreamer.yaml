@@ -1,12 +1,12 @@
 lclstreamer:
     source_identifier: exp=xpptut15:run=430
-    batch_size: 20
+    batch_size: 1
     event_source: Psana1EventSource
     processing_pipeline: NoOpProcessingPipeline
     data_serializer: Hdf5Serializer
     data_handlers:
         - BinaryFileWritingDataHandler
-        - BinaryDataStreamingDataHandler
+          #- BinaryDataStreamingDataHandler
 
 data_sources:
     timestamp:
@@ -17,6 +17,13 @@ data_sources:
         psana_name: Jungfrau1M
         calibration: true
 
+    random:
+        type: GenericRandomNumpyArray
+        array_shape: 4,4,4
+        array_dtype: int8
+
+
+
 event_source:
     Psana1EventSource: {}
 
@@ -26,10 +33,11 @@ processing_pipeline:
 data_serializer:
     Hdf5Serializer:
         compression_level: 3
-        compression: zfp
+        compression: null
         fields:
             timestamp: /data/timestamp
             detector_data: /data/data
+            random: /data/random
 
 data_handlers:
     BinaryFileWritingDataHandler:
@@ -39,7 +47,7 @@ data_handlers:
 
     BinaryDataStreamingDataHandler:
         urls:
-            - "tcp://127.0.0.1:12321"
+            - "tcp://sdfdtn003:5000"
         role: client
         library: nng
         socket_type: push

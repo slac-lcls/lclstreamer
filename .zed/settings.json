@@ -28,6 +28,9 @@
                     "diagnosticMode": "workspace",
                     "typeCheckingMode": "standard",
                     "pythonVersion": "3.11"
+                },
+                "python": {
+                    "pythonPath": ".pixi/envs/default/bin/python"
                 }
             }
         },
@@ -77,5 +80,7 @@
                 }
             ]
         }
-    }
+    },
+    "show_wrap_guides": true,
+    "wrap_guides": [88]
 }

@@ -1,3 +1,4 @@
+import sys
 from typing import Any, Union
 
 from pynng import ConnectionRefused, Push0  # type: ignore
@@ -5,6 +6,7 @@ from zmq import PUSH, Context, Socket, ZMQError
 
 from ...models.parameters import BinaryDataStreamingDataHandlerParameters, Parameters
 from ...protocols.frontend import DataHandlerProtocol
+from ...utils.logging_utils import log
 
 
 class BinaryDataStreamingDataHandler(DataHandlerProtocol):
@@ -23,9 +25,10 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
               parameters: The configuration parameters
         """
         if parameters.data_handlers.BinaryDataStreamingDataHandler is None:
-            raise RuntimeError(
-                "No configuration parameters found forBinaryStreamingPushDataHandler"
+            log.error(
+                "No configuration parameters found for BinaryStreamingPushDataHandler"
             )
+            sys.exit(1)
 
         data_handler_parameters: BinaryDataStreamingDataHandlerParameters = (
             parameters.data_handlers.BinaryDataStreamingDataHandler
@@ -75,10 +78,11 @@ class BinaryStreamingPushDataHandlerNng:
                 else:
                     self._socket.dial(url, block=True)
             except ConnectionRefused as err:
-                raise RuntimeError(
+                log.error(
                     f"Unable to connect to the URL {url} due to the following "
                     f"error: {err}"
                 )
+                sys.exit(1)
 
     def handle_data(self, data: bytes) -> None:
         """
@@ -121,10 +125,11 @@ class BinaryStreamingPushDataHandlerZmq:
                 else:
                     self._socket.connect(url)
             except ZMQError as err:
-                raise RuntimeError(
+                log.error(
                     f"Unable to connect to the URL {url} due to the following "
                     f"error: {err}"
                 )
+                sys.exit(1)
 
     def handle_data(self, data: bytes) -> None:
         """

@@ -39,7 +39,7 @@ format and final destination (a file, a network socket) of the processed data.
 * Please see how to install and run LCLStreamer here:
   [Installation / Running](installation_running.md)
 
-* Please see how to configure LCLStreamer here: [Configuration](configuration.md)
+* Please see how to configure LCLStreamer here: [Configuration](configuration_lclstreamer.md)
 
 * For an in-depth discussion of the data flow through the LCLStreamer application, please
   see here: [LCLStreamer Data Workflow](lclstreamer_data_workflow.md)

@@ -17,7 +17,7 @@ from ..frontend.data_handling import initialize_data_handlers
 from ..frontend.data_serializer import initialize_data_serializer
 from ..frontend.parameters import load_configuration_parameters
 from ..frontend.processing_pipeline import initialize_processing_pipeline
-from ..frontend.stream_utils import clock
+from ..utils.stream_utils import clock
 from ..models.parameters import LclstreamerParameters, Parameters
 from ..protocols.backend import EventSourceProtocol, StrFloatIntNDArray
 from ..protocols.frontend import (

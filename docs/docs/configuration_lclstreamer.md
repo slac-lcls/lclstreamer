@@ -1,6 +1,6 @@
-# Configuration
+# Configuration: LCLStreamer
 
-## Configuring LCLStreamer
+## Configuring the LCLStreamer Application
 
 The behavior of the LCLStreamer application is fully determined by the content of its
 configuration file. This file determines which implementation of the different

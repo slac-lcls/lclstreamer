@@ -10,8 +10,7 @@ class CustomBaseModel(BaseModel):
     )
 
 
-class Psana1EventSourceParameters(CustomBaseModel):
-    ...  # noqa: E701
+class Psana1EventSourceParameters(CustomBaseModel): ...  # noqa: E701
 
 
 class HDF5SerializerParameters(CustomBaseModel):
@@ -28,8 +27,7 @@ class HDF5SerializerParameters(CustomBaseModel):
     fields: dict[str, str]
 
 
-class NoOpProcessingPipelineParameters(CustomBaseModel):
-    ...  # noqa: E701
+class NoOpProcessingPipelineParameters(CustomBaseModel): ...  # noqa: E701
 
 
 class BinaryDataStreamingDataHandlerParameters(CustomBaseModel):

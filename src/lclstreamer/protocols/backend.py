@@ -1,5 +1,5 @@
 from collections.abc import Generator
-from typing import Any, Union
+from typing import Any
 
 import numpy
 from numpy.typing import NDArray
@@ -8,9 +8,7 @@ from typing_extensions import Protocol, TypeAlias
 
 from ..models.parameters import DataSourceParameters, Parameters
 
-StrFloatIntNDArray: TypeAlias = Union[
-    NDArray[numpy.str_], NDArray[numpy.float_], NDArray[numpy.int_]
-]
+StrFloatIntNDArray: TypeAlias = NDArray[numpy.str_ | numpy.float_ | numpy.int_]
 
 
 class EventSourceProtocol(Protocol):
@@ -23,7 +21,7 @@ class EventSourceProtocol(Protocol):
         parameters: Parameters,
         worker_pool_size: int,
         worker_rank: int,
-    ) -> None:
+    ):
         """
         Initializes the event source
         """

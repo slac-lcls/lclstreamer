@@ -1,8 +1,10 @@
+import sys
 from pathlib import Path
 from socket import gethostname
 
 from ...models.parameters import BinaryFileWritingDataHandlerParameters, Parameters
 from ...protocols.frontend import DataHandlerProtocol
+from ...utils.logging_utils import log
 
 
 class BinaryFileWritingDataHandler(DataHandlerProtocol):
@@ -22,9 +24,10 @@ class BinaryFileWritingDataHandler(DataHandlerProtocol):
               parameters: The configuration parameters
         """
         if parameters.data_handlers.BinaryFileWritingDataHandler is None:
-            raise RuntimeError(
+            log.error(
                 "No configuration parameters found for BinaryFileWritingDataHandler"
             )
+            sys.exit(1)
 
         data_handler_parameters: BinaryFileWritingDataHandlerParameters = (
             parameters.data_handlers.BinaryFileWritingDataHandler

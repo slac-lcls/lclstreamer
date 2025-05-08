@@ -1,5 +1,8 @@
+import sys
+
 from ..models.parameters import LclstreamerParameters, Parameters
 from ..protocols.backend import EventSourceProtocol
+from ..utils.logging_utils import log
 from .psana1.event_sources import Psana1EventSource  # noqa: F401
 
 
@@ -34,7 +37,8 @@ def initialize_event_source(
             worker_rank=worker_rank,
         )
     except NameError:
-        raise RuntimeError(
+        log.error(
             f"Event source {lclstreamer_parameters.event_source} is not available"
         )
+        sys.exit(1)
     return event_source

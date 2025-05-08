@@ -1,3 +1,4 @@
+import sys
 from typing import Any, Callable, Optional
 
 import numpy
@@ -6,6 +7,7 @@ from psana import Detector, EventId  # type: ignore
 
 from ...models.parameters import DataSourceParameters
 from ...protocols.backend import DataSourceProtocol
+from ...utils.logging_utils import log
 
 
 class Psana1Timestamp(DataSourceProtocol):
@@ -76,17 +78,14 @@ class Psana1AreaDetector(DataSourceProtocol):
         extra_parameters: Optional[dict[str, Any]] = parameters.__pydantic_extra__
 
         if extra_parameters is None:
-            raise RuntimeError(
-                f"Entries needed by the {name} data source are not defined"
-            )
+            log.error(f"Entries needed by the {name} data source are not defined")
+            sys.exit(1)
         if "psana_name" not in extra_parameters:
-            raise RuntimeError(
-                f"Entry 'psana_name' is not defined for data source {name}"
-            )
+            log.error(f"Entry 'psana_name' is not defined for data source {name}")
+            sys.exit(1)
         if "calibration" not in extra_parameters:
-            raise RuntimeError(
-                f"Entry 'calibration' is not defined for data source {name}"
-            )
+            log.error(f"Entry 'calibration' is not defined for data source {name}")
+            sys.exit(1)
 
         detector_interface: Any = Detector(extra_parameters["psana_name"])
 

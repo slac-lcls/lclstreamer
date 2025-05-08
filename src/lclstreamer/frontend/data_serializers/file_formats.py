@@ -1,3 +1,4 @@
+import sys
 from io import BytesIO
 from typing import Any
 
@@ -7,6 +8,7 @@ import hdf5plugin  # type: ignore
 from ...models.parameters import HDF5SerializerParameters, Parameters
 from ...protocols.backend import StrFloatIntNDArray
 from ...protocols.frontend import DataSerializerProtocol
+from ...utils.logging_utils import log
 
 
 class Hdf5Serializer(DataSerializerProtocol):
@@ -27,7 +29,8 @@ class Hdf5Serializer(DataSerializerProtocol):
             parameters: The configuration parameters
         """
         if parameters.data_serializer.Hdf5Serializer is None:
-            raise RuntimeError("No configuration parameters found for Hdf5Serializer")
+            log.error("No configuration parameters found for Hdf5Serializer")
+            sys.exit(1)
 
         data_serializer_parameters: HDF5SerializerParameters = (
             parameters.data_serializer.Hdf5Serializer
@@ -84,10 +87,11 @@ class Hdf5Serializer(DataSerializerProtocol):
         ]
 
         if len(set(depth_of_data_blocks)) != 1:
-            raise RuntimeError(
+            log.error(
                 "The data blocks that should be written to the HDF5 file have"
                 "different depths"
             )
+            sys.exit(1)
 
         with BytesIO() as byte_block:
             with h5py.File(byte_block, "w") as fh:

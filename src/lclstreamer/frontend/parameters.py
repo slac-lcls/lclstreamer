@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 from typing import TextIO
 
@@ -6,6 +7,7 @@ from yaml.parser import ParserError  # type:ignore
 
 from ..models.parameters import Parameters
 from ..protocols.backend import StrFloatIntNDArray
+from ..utils.logging_utils import log
 
 
 def load_configuration_parameters(
@@ -23,22 +25,24 @@ def load_configuration_parameters(
         parameters: The configuration parameters
     """
     if not filename.exists():
-        raise RuntimeError(
+        log.error(
             f"Cannot read the configuration file {filename}: The file does not exist"
         )
+        sys.exit(1)
     try:
         open_file: TextIO
         with open(filename, "r") as open_file:
             yaml_parameters: dict[str, StrFloatIntNDArray] = safe_load(open_file)
     except OSError:
-        raise RuntimeError(
+        log.error(
             f"Cannot read the configuration file {filename}: Cannot open the file"
         )
-        # pyright: ignore[reportAttributeAccessIssue]
+        sys.exit(1)
     except ParserError:
-        raise RuntimeError(
+        log.error(
             f"Cannot read the configuration file {filename}: Cannot pare the file"
         )
+        sys.exit(1)
 
     parameters: Parameters = Parameters.model_validate(yaml_parameters)
 
