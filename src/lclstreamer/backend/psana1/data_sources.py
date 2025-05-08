@@ -110,3 +110,49 @@ class Psana1AreaDetector(DataSourceProtocol):
             image
         """
         return numpy.array(self._data_retrieval_function(event), dtype=numpy.float_)
+
+
+class Psana1DetectorInterface(DataSourceProtocol):
+    """
+    See documentation of the `__init__` function.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        parameters: DataSourceParameters,
+    ):
+        """
+        Initializes a psana1 Detaector Interface data source.
+
+        Arguments:
+
+            name: An identifier for the data source
+
+            parameters: The configuration parameters
+        """
+        extra_parameters: Optional[dict[str, Any]] = parameters.__pydantic_extra__
+
+        if extra_parameters is None:
+            log.error(f"Entries needed by the {name} data source are not defined")
+            sys.exit(1)
+        if "psana_name" not in extra_parameters:
+            log.error(f"Entry 'psana_name' is not defined for data source {name}")
+            sys.exit(1)
+
+        self._detector_interface: Any = Detector(extra_parameters["psana_name"])
+
+    def get_data(self, event: Any) -> NDArray[numpy.float_]:
+        """
+        Retrieves from an event data exposed via the Detector Interface
+
+        Arguments:
+
+            event: A psana1 event
+
+         Returns:
+
+            value: The value of the retrieved data in the format of a numpy float
+            array
+        """
+        return numpy.array(self._detector_interface(event), dtype=numpy.float_)

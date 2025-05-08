@@ -12,8 +12,12 @@ from ...protocols.backend import (
     StrFloatIntNDArray,
 )
 from ...utils.logging_utils import log
-from ..generic.data_sources import GenericRandomNumpyArray
-from .data_sources import Psana1AreaDetector, Psana1Timestamp  # noqa: F401
+from ..generic.data_sources import GenericRandomNumpyArray  # noqa: F401
+from .data_sources import (  # noqa: F401
+    Psana1AreaDetector,
+    Psana1DetectorInterface,
+    Psana1Timestamp,
+)
 
 
 class Psana1EventSource(EventSourceProtocol):

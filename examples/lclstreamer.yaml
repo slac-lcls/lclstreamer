@@ -20,9 +20,11 @@ data_sources:
     random:
         type: GenericRandomNumpyArray
         array_shape: 4,4,4
-        array_dtype: int8
+        array_dtype: float32
 
-
+    photon_wavelength:
+        type: Psana1DetectorInterface
+        psana_name: "SIOC:SYS0:ML00:AO192"
 
 event_source:
     Psana1EventSource: {}
@@ -33,11 +35,12 @@ processing_pipeline:
 data_serializer:
     Hdf5Serializer:
         compression_level: 3
-        compression: null
+        compression: zfp
         fields:
             timestamp: /data/timestamp
             detector_data: /data/data
             random: /data/random
+            photon_wavelength: /data/wavelength
 
 data_handlers:
     BinaryFileWritingDataHandler:
