@@ -2,6 +2,8 @@ import sys
 from pathlib import Path
 from socket import gethostname
 
+from mpi4py import MPI
+
 from ...models.parameters import BinaryFileWritingDataHandlerParameters, Parameters
 from ...protocols.frontend import DataHandlerProtocol
 from ...utils.logging_utils import log
@@ -33,7 +35,7 @@ class BinaryFileWritingDataHandler(DataHandlerProtocol):
             parameters.data_handlers.BinaryFileWritingDataHandler
         )
 
-        self._hostname: str = gethostname()
+        self._rank: int = MPI.COMM_WORLD.Get_rank()
         self._prefix: str = data_handler_parameters.file_prefix
         if self._prefix != "" and not self._prefix.endswith("_"):
             self._prefix = f"{self._prefix}_"
@@ -53,7 +55,7 @@ class BinaryFileWritingDataHandler(DataHandlerProtocol):
         """
         filename: Path = (
             self._write_directory
-            / f"{self._prefix}{self._hostname}_{self._file_counter}.{self._suffix}"
+            / f"{self._prefix}r{self._rank}_{self._file_counter}.{self._suffix}"
         )
 
         with open(filename, "wb") as fh:
