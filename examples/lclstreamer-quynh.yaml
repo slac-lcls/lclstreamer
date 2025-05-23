@@ -1,0 +1,64 @@
+lclstreamer:
+    source_identifier: exp=xpply5120:run=318
+    batch_size: 5
+    event_source: Psana1EventSource
+    processing_pipeline: NoOpProcessingPipeline
+    data_serializer: Hdf5Serializer
+    data_handlers:
+        #- BinaryFileWritingDataHandler
+        - BinaryDataStreamingDataHandler
+
+data_sources:
+    timestamp:
+        type: Psana1Timestamp
+
+    detector_data:
+        type: Psana1AreaDetector
+        psana_name: jungfrau1M
+        calibration: true
+
+    ipm2sum:
+        type: Psana1BbmonDetector
+        psana_name: XPP-SB2-BMMON
+        psana_function: TotalIntensity
+    
+    ipm3sum:
+        type: Psana1BbmonDetector
+        psana_name: XPP-SB3-BMMON
+        psana_function: TotalIntensity
+
+    diodeUchannel:
+        type: Psana1IpmDetector
+        psana_name: XppEnds_Ipm0
+        psana_function: channel
+
+
+event_source:
+    Psana1EventSource: {}
+
+processing_pipeline:
+    NoOpProcessingPipeline: {}
+
+data_serializer:
+    Hdf5Serializer:
+        compression_level: 3
+        compression: zfp
+        fields:
+            timestamp: /data/timestamp
+            detector_data: /data/data
+            ipm2sum: /data/ipm2sum
+            ipm3sum: /data/ipm3sum
+            diodeUchannel: /data/diodeuchannel
+
+data_handlers:
+    BinaryFileWritingDataHandler:
+        file_prefix: ""
+        file_suffix: h5
+        write_directory: /sdf/home/v/valmar/Projects/lclstreamer/workspace/output
+
+    BinaryDataStreamingDataHandler:
+        urls:
+            - "tcp://sdfdtn003:5000"
+        role: client
+        library: nng
+        socket_type: push
