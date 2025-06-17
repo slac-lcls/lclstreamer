@@ -65,7 +65,6 @@ class NoOpProcessingPipeline(ProcessingPipelineProtocol):
         results: dict[str, StrFloatIntNDArray] = (
             self._data_storage.retrieve_stored_data()
         )
-
         self._data_storage.reset_data_storage()
 
         return results

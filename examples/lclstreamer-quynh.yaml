@@ -4,6 +4,7 @@ lclstreamer:
     event_source: Psana1EventSource
     processing_pipeline: NoOpProcessingPipeline
     data_serializer: Hdf5Serializer
+    skip_incomplete_events: false
     data_handlers:
         #- BinaryFileWritingDataHandler
         - BinaryDataStreamingDataHandler
@@ -18,20 +19,37 @@ data_sources:
         calibration: true
 
     ipm2sum:
-        type: Psana1BbmonDetector
+        type: Psana1BbmonDetectorTotalIntensity
         psana_name: XPP-SB2-BMMON
-        psana_function: TotalIntensity
-    
+
     ipm3sum:
-        type: Psana1BbmonDetector
+        type: Psana1BbmonDetectorTotalIntensity
         psana_name: XPP-SB3-BMMON
-        psana_function: TotalIntensity
 
     diodeUchannel:
         type: Psana1IpmDetector
         psana_name: XppEnds_Ipm0
         psana_function: channel
 
+    timetool_ampl:
+        type: Psana1PV
+        psana_name: "XPP:TIMETOOL:AMPL"
+
+    timetool_delay:
+        type: Psana1PV
+        psana_name: "XPP:TIMETOOL:FLTPOS"
+
+    timetool_delay_ps:
+        type: Psana1PV
+        psana_name: "XPP:TIMETOOL:FLTPOS_PS"
+
+    usb_encoder02:
+        type: Psana1UsdUsbDetectorCount
+        psana_name: "XPP-USB-ENCODER-02"
+
+    evr_codes:
+        type: Psana1EvrCodes
+        psana_name: evr0
 
 event_source:
     Psana1EventSource: {}
@@ -49,6 +67,11 @@ data_serializer:
             ipm2sum: /data/ipm2sum
             ipm3sum: /data/ipm3sum
             diodeUchannel: /data/diodeuchannel
+            timetool_ampl: /data/timetoolampl
+            timetool_delay: /data/timetooldelay
+            timetool_delay_ps: /data/timetooldelayps
+            usb_encoder_2: /data/usbencoder2
+            evr_codes: /data/evrcodes
 
 data_handlers:
     BinaryFileWritingDataHandler:
@@ -58,7 +81,8 @@ data_handlers:
 
     BinaryDataStreamingDataHandler:
         urls:
-            - "tcp://sdfdtn003:5000"
+            #           - "tcp://sdfdtn003:5000"
+            - "tcp://127.0.0.1:12321"
         role: client
         library: nng
         socket_type: push

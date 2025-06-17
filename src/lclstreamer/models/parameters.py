@@ -55,6 +55,7 @@ class LclstreamerParameters(CustomBaseModel):
     processing_pipeline: str
     data_serializer: str
     data_handlers: list[str]
+    skip_incomplete_events: bool
 
 
 class EventSourceParameters(CustomBaseModel):

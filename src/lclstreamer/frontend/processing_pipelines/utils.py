@@ -43,7 +43,10 @@ class DataStorage:
         by a dictionary key label. The first time this function is called, it uses
         the incoming data to determine labels and dtypes of the numpy arrays to
         accumulate. All subsequent calls of the function will only accept data arrays
-        with the same labels and dtypes as the initial call.
+        with the same labels and dtypes as the initial call, or data whose value is
+        None. If the data value is None, this function will the missing data with
+        appropriate null values (numpy.NaN for float data, the number -999 for int
+        data, and the string "None" for str data)
 
         Arguments:
 
@@ -52,6 +55,12 @@ class DataStorage:
         if len(self._data_containers) == 0:
             data_source_name: str
             for data_source_name in data:
+                if data[data_source_name] is None:
+                    log.error(
+                        f"Data entry {data_source_name} was none in the first "
+                        "event. Impossible to determine data size"
+                    )
+                    sys.exit(1)
                 data_container = DataContainer(
                     data=[data[data_source_name]],
                     dtype=data[data_source_name].dtype,
@@ -67,6 +76,22 @@ class DataStorage:
                 sys.exit(1)
             for data_source_name in data:
                 data_container = self._data_containers[data_source_name]
+                if data[data_source_name] is None and data_container.shape is not None:
+                    if data_container.dtype == numpy.int_:
+                        data_container.data.append(
+                            numpy.full(data_container.shape, "-999")
+                        )
+                        continue
+                    elif data_container.dtype == numpy.float_:
+                        data_container.data.append(
+                            numpy.full(data_container.shape, numpy.NaN)
+                        )
+                        continue
+                    else:
+                        data_container.data.append(
+                            numpy.full(data_container.shape, "None")
+                        )
+                        continue
                 if data[data_source_name].dtype != data_container.dtype:
                     log.error(
                         f"The dtype of the data entry {data_source_name} in the "
@@ -111,4 +136,6 @@ class DataStorage:
     def reset_data_storage(self) -> None:
         "Resets the Data Storage container"
 
-        self._data_containers = {}
+        data_source_name: str
+        for data_source_name in self._data_containers:
+            self._data_containers[data_source_name].data = []

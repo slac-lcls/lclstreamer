@@ -17,7 +17,6 @@ from ..frontend.data_handling import initialize_data_handlers
 from ..frontend.data_serializer import initialize_data_serializer
 from ..frontend.parameters import load_configuration_parameters
 from ..frontend.processing_pipeline import initialize_processing_pipeline
-from ..utils.stream_utils import clock
 from ..models.parameters import LclstreamerParameters, Parameters
 from ..protocols.backend import EventSourceProtocol, StrFloatIntNDArray
 from ..protocols.frontend import (
@@ -25,6 +24,7 @@ from ..protocols.frontend import (
     DataSerializerProtocol,
     ProcessingPipelineProtocol,
 )
+from ..utils.stream_utils import clock
 
 app = typer.Typer()
 
@@ -111,12 +111,6 @@ def main(
     parameters: Parameters = load_configuration_parameters(filename=config)
     lclstreamer_parameters: LclstreamerParameters = parameters.lclstreamer
 
-    # # geometric sequence (1, 2, 4, ..., 512, 1024, 1024, ...)
-    # sizes = gseq(2) >> takewhile(lambda x: x < 1024)
-    # sizes << seq(1024, 0)  # pyright: ignore[reportUnusedExpression]
-
-    # 2. Initialize event source and data processing pipeline
-
     print(f"[Rank {mpi_rank}] Initializing event source....")
 
     source: EventSourceProtocol = initialize_event_source(
@@ -141,34 +135,22 @@ def main(
     data_handlers: list[DataHandlerProtocol] = initialize_data_handlers(parameters)
     print(f"[Rank {mpi_rank}] Inirializing data handlers: Done!")
 
-    # 3. Assemble the stream to execute
-
-    # - Start from a stream of data events (]ionaries)
-
     workflow: Source[dict[str, Any]] = source.get_events()
 
-    # - Start from a stream of (eventnum, event).
-    if num_events > 0:  # truncate to nshots?
+    if num_events > 0:
         workflow >>= take(num_events)
 
-    # - but don't pass items that contain any None-s.
-    #   (note: classes test as True)
-    workflow >>= filter_incomplete_events()
+    if lclstreamer_parameters.skip_incomplete_events is True:
+        workflow >>= filter_incomplete_events(max_consecutive=1)
 
     workflow >>= map(processing_pipeline.process_data)
 
-    # - Now chop the stream into lists of length n.
     workflow >>= chop(lclstreamer_parameters.batch_size)
 
     workflow >>= map(processing_pipeline.collect_results)
 
-    # - Now group those by increasing size and concatenate them.
-    # - This makes increasingly large groupings of the output data.
-    # s >>= chopper([1, 10, 100, 1000]) >> map(concat_batch) # TODO
-
     workflow >>= map(data_serializer.serialize_data)
 
-    # 5. The entire stream "runs" when connected to a sink:
     data_handler: DataHandlerProtocol
     for data_handler in data_handlers:
         workflow >>= tap(data_handler.handle_data)
