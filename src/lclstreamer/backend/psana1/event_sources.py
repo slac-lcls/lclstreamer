@@ -20,7 +20,7 @@ from .data_sources import (  # noqa: F401
     Psana1IpmDetector,
     Psana1PV,
     Psana1Timestamp,
-    Psana1UsdUsbDetectorCount,
+    Psana1UsdUsbDetector,
 )
 
 
@@ -105,6 +105,6 @@ class Psana1EventSource(EventSourceProtocol):
                     data[data_source_name] = self._data_sources[
                         data_source_name
                     ].get_data(event=psana_event)
-                except TypeError:
+                except (TypeError, AttributeError):
                     data[data_source_name] = None
             yield data

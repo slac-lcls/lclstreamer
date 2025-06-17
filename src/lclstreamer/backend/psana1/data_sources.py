@@ -209,13 +209,9 @@ class Psana1BbmonDetectorTotalIntensity(DataSourceProtocol):
             value: The value of the retrieved data in the format of a numpy float
             array
         """
-        bbmon_detector_data: Any = self._detector_interface.get(event)
-        if bbmon_detector_data is None:
-            raise TypeError
-        else:
-            return numpy.array(
-                self._detector_interface.get(event).TotalIntensity(), dtype=numpy.float_
-            )
+        return numpy.array(
+            self._detector_interface.get(event).TotalIntensity(), dtype=numpy.float_
+        )
 
 
 class Psana1IpmDetector(DataSourceProtocol):
@@ -342,7 +338,7 @@ class Psana1EvrCodes(DataSourceProtocol):
         )
 
 
-class Psana1UsdUsbDetectorCount(DataSourceProtocol):
+class Psana1UsdUsbDetector(DataSourceProtocol):
     """
     See documentation of the `__init__` function.
     """
@@ -353,7 +349,7 @@ class Psana1UsdUsbDetectorCount(DataSourceProtocol):
         parameters: DataSourceParameters,
     ):
         """
-        Initializes a psana1 UsbUsbDetector data source.
+        Initializes a psana1 UsdUsbDetector data source.
 
         Arguments:
 
@@ -369,10 +365,19 @@ class Psana1UsdUsbDetectorCount(DataSourceProtocol):
         if "psana_name" not in extra_parameters:
             log.error(f"Entry 'psana_name' is not defined for data source {name}")
             sys.exit(1)
+        if "psana_function" not in extra_parameters:
+            log.error(f"Entry 'psana_function' is not defined for data source {name}")
+            sys.exit(1)
+        if extra_parameters["psana_function"] not in ("values"):
+            log.error(
+                f"Currently only the 'channel' psana_functions is supported "
+                "(data source {name})"
+            )
+            sys.exit(1)
+        detector_interface: Any = Detector(extra_parameters["psana_name"])
+        self._data_retrieval_function: Callable[[Any], Any] = detector_interface.values
 
-        self._detector_interface: Any = Detector(extra_parameters["psana_name"])
-
-    def get_data(self, event: Any) -> NDArray[numpy.int_]:
+    def get_data(self, event: Any) -> NDArray[numpy.float_]:
         """
         Retrieves UsdUsbDetector data from an event
 
@@ -385,10 +390,4 @@ class Psana1UsdUsbDetectorCount(DataSourceProtocol):
             value: The value of the retrieved data in the format of a numpy float
             array
         """
-        bbmon_detector_data: Any = self._detector_interface.get(event)
-        if bbmon_detector_data is None:
-            raise TypeError
-        else:
-            return numpy.array(
-                self._detector_interface.get(event).encoder_count(), dtype=numpy.int_
-            )
+        return numpy.array(self._data_retrieval_function(event), dtype=numpy.float_)

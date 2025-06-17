@@ -44,8 +44,9 @@ data_sources:
         psana_name: "XPP:TIMETOOL:FLTPOS_PS"
 
     usb_encoder02:
-        type: Psana1UsdUsbDetectorCount
+        type: Psana1UsdUsbDetector
         psana_name: "XPP-USB-ENCODER-02"
+        psana_function: values
 
     evr_codes:
         type: Psana1EvrCodes
