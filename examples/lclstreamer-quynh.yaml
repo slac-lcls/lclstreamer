@@ -1,13 +1,13 @@
 lclstreamer:
     source_identifier: exp=xpply5120:run=318
-    batch_size: 5
+    batch_size: 100
     event_source: Psana1EventSource
     processing_pipeline: NoOpProcessingPipeline
     data_serializer: Hdf5Serializer
     skip_incomplete_events: false
     data_handlers:
-        #- BinaryFileWritingDataHandler
-        - BinaryDataStreamingDataHandler
+        - BinaryFileWritingDataHandler
+        #- BinaryDataStreamingDataHandler
 
 data_sources:
     timestamp:
@@ -76,9 +76,9 @@ data_serializer:
 
 data_handlers:
     BinaryFileWritingDataHandler:
-        file_prefix: ""
+        file_prefix: "xpply5120-run31"
         file_suffix: h5
-        write_directory: /sdf/home/v/valmar/Projects/lclstreamer/workspace/output
+        write_directory: /sdf/data/lcls/ds/xpp/xpply5120/results/valmar/lclstreamer 
 
     BinaryDataStreamingDataHandler:
         urls:
