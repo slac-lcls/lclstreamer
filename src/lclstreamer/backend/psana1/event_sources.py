@@ -1,6 +1,6 @@
 import sys
 from collections.abc import Generator
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from psana import DataSource, MPIDataSource  # type: ignore
 from stream.core import source
@@ -15,6 +15,7 @@ from ...utils.logging_utils import log
 from ..generic.data_sources import GenericRandomNumpyArray  # noqa: F401
 from .data_sources import (  # noqa: F401
     Psana1AreaDetector,
+    Psana1AssembledAreaDetector,
     Psana1BbmonDetectorTotalIntensity,
     Psana1EvrCodes,
     Psana1IpmDetector,
@@ -87,17 +88,17 @@ class Psana1EventSource(EventSourceProtocol):
     @source
     def get_events(
         self,
-    ) -> Generator[dict[str, Optional[StrFloatIntNDArray]]]:
+    ) -> Generator[dict[str, StrFloatIntNDArray | None]]:
         """
         Retrieves an event from the data source
 
         Returns:
 
-            data: A dictionary storing data for a an event
+            data: A dictionary storing data for an event
         """
         psana_event: Any
         for psana_event in self._event_source:
-            data: dict[str, Optional[StrFloatIntNDArray]] = {}
+            data: dict[str, StrFloatIntNDArray | None] = {}
 
             data_source_name: str
             for data_source_name in self._data_sources:

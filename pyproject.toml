@@ -23,6 +23,7 @@ profile = "black"
 [tool.mypy]
 show_error_codes = true
 python_version = 3.11
+python_executable = ".pixi/envs/default/bin/python"
 
 [tool.pixi.activation]
 scripts = ["activation.sh"]

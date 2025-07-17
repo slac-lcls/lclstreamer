@@ -9,8 +9,8 @@ from typing import (
 
 import typer
 from mpi4py import MPI
-from stream.core import Source, stream
-from stream.ops import chop, map, take, tap
+from stream.core import stream  # type: ignore
+from stream.ops import chop, map, take, tap  # type: ignore
 
 from ..backend.event_source import initialize_event_source
 from ..frontend.data_handling import initialize_data_handlers
@@ -31,10 +31,13 @@ app = typer.Typer()
 
 @stream
 def filter_incomplete_events(
-    events: Iterator[dict[str, StrFloatIntNDArray]], max_consecutive: int = 100
-) -> Iterator[dict[str, StrFloatIntNDArray]]:
+    events: Iterator[dict[str, StrFloatIntNDArray | None]], max_consecutive: int = 100
+) -> Iterator[dict[str, StrFloatIntNDArray | None]]:
     """
-    A stream function that drops events that are incomplete
+    Ddrops events that are incomplete
+
+    Incomplete events are events where the retrieval of one or more data items
+    failed.
 
     Arguments:
 
@@ -44,25 +47,22 @@ def filter_incomplete_events(
 
         events: An event iterator
     """
-    errs = []
     consecutive: int = 0
     ev_num: int = 0
+    num_dropped: int = 0
     for ev_num, event in enumerate(events):
-        failed: list[str] = [key for key in event.keys() if event[key] is None]
-        if len(failed) == 0:
+        if None not in event.values():
             yield event
             consecutive = 0
             continue
         consecutive += 1
-        errs.append(failed)
+        num_dropped += 1
         if consecutive >= max_consecutive:
             break
     if consecutive >= max_consecutive:
         print(f"Stopping early at event {ev_num} after {consecutive} errors")
         print("Failed detector list:")
-        for e in errs:
-            print(errs[-consecutive:])
-    print(f"Processed {ev_num} events with {len(errs)} dropped.")
+    print(f"Processed {ev_num} events with {num_dropped} dropped")
 
 
 def data_counter(data: bytes) -> int:
@@ -135,7 +135,7 @@ def main(
     data_handlers: list[DataHandlerProtocol] = initialize_data_handlers(parameters)
     print(f"[Rank {mpi_rank}] Inirializing data handlers: Done!")
 
-    workflow: Source[dict[str, Any]] = source.get_events()
+    workflow: Any = source.get_events()
 
     if num_events > 0:
         workflow >>= take(num_events)

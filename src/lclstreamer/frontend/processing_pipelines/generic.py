@@ -33,7 +33,7 @@ class NoOpProcessingPipeline(ProcessingPipelineProtocol):
 
         Arguments:
 
-            data: A dictionary storing data for a single event
+            data: A dictionary storing data belonging to a data event.
 
         Returns:
 
@@ -51,16 +51,17 @@ class NoOpProcessingPipeline(ProcessingPipelineProtocol):
         Retrieved the accumulated processing results
 
         Since this is a NoOp processing pipeline, this function simply
-        returns the unprocessed data that was accumulated by the pipeline
+        returns the unprocessed data items that was accumulated by the
+        pipeline
 
         Arguments:
 
-            data: A dictionary storing data for a single event. This is
-                ignored
+            data: A dictionary storing data belonging to a data event.
+                (ignored by the function)
 
         Returns:
 
-            data: A dictionary storing the accumulated data
+            data: A dictionary storing the retrieved accumulated data
         """
         results: dict[str, StrFloatIntNDArray] = (
             self._data_storage.retrieve_stored_data()

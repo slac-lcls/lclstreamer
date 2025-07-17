@@ -43,7 +43,7 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
 
     def handle_data(self, data: bytes) -> None:
         """
-        Stream a bytes object through a ZMQ or NNG socket.
+        Stream a bytes object through the network socket.
 
         Arguments:
 
@@ -102,7 +102,6 @@ class BinaryStreamingPushDataHandlerNng:
 
 
 class BinaryStreamingPushDataHandlerZmq:
-
     def __init__(
         self, data_handler_parameters: BinaryDataStreamingDataHandlerParameters
     ):

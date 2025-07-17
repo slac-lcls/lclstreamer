@@ -95,12 +95,9 @@ class Hdf5Serializer(DataSerializerProtocol):
 
         with BytesIO() as byte_block:
             with h5py.File(byte_block, "w") as fh:
-
                 data_block_name: str
                 for data_block_name in data:
-
                     if data_block_name in self._hdf5_fields:
-
                         fh.create_dataset(
                             name=self._hdf5_fields[data_block_name],
                             shape=data[data_block_name].shape,

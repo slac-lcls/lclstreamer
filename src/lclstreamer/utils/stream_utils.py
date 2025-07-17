@@ -4,12 +4,14 @@ from typing import Any, Callable, Union
 from stream.core import Stream
 from stream.ops import fold
 
-clock0: Callable[[], dict[str, Union[int, float]]] = lambda: {
-    "count": 0,
-    "size": 0,
-    "wait": 0,
-    "time": time(),
-}
+
+def clock0() -> dict[str, Union[int, float]]:
+    return {
+        "count": 0,
+        "size": 0,
+        "wait": 0,
+        "time": time(),
+    }
 
 
 def rate_clock(

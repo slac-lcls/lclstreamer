@@ -1,8 +1,8 @@
 import sys
-from typing import Any, Optional
+from typing import Any
 
 import numpy
-from numpy.typing import DTypeLike, NDArray
+from numpy.typing import NDArray
 
 from ...models.parameters import DataSourceParameters
 from ...protocols.backend import DataSourceProtocol
@@ -28,7 +28,7 @@ class GenericRandomNumpyArray(DataSourceProtocol):
 
             parameters: The configuration parameters
         """
-        extra_parameters: Optional[dict[str, Any]] = parameters.__pydantic_extra__
+        extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
         if extra_parameters is None:
             log.error(f"Entries needed by the {name} data source are not defined")
             sys.exit(1)
@@ -67,7 +67,7 @@ class GenericRandomNumpyArray(DataSourceProtocol):
         Returns:
 
             random: an array of the type and size requested by the user, containing
-            random data (of integer or floating type)
+            random data (either of integer or floating type)
         """
         del event
         if numpy.issubdtype(self._array_dtype, numpy.integer):

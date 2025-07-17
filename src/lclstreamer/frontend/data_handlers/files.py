@@ -1,6 +1,5 @@
 import sys
 from pathlib import Path
-from socket import gethostname
 
 from mpi4py import MPI
 
@@ -18,8 +17,7 @@ class BinaryFileWritingDataHandler(DataHandlerProtocol):
         """
         Initializes a binary file writing data handler
 
-        This data handler writes a byte object to the filesystem as a single
-        file.
+        This data handler writes byte objects to the filesystem as a files.
 
         Arguments:
 

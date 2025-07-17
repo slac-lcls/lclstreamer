@@ -19,7 +19,7 @@ def initialize_data_handlers(
 
     Returns:
 
-        data_handlers: a list of initialized Data Handlers
+        data_handlers: A list of initialized Data Handlers
     """
     lclstreamer_parameters: LclstreamerParameters = parameters.lclstreamer
 

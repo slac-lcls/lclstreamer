@@ -262,7 +262,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/6b/11/cc635220681e93a0183390e26485430ca2c7b5f9d33b15c74c2861cb8091/urllib3-2.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b5/e8/dbf020b4d98251a9860752a094d09a65e1b436ad181faf929983f697048f/watchdog-6.0.0-py3-none-manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b7/1a/7e4798e9339adc931158c9d69ecc34f5e6791489d469f5e50ec15e35f458/zipp-3.21.0-py3-none-any.whl
-      - pypi: .
+      - pypi: ./
 packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
   sha256: fe51de6107f9edc7aa4f786a70f4a883943bc9d39b3bb7307c04c41410990726
@@ -1001,10 +1001,10 @@ packages:
   purls: []
   size: 508258
   timestamp: 1664996250081
-- pypi: .
+- pypi: ./
   name: lclstreamer
   version: 0.1.0
-  sha256: ba5943f63024db0302746108bc2047074ec79d3ffb89de33b7af21b05ac2b5cc
+  sha256: 20d98ad4f617a2fa500557dbe64be7d01050d182c5b5dbdb5c6ae529b79908f7
   requires_dist:
   - typer>=0.15.2,<0.16
   - numpy

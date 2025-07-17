@@ -12,7 +12,7 @@ from ...utils.logging_utils import log
 @dataclass
 class DataContainer:
     """
-    Dataclass used for storing accumulated numpy arrays
+    Dataclass used to store accumulated numpy arrays
     """
 
     data: list[StrFloatIntNDArray] = field(default_factory=list)
@@ -35,17 +35,17 @@ class DataStorage:
 
         self._data_containers: dict[str, DataContainer] = {}
 
-    def add_data(self, data: dict[str, StrFloatIntNDArray]) -> None:
+    def add_data(self, data: dict[str, StrFloatIntNDArray | None]) -> None:
         """
         Adds data to the Data Storage object
 
         The function takes a dictionary storing numpy arrays, each identified
-        by a dictionary key label. The first time this function is called, it uses
+        by a dictionary key label. When called for the first time, it uses
         the incoming data to determine labels and dtypes of the numpy arrays to
         accumulate. All subsequent calls of the function will only accept data arrays
         with the same labels and dtypes as the initial call, or data whose value is
-        None. If the data value is None, this function will the missing data with
-        appropriate null values (numpy.NaN for float data, the number -999 for int
+        None. If the data value is None, this function will the fill the missing data
+        with appropriate null values (numpy.NaN for float data, the number -999 for int
         data, and the string "None" for str data)
 
         Arguments:
@@ -55,18 +55,20 @@ class DataStorage:
         if len(self._data_containers) == 0:
             data_source_name: str
             for data_source_name in data:
-                if data[data_source_name] is None:
+                data_value: StrFloatIntNDArray | None = data[data_source_name]
+                if data_value is None:
                     log.error(
                         f"Data entry {data_source_name} was none in the first "
                         "event. Impossible to determine data size"
                     )
                     sys.exit(1)
-                data_container = DataContainer(
-                    data=[data[data_source_name]],
-                    dtype=data[data_source_name].dtype,
-                    shape=data[data_source_name].shape,
-                )
-                self._data_containers[data_source_name] = data_container
+                else:
+                    data_container = DataContainer(
+                        data=[data_value],
+                        dtype=data_value.dtype,
+                        shape=data_value.shape,
+                    )
+                    self._data_containers[data_source_name] = data_container
         else:
             if sorted(data.keys()) != sorted(self._data_containers.keys()):
                 log.error(
@@ -75,38 +77,41 @@ class DataStorage:
                 )
                 sys.exit(1)
             for data_source_name in data:
+                data_value = data[data_source_name]
                 data_container = self._data_containers[data_source_name]
-                if data[data_source_name] is None and data_container.shape is not None:
-                    if data_container.dtype == numpy.int_:
-                        data_container.data.append(
-                            numpy.full(data_container.shape, "-999")
+                if data_value is None:
+                    if data_container.shape is not None:
+                        if data_container.dtype == numpy.int_:
+                            data_container.data.append(
+                                numpy.full(data_container.shape, "-999")
+                            )
+                            continue
+                        elif data_container.dtype == numpy.float_:
+                            data_container.data.append(
+                                numpy.full(data_container.shape, numpy.NaN)
+                            )
+                            continue
+                        else:
+                            data_container.data.append(
+                                numpy.full(data_container.shape, "None")
+                            )
+                            continue
+                else:
+                    if data_value.dtype != data_container.dtype:
+                        log.error(
+                            f"The dtype of the data entry {data_source_name} in the "
+                            "current event does not match the dtype of the data "
+                            "with which this label was originally initialized"
                         )
-                        continue
-                    elif data_container.dtype == numpy.float_:
-                        data_container.data.append(
-                            numpy.full(data_container.shape, numpy.NaN)
+                        sys.exit(1)
+                    if data_value.shape != data_container.shape:
+                        log.error(
+                            f"The shape of the data entry {data_source_name} in the "
+                            "current event does not match the shape of the data "
+                            "with which this label was originally initialized"
                         )
-                        continue
-                    else:
-                        data_container.data.append(
-                            numpy.full(data_container.shape, "None")
-                        )
-                        continue
-                if data[data_source_name].dtype != data_container.dtype:
-                    log.error(
-                        f"The dtype of the data entry {data_source_name} in the "
-                        "current event does not match the dtype of the data "
-                        "with which this label was originally initialized"
-                    )
-                    sys.exit(1)
-                if data[data_source_name].shape != data_container.shape:
-                    log.error(
-                        f"The shape of the data entry {data_source_name} in the "
-                        "current event does not match the shape of the data "
-                        "with which this label was originally initialized"
-                    )
-                    sys.exit(1)
-                data_container.data.append(data[data_source_name])
+                        sys.exit(1)
+                    data_container.data.append(data_value)
 
     def retrieve_stored_data(self) -> dict[str, StrFloatIntNDArray]:
         """
