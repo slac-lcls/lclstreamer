@@ -14,9 +14,8 @@ data_sources:
         type: Psana1Timestamp
 
     detector_data:
-        type: Psana1AreaDetector
+        type: Psana1AssembledAreaDetector
         psana_name: jungfrau1M
-        calibration: true
 
     ipm2sum:
         type: Psana1BbmonDetectorTotalIntensity
