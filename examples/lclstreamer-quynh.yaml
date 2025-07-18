@@ -70,7 +70,7 @@ data_serializer:
             timetool_ampl: /data/timetoolampl
             timetool_delay: /data/timetooldelay
             timetool_delay_ps: /data/timetooldelayps
-            usb_encoder_2: /data/usbencoder2
+            usb_encoder02: /data/usbencoder2
             evr_codes: /data/evrcodes
 
 data_handlers:
