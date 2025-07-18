@@ -93,6 +93,16 @@ class Hdf5Serializer(DataSerializerProtocol):
             )
             sys.exit(1)
 
+        mismatching_entries: set[str] = data.keys() - self._hdf5_fields.keys()
+
+        if len(mismatching_entries) != 0:
+            log.error(
+                "The Hdf5Serializer is asked to serialize the following data entries "
+                "but data for these entries is not available: "
+                f"{' '.join(list(mismatching_entries))}"
+            )
+            sys.exit(1)
+
         with BytesIO() as byte_block:
             with h5py.File(byte_block, "w") as fh:
                 data_block_name: str
