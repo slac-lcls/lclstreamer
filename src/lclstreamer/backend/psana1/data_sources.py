@@ -3,7 +3,11 @@ from typing import Any, Callable
 
 import numpy
 from numpy.typing import NDArray
-from psana import Detector, EventId  # type: ignore
+try:
+    from psana import Detector, EventId  # type: ignore
+except ImportError:
+    Detector = None  # type: ignore
+    EventId = None  # type: ignore
 
 from ...models.parameters import DataSourceParameters
 from ...protocols.backend import DataSourceProtocol

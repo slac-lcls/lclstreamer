@@ -1,5 +1,5 @@
 from collections.abc import Generator
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 import numpy
 from numpy.typing import NDArray
@@ -8,7 +8,7 @@ from typing_extensions import Protocol, TypeAlias
 
 from ..models.parameters import DataSourceParameters, Parameters
 
-StrFloatIntNDArray: TypeAlias = NDArray[numpy.str_ | numpy.float_ | numpy.int_]
+StrFloatIntNDArray: TypeAlias = Union[NDArray[numpy.str_],NDArray[numpy.float_],NDArray[numpy.int_]]
 
 
 class EventSourceProtocol(Protocol):
