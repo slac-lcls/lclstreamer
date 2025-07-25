@@ -18,6 +18,7 @@ class GenericRandomNumpyArray(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
+        run: Any,
     ):
         """
         Initializes a Generic Random Numpy Array data source.

@@ -44,6 +44,7 @@ class DataSourceProtocol(Protocol):
         self,
         name: str,
         parameters: DataSourceParameters,
+        run: Any,
     ):
         """Initializes the data source"""
         ...

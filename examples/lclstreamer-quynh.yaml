@@ -1,5 +1,7 @@
 lclstreamer:
-    source_identifier: exp=xpply5120:run=318
+    source_identifier:
+        exp: xpply5120
+        run: 318
     batch_size: 100
     event_source: Psana1EventSource
     processing_pipeline: NoOpProcessingPipeline

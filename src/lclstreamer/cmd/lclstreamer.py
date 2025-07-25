@@ -51,18 +51,22 @@ def filter_incomplete_events(
     consecutive: int = 0
     ev_num: int = 0
     num_dropped: int = 0
+    nfailed: dict[str, int] = {} # number from each detector
     for ev_num, event in enumerate(events):
-        if None not in event.values():
+        if all(v is not None for v in event.values()):
             yield event
             consecutive = 0
             continue
+        for name, v in event.items():
+            if v is None:
+                nfailed[name] = nfailed.get(name, 0)+1
         consecutive += 1
         num_dropped += 1
         if consecutive >= max_consecutive:
             break
     if consecutive >= max_consecutive:
         print(f"Stopping early at event {ev_num} after {consecutive} errors")
-        print("Failed detector list:")
+        print(f"Failed detector counts: {nfailed}")
     print(f"Processed {ev_num} events with {num_dropped} dropped")
 
 
