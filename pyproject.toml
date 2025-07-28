@@ -2,7 +2,6 @@
 name = "lclstreamer"
 requires-python = ">= 3.11"
 version = "0.1.0"
-dependencies = ["typer>=0.15.2,<0.16", "numpy", "stream @ git+https://github.com/frobnitzem/stream.py", "pydantic>=2.10.6,<3", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15"]
 
 [build-system]
 build-backend = "setuptools.build_meta"
@@ -29,18 +28,43 @@ python_executable = ".pixi/envs/default/bin/python"
 scripts = ["activation.sh"]
 
 [tool.pixi.project]
-channels = ["lcls-i", "conda-forge"]
+channels = ["conda-forge"]
 platforms = ["linux-64"]
+
+[tool.pixi.feature.psana]
+channels = ["lcls-i"]
+
+[tool.pixi.feature.psana2]
+channels = ["lcls-ii"]
 
 [tool.pixi.pypi-dependencies]
 lclstreamer = { path = ".", editable = true }
 
+[tool.pixi.environments]
+psana = ["psana"]
+psana2 = ["psana2"]
+
 [tool.pixi.tasks]
 
-[tool.pixi.dependencies]
-psana = "4.0.65.*"
-openmpi = ">=5.0.7,<6"
+[tool.pixi.feature.psana.dependencies]
+python = "3.11.*"
+psana = "4.0.66.*"
+openmpi = ">=5.0.8,<6"
+mpi4py = ">=4.1.0,<5"
+
+[tool.pixi.feature.psana2.dependencies]
+python = "3.12.*"
+psana = { version="4.1.10.*", channel="lcls-ii" }
+openmpi = ">=5.0.8,<6"
 mpi4py = ">=4.0.3,<5"
+libfabric = { version = ">=1.18.1,<2", channel = "lcls-ii" }
+libfabric1 = { version = ">=2.1.0,<5", channel = "conda-forge" }
+libnl = { version = ">=3.11.0,<4", channel = "conda-forge" }
+rdma-core = { version = ">=57.0,<58", channel = "conda-forge" }
+
+[dependency-groups]
+psana = ["typer>=0.15.2,<0.16", "numpy", "stream @ git+https://github.com/frobnitzem/stream.py", "pydantic>=2.10.6,<3", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15"]
+psana2 = ["typer>=0.15.2,<0.16", "numpy", "stream @ git+https://github.com/frobnitzem/stream.py", "pydantic>=2.10.6,<3", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15"]
 
 [tool.ruff]
 exclude = [
@@ -87,3 +111,4 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 docstring-code-format = false
 docstring-code-line-length = "dynamic"
+
