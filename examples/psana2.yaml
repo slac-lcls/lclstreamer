@@ -1,9 +1,9 @@
 lclstreamer:
     source_identifier:
-        exp: xpptut15
-        run: 430
+       exp: tmox1016823
+       run: 45
     batch_size: 1
-    event_source: Psana1EventSource
+    event_source: Psana2EventSource
     processing_pipeline: NoOpProcessingPipeline
     data_serializer: Hdf5Serializer
     skip_incomplete_events: True
@@ -13,24 +13,20 @@ lclstreamer:
 
 data_sources:
     timestamp:
-        type: Psana1Timestamp
+        type: Psana2Timestamp
 
-    detector_data:
-        type: Psana1AreaDetector
-        psana_name: Jungfrau1M
-        calibration: true
+#   detector_data:
+#       type: Psana2SpectralDetector
+#       psana_name: Z_piranha
+#       calibration: false
 
     random:
         type: GenericRandomNumpyArray
         array_shape: 4,4,4
         array_dtype: float32
 
-    photon_wavelength:
-        type: Psana1DetectorInterface
-        psana_name: "SIOC:SYS0:ML00:AO192"
-
 event_source:
-    Psana1EventSource: {}
+    Psana2EventSource: {}
 
 processing_pipeline:
     NoOpProcessingPipeline: {}
@@ -41,15 +37,13 @@ data_serializer:
         compression: zfp
         fields:
             timestamp: /data/timestamp
-            detector_data: /data/data
             random: /data/random
-            photon_wavelength: /data/wavelength
+            #detector_data: /data/data
+            #photon_wavelength: /data/wavelength
 
 data_handlers:
     BinaryFileWritingDataHandler:
-        file_prefix: ""
-        file_suffix: h5
-        write_directory: /sdf/home/v/valmar/Projects/lclstreamer/workspace/output
+        write_directory: /sdf/home/r/rogersdd/lclstreamer-output
 
     BinaryDataStreamingDataHandler:
         urls:

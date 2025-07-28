@@ -1,5 +1,6 @@
 from pathlib import Path
-from typing import Literal, Optional, Self
+from typing import Literal, Optional
+Self = "Self"
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
@@ -11,6 +12,7 @@ class CustomBaseModel(BaseModel):
 
 
 class Psana1EventSourceParameters(CustomBaseModel): ...  # noqa: E701
+class Psana2EventSourceParameters(CustomBaseModel): ...  # noqa: E701
 
 
 class HDF5SerializerParameters(CustomBaseModel):
@@ -48,8 +50,14 @@ class DataSourceParameters(CustomBaseModel):
     model_config = ConfigDict(extra="allow")
 
 
+class SourceIdentifier(CustomBaseModel):
+    exp: str
+    run: int
+    shmem: bool = False
+
+
 class LclstreamerParameters(CustomBaseModel):
-    source_identifier: str
+    source_identifier: SourceIdentifier
     batch_size: int
     event_source: str
     processing_pipeline: str
@@ -61,6 +69,7 @@ class LclstreamerParameters(CustomBaseModel):
 class EventSourceParameters(CustomBaseModel):
 
     Psana1EventSource: Optional[Psana1EventSourceParameters] = None
+    Psana2EventSource: Optional[Psana2EventSourceParameters] = None
 
 
 class ProcessingPipelineParameters(CustomBaseModel):
