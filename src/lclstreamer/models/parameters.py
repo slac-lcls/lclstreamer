@@ -1,6 +1,5 @@
 from pathlib import Path
-from typing import Literal, Optional
-Self = "Self"
+from typing import Literal, Optional, Self
 
 from pydantic import BaseModel, ConfigDict, model_validator
 

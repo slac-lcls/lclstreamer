@@ -35,7 +35,7 @@ class DataStorage:
 
         self._data_containers: dict[str, DataContainer] = {}
 
-    def add_data(self, data: dict[str, Optional[StrFloatIntNDArray]]) -> None:
+    def add_data(self, data: dict[str, StrFloatIntNDArray | None]) -> None:
         """
         Adds data to the Data Storage object
 

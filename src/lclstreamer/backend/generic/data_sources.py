@@ -1,5 +1,5 @@
 import sys
-from typing import Any, Union, Optional
+from typing import Any
 
 import numpy
 from numpy.typing import NDArray
@@ -29,7 +29,7 @@ class GenericRandomNumpyArray(DataSourceProtocol):
 
             parameters: The configuration parameters
         """
-        extra_parameters: Optional[dict[str, Any]] = parameters.__pydantic_extra__
+        extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
         if extra_parameters is None:
             log.error(f"Entries needed by the {name} data source are not defined")
             sys.exit(1)
@@ -57,7 +57,7 @@ class GenericRandomNumpyArray(DataSourceProtocol):
             )
             sys.exit(1)
 
-    def get_data(self, event: Any) -> Union[NDArray[numpy.float_],NDArray[numpy.int_]]:
+    def get_data(self, event: Any) -> NDArray[numpy.float_ | numpy.int_]:
         """
         Retrieves an array of int of float random numbers
 

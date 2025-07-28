@@ -1,13 +1,8 @@
 import sys
 from collections.abc import Generator
-from typing import Any, cast, Optional
+from typing import Any, cast
 
-from psana import DataSource # type: ignore
-try:
-    from psana import MPIDataSource
-except ImportError:
-    # this import does not exist in psana2
-    MPIDataSource = None # type: ignore
+from psana import DataSource, MPIDataSource  # type: ignore
 from stream.core import source
 
 from ...models.parameters import DataSourceParameters, LclstreamerParameters, Parameters
@@ -94,7 +89,7 @@ class Psana1EventSource(EventSourceProtocol):
     @source
     def get_events(
         self,
-    ) -> Generator[Optional[dict[str, StrFloatIntNDArray]]]:
+    ) -> Generator[dict[str, StrFloatIntNDArray | None]]:
         """
         Retrieves an event from the data source
 

@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import (
     Annotated,
     Any,
-    Optional,
 )
 
 import typer
@@ -32,8 +31,8 @@ app = typer.Typer()
 
 @stream
 def filter_incomplete_events(
-    events: Iterator[dict[str, Optional[StrFloatIntNDArray]]], max_consecutive: int = 100
-) -> Iterator[dict[str, Optional[StrFloatIntNDArray]]]:
+    events: Iterator[dict[str, StrFloatIntNDArray | None]], max_consecutive: int = 100
+) -> Iterator[dict[str, StrFloatIntNDArray | None]]:
     """
     Ddrops events that are incomplete
 
