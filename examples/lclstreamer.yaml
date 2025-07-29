@@ -2,9 +2,8 @@ lclstreamer:
     source_identifier:
         exp: xpptut15
         run: 430
-    batch_size: 1
     event_source: Psana1EventSource
-    processing_pipeline: NoOpProcessingPipeline
+    processing_pipeline: NoOpPipeline
     data_serializer: Hdf5Serializer
     skip_incomplete_events: True
     data_handlers:
@@ -33,7 +32,7 @@ event_source:
     Psana1EventSource: {}
 
 processing_pipeline:
-    NoOpProcessingPipeline: {}
+    NoOpPipeline: {}
 
 data_serializer:
     Hdf5Serializer:

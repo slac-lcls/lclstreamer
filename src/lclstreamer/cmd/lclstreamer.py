@@ -66,7 +66,7 @@ def filter_incomplete_events(
     if consecutive >= max_consecutive:
         print(f"Stopping early at event {ev_num} after {consecutive} errors")
         print(f"Failed detector counts: {nfailed}")
-    print(f"Processed {ev_num} events with {num_dropped} dropped")
+    print(f"Processed {ev_num+1} events with {num_dropped} dropped")
 
 
 def data_counter(data: bytes) -> int:
@@ -135,9 +135,9 @@ def main(
     data_serializer: DataSerializerProtocol = initialize_data_serializer(parameters)
     print(f"[Rank {mpi_rank}] Initializing data serializer: Done!")
 
-    print(f"[Rank {mpi_rank}] Inirializing data handlers....")
+    print(f"[Rank {mpi_rank}] Initializing data handlers....")
     data_handlers: list[DataHandlerProtocol] = initialize_data_handlers(parameters)
-    print(f"[Rank {mpi_rank}] Inirializing data handlers: Done!")
+    print(f"[Rank {mpi_rank}] Initializing data handlers: Done!")
 
     workflow: Any = source.get_events()
 
@@ -147,11 +147,7 @@ def main(
     if lclstreamer_parameters.skip_incomplete_events is True:
         workflow >>= filter_incomplete_events(max_consecutive=1)
 
-    workflow >>= map(processing_pipeline.process_data)
-
-    workflow >>= chop(lclstreamer_parameters.batch_size)
-
-    workflow >>= map(processing_pipeline.collect_results)
+    workflow >>= processing_pipeline
 
     workflow >>= map(data_serializer.serialize_data)
 

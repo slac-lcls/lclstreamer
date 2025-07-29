@@ -82,6 +82,7 @@ class Hdf5Serializer(DataSerializerProtocol):
             byte_block: A binary blob (a bytes object)
         """
 
+        print({data_block:d.shape for data_block, d in data.items()})
         depth_of_data_blocks: list[int] = [
             data[data_block].shape[0] for data_block in data
         ]
