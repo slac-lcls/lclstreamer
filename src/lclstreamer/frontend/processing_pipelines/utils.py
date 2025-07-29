@@ -34,6 +34,10 @@ class DataStorage:
         """
 
         self._data_containers: dict[str, DataContainer] = {}
+        self._count = 0
+
+    def __len__(self):
+        return self._count
 
     def add_data(self, data: dict[str, Optional[StrFloatIntNDArray]]) -> None:
         """
@@ -112,6 +116,7 @@ class DataStorage:
                         )
                         sys.exit(1)
                     data_container.data.append(data_value)
+        self._count += 1
 
     def retrieve_stored_data(self) -> dict[str, StrFloatIntNDArray]:
         """
@@ -144,3 +149,4 @@ class DataStorage:
         data_source_name: str
         for data_source_name in self._data_containers:
             self._data_containers[data_source_name].data = []
+        self._count = 0

@@ -2,9 +2,9 @@ lclstreamer:
     source_identifier:
        exp: tmox1016823
        run: 45
-    batch_size: 1
     event_source: Psana2EventSource
-    processing_pipeline: NoOpProcessingPipeline
+    #processing_pipeline: NoOpPipeline
+    processing_pipeline: BatchPipeline
     data_serializer: Hdf5Serializer
     skip_incomplete_events: True
     data_handlers:
@@ -29,7 +29,8 @@ event_source:
     Psana2EventSource: {}
 
 processing_pipeline:
-    NoOpProcessingPipeline: {}
+    BatchPipeline:
+        batch_size: 10
 
 data_serializer:
     Hdf5Serializer:
