@@ -1,9 +1,16 @@
 import sys
+from ast import Import
 
 from ..models.parameters import LclstreamerParameters, Parameters
 from ..protocols.backend import EventSourceProtocol
 from ..utils.logging_utils import log
-from .psana1.event_sources import Psana1EventSource  # noqa: F401
+
+try:
+    from psana import MPIDataSource
+
+    from .psana1.event_sources import Psana1EventSource  # noqa: F401
+except ImportError:
+    from .psana2.event_sources import Psana2EventSource  # noqa: F401
 
 
 def initialize_event_source(

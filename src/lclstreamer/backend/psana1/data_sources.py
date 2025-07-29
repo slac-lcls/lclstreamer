@@ -16,9 +16,7 @@ class Psana1Timestamp(DataSourceProtocol):
     """
 
     def __init__(
-        self,
-        name: str,
-        parameters: DataSourceParameters,
+        self, name: str, parameters: DataSourceParameters, additional_info: Any
     ):
         """
         Initializes a psana1 Timestamp data source.
@@ -31,6 +29,7 @@ class Psana1Timestamp(DataSourceProtocol):
         """
         del name
         del parameters
+        del additional_info
 
     def get_data(self, event: Any) -> NDArray[numpy.float_]:
         """
@@ -65,6 +64,7 @@ class Psana1AreaDetector(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
+        additional_info: Any,
     ):
         """
         Initializes a psana1 area detector data source.
@@ -75,6 +75,7 @@ class Psana1AreaDetector(DataSourceProtocol):
 
             parameters: The configuration parameters
         """
+        del additional_info
         extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
 
         if extra_parameters is None:
@@ -121,6 +122,7 @@ class Psana1AssembledAreaDetector(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
+        additional_info: Any,
     ):
         """
         Initializes a psana1 assembled area detector data source.
@@ -131,6 +133,7 @@ class Psana1AssembledAreaDetector(DataSourceProtocol):
 
             parameters: The configuration parameters
         """
+        del additional_info
         extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
 
         if extra_parameters is None:
@@ -169,6 +172,7 @@ class Psana1PV(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
+        additional_info: Any,
     ):
         """
         Initializes a psana1 PV data source.
@@ -179,6 +183,7 @@ class Psana1PV(DataSourceProtocol):
 
             parameters: The configuration parameters
         """
+        del additional_info
         extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
 
         if extra_parameters is None:
@@ -222,6 +227,7 @@ class Psana1BbmonDetectorTotalIntensity(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
+        additional_info: Any,
     ):
         """
         Initializes a psana1 BbmonDetector data source.
@@ -232,6 +238,7 @@ class Psana1BbmonDetectorTotalIntensity(DataSourceProtocol):
 
             parameters: The configuration parameters
         """
+        del additional_info
         extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
 
         if extra_parameters is None:
@@ -270,6 +277,7 @@ class Psana1IpmDetector(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
+        additional_info: Any,
     ):
         """
         Initializes a psana1 IpmDetector data source.
@@ -280,6 +288,7 @@ class Psana1IpmDetector(DataSourceProtocol):
 
             parameters: The configuration parameters
         """
+        del additional_info
         extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
 
         if extra_parameters is None:
@@ -327,6 +336,7 @@ class Psana1EvrCodes(DataSourceProtocol):
         *,
         name: str,
         parameters: DataSourceParameters,
+        additional_info: Any,
     ):
         """
         Intializes a psana1 EVR data source
@@ -336,6 +346,7 @@ class Psana1EvrCodes(DataSourceProtocol):
 
             parameters: The configuration parameters
         """
+        del additional_info
         extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
         if extra_parameters is None:
             log.error(f"Entries needed by the {name} data source are not defined")
@@ -384,6 +395,7 @@ class Psana1UsdUsbDetector(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
+        additional_info: Any,
     ):
         """
         Initializes a psana1 UsdUsbDetector data source.
@@ -394,6 +406,7 @@ class Psana1UsdUsbDetector(DataSourceProtocol):
 
             parameters: The configuration parameters
         """
+        del additional_info
         extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
 
         if extra_parameters is None:

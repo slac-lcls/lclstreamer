@@ -18,6 +18,7 @@ class GenericRandomNumpyArray(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
+        additional_info: Any,
     ):
         """
         Initializes a Generic Random Numpy Array data source.
@@ -28,6 +29,7 @@ class GenericRandomNumpyArray(DataSourceProtocol):
 
             parameters: The configuration parameters
         """
+        del additional_info
         extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
         if extra_parameters is None:
             log.error(f"Entries needed by the {name} data source are not defined")

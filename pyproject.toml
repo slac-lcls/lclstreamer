@@ -22,13 +22,13 @@ profile = "black"
 [tool.mypy]
 show_error_codes = true
 python_version = 3.11
-python_executable = ".pixi/envs/psana/bin/python"
+python_executable = ".pixi/envs/psana2/bin/python"
 
 [tool.pixi.project]
 channels = ["conda-forge"]
 platforms = ["linux-64"]
 
-[tool.pixi.feature.psana]
+[tool.pixi.feature.psana1]
 channels = ["lcls-i"]
 
 [tool.pixi.feature.psana2]
@@ -38,33 +38,29 @@ channels = ["lcls-ii"]
 lclstreamer = { path = ".", editable = true }
 
 [tool.pixi.environments]
-psana = ["psana"]
+psana1 = ["psana1"]
 psana2 = ["psana2"]
 
-[tool.pixi.feature.psana.activation]
-scripts = ["activation-psana.sh"]
+[tool.pixi.feature.psana1.activation]
+scripts = ["activation-psana1.sh"]
 
 [tool.pixi.feature.psana2.activation]
 scripts = ["activation-psana2.sh"]
 
-[tool.pixi.feature.psana.dependencies]
+[tool.pixi.feature.psana1.dependencies]
 python = "3.11.*"
-psana = "4.0.66.*"
-openmpi = ">=5.0.8,<6"
-mpi4py = ">=4.1.0,<5"
+psana = "==4.0.66"
+openmpi = "*"
+mpi4py = "*"
 
 [tool.pixi.feature.psana2.dependencies]
 python = "3.12.*"
-psana = { version="4.1.10.*", channel="lcls-ii" }
-openmpi = ">=5.0.8,<6"
-mpi4py = ">=4.0.3,<5"
-libfabric = { version = ">=1.18.1,<2", channel = "lcls-ii" }
-libfabric1 = { version = ">=2.1.0,<5", channel = "conda-forge" }
-libnl = { version = ">=3.11.0,<4", channel = "conda-forge" }
-rdma-core = { version = ">=57.0,<58", channel = "conda-forge" }
+psana = { version="==4.1.10", channel="lcls-ii" }
+openmpi = "*"
+mpi4py = "*"
 
 [dependency-groups]
-psana = ["typer>=0.15.2,<0.16", "numpy", "stream @ git+https://github.com/frobnitzem/stream.py", "pydantic>=2.10.6,<3", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15"]
+psana1 = ["typer>=0.15.2,<0.16", "numpy", "stream @ git+https://github.com/frobnitzem/stream.py", "pydantic>=2.10.6,<3", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15"]
 psana2 = ["typer>=0.15.2,<0.16", "numpy", "stream @ git+https://github.com/frobnitzem/stream.py", "pydantic>=2.10.6,<3", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15"]
 
 [tool.pixi.tasks]
@@ -114,4 +110,3 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 docstring-code-format = false
 docstring-code-line-length = "dynamic"
-

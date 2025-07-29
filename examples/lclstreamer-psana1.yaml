@@ -4,6 +4,7 @@ lclstreamer:
     event_source: Psana1EventSource
     processing_pipeline: NoOpProcessingPipeline
     data_serializer: Hdf5Serializer
+    skip_incomplete_events: false
     data_handlers:
         - BinaryFileWritingDataHandler
           #- BinaryDataStreamingDataHandler
@@ -23,7 +24,7 @@ data_sources:
         array_dtype: float32
 
     photon_wavelength:
-        type: Psana1DetectorInterface
+        type: Psana1PV
         psana_name: "SIOC:SYS0:ML00:AO192"
 
 event_source:
@@ -46,7 +47,7 @@ data_handlers:
     BinaryFileWritingDataHandler:
         file_prefix: ""
         file_suffix: h5
-        write_directory: /sdf/home/v/valmar/Projects/lclstreamer/workspace/output
+        write_directory: workspace/output
 
     BinaryDataStreamingDataHandler:
         urls:

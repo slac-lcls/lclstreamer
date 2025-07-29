@@ -2,7 +2,7 @@ import sys
 from collections.abc import Generator
 from typing import Any, cast
 
-from psana import DataSource, MPIDataSource  # type: ignore
+from psana import DataSource  # type: ignore
 from stream.core import source
 
 from ...models.parameters import DataSourceParameters, LclstreamerParameters, Parameters
@@ -14,18 +14,43 @@ from ...protocols.backend import (
 from ...utils.logging_utils import log
 from ..generic.data_sources import GenericRandomNumpyArray  # noqa: F401
 from .data_sources import (  # noqa: F401
-    Psana1AreaDetector,
-    Psana1AssembledAreaDetector,
-    Psana1BbmonDetectorTotalIntensity,
-    Psana1EvrCodes,
-    Psana1IpmDetector,
-    Psana1PV,
-    Psana1Timestamp,
-    Psana1UsdUsbDetector,
+    Psana2AreaDetector,
+    Psana2AssembledAreaDetector,
+    Psana2PV,
+    Psana2Timestamp,
 )
 
 
-class Psana1EventSource(EventSourceProtocol):
+def _parse_source_identifier(source_identifier: str) -> dict[str, str | int]:
+    """
+    Parses a source identifier string into an argument dict
+    """
+    source_dict: dict[str, str | int] = {}
+    source_items: list[str] = source_identifier.split(",")
+    item: str
+    for item in source_items:
+        if item.startswith("shmem="):
+            source_dict["shmem"] = item.split("shmem=")[1].strip().lstrip()
+        elif item.startswith("exp="):
+            source_dict["exp"] = item.split("exp=")[1].strip().lstrip()
+        elif item.startswith("run="):
+            source_dict["run"] = int(item.split("run=")[1].strip().lstrip())
+        elif item.startswith("files="):
+            source_dict["files"] = item.split("files=")[1].strip().lstrip()
+        elif item.startswith("drp="):
+            source_dict["drp"] = item.split("drp=")[1].strip().lstrip()
+        elif item.startswith("max_events="):
+            source_dict["max_events"] = int(
+                item.split("max_events=")[1].strip().lstrip()
+            )
+        else:
+            log.error("Part of the source string for psana2 cannot be parsed:")
+            log.error(f"{item}")
+            sys.exit(1)
+    return source_dict
+
+
+class Psana2EventSource(EventSourceProtocol):
     """
     See documentation of the `__init__` function.
     """
@@ -34,7 +59,7 @@ class Psana1EventSource(EventSourceProtocol):
         self, parameters: Parameters, worker_pool_size: int, worker_rank: int
     ) -> None:
         """
-        Initializes a psana1 event source
+        Initializes a psana2 event source
 
         Arguments:
 
@@ -53,18 +78,23 @@ class Psana1EventSource(EventSourceProtocol):
         )
 
         if "shmem" in lclstreamer_parameters.source_identifier:
-            self._event_source: Generator[Any] = cast(
-                Generator[Any],
-                DataSource(lclstreamer_parameters.source_identifier).events(),
+            log.error(
+                "Shared memory mode is not currently available for the psana2 data "
+                "event source"
             )
+            sys.exit(1)
         else:
-            psana_source_string: str = lclstreamer_parameters.source_identifier
-            if not psana_source_string.endswith(":smd"):
-                psana_source_string = f"{psana_source_string}:smd"
-            self._event_source = cast(
-                Generator[Any],
-                MPIDataSource(psana_source_string).events(),
+            data_source_arguments: dict[str, str | int] = _parse_source_identifier(
+                lclstreamer_parameters.source_identifier
             )
+            psana_data_source: Any = DataSource(**data_source_arguments)
+            self._psana_run: Any = next(psana_data_source.runs())
+            self._event_source: Any = cast(
+                Generator[Any],
+                self._psana_run.events(),
+            )
+
+        # self._event_source = DataSource(lclstreamer_parameters.source_identifier).events()
 
         self._data_sources: dict[str, DataSourceProtocol] = {}
         data_source_name: str
@@ -77,7 +107,7 @@ class Psana1EventSource(EventSourceProtocol):
                 self._data_sources[data_source_name] = data_source_class(
                     name=data_source_name,
                     parameters=data_source_parameters[data_source_name],
-                    additional_info=None,
+                    additional_info=self._psana_run,
                 )
             except NameError:
                 log.error(

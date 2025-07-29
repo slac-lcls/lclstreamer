@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal, Optional, Self
+from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
@@ -13,9 +13,12 @@ class CustomBaseModel(BaseModel):
 class Psana1EventSourceParameters(CustomBaseModel): ...  # noqa: E701
 
 
+class Psana2EventSourceParameters(CustomBaseModel): ...  # noqa: E701
+
+
 class HDF5SerializerParameters(CustomBaseModel):
     compression_level: int = 3
-    compression: Optional[
+    compression: (
         Literal[
             "gzip",
             "gzip_with_shuffle",
@@ -23,7 +26,8 @@ class HDF5SerializerParameters(CustomBaseModel):
             "bitshuffle_with_zstd",
             "zfp",
         ]
-    ] = None
+        | None
+    ) = None
     fields: dict[str, str]
 
 
@@ -59,33 +63,28 @@ class LclstreamerParameters(CustomBaseModel):
 
 
 class EventSourceParameters(CustomBaseModel):
+    Psana1EventSource: Psana1EventSourceParameters | None = None
 
-    Psana1EventSource: Optional[Psana1EventSourceParameters] = None
+    Psana2EventSource: Psana2EventSourceParameters | None = None
 
 
 class ProcessingPipelineParameters(CustomBaseModel):
-
-    NoOpProcessingPipeline: Optional[NoOpProcessingPipelineParameters] = None
+    NoOpProcessingPipeline: NoOpProcessingPipelineParameters | None = None
 
 
 class DataSerializerParameters(CustomBaseModel):
-
-    Hdf5Serializer: Optional[HDF5SerializerParameters] = None
+    Hdf5Serializer: HDF5SerializerParameters | None = None
 
 
 class DataHandlerParameters(CustomBaseModel):
-
-    BinaryDataStreamingDataHandler: Optional[
-        BinaryDataStreamingDataHandlerParameters
-    ] = None
-
-    BinaryFileWritingDataHandler: Optional[BinaryFileWritingDataHandlerParameters] = (
+    BinaryDataStreamingDataHandler: BinaryDataStreamingDataHandlerParameters | None = (
         None
     )
 
+    BinaryFileWritingDataHandler: BinaryFileWritingDataHandlerParameters | None = None
+
 
 class Parameters(CustomBaseModel):
-
     event_source: EventSourceParameters
     lclstreamer: LclstreamerParameters
     data_sources: dict[str, DataSourceParameters]

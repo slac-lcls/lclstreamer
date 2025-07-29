@@ -1,6 +1,5 @@
 import sys
 from dataclasses import dataclass, field
-from typing import Optional
 
 import numpy
 from numpy.typing import DTypeLike
@@ -16,8 +15,8 @@ class DataContainer:
     """
 
     data: list[StrFloatIntNDArray] = field(default_factory=list)
-    dtype: Optional[DTypeLike] = None
-    shape: Optional[tuple[int, ...]] = None
+    dtype: DTypeLike | None = None
+    shape: tuple[int, ...] | None = None
 
 
 class DataStorage:

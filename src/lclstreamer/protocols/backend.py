@@ -1,5 +1,5 @@
 from collections.abc import Generator
-from typing import Any, Optional
+from typing import Any
 
 import numpy
 from numpy.typing import NDArray
@@ -28,7 +28,7 @@ class EventSourceProtocol(Protocol):
         ...
 
     @source
-    def get_events(self) -> Generator[dict[str, Optional[StrFloatIntNDArray]]]:
+    def get_events(self) -> Generator[dict[str, StrFloatIntNDArray | None]]:
         """
         Gets the next event from event source
         """
@@ -41,9 +41,7 @@ class DataSourceProtocol(Protocol):
     """
 
     def __init__(
-        self,
-        name: str,
-        parameters: DataSourceParameters,
+        self, name: str, parameters: DataSourceParameters, additional_info: Any
     ):
         """Initializes the data source"""
         ...

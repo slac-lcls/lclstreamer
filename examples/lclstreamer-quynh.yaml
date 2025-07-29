@@ -42,7 +42,7 @@ data_sources:
         type: Psana1PV
         psana_name: "XPP:TIMETOOL:FLTPOS_PS"
 
-    usb_encoder02:
+    usb_encoder_2:
         type: Psana1UsdUsbDetector
         psana_name: "XPP-USB-ENCODER-02"
         psana_function: values
@@ -77,7 +77,7 @@ data_handlers:
     BinaryFileWritingDataHandler:
         file_prefix: "xpply5120-run31"
         file_suffix: h5
-        write_directory: /sdf/data/lcls/ds/xpp/xpply5120/results/valmar/lclstreamer 
+        write_directory: workspace/output
 
     BinaryDataStreamingDataHandler:
         urls:
