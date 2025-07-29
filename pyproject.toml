@@ -13,7 +13,7 @@ lclstreamer = "lclstreamer.cmd.lclstreamer:app"
 [tool.pyright]
 diagnosticMode = "workspace"
 typeCheckingMode = "strict"
-pythonPath = ".pixi/envs/default/bin/python"
+pythonPath = ".pixi/envs/psana2/bin/python"
 
 [tool.isort]
 py_version = 311
@@ -22,10 +22,7 @@ profile = "black"
 [tool.mypy]
 show_error_codes = true
 python_version = 3.11
-python_executable = ".pixi/envs/default/bin/python"
-
-[tool.pixi.activation]
-scripts = ["activation.sh"]
+python_executable = ".pixi/envs/psana/bin/python"
 
 [tool.pixi.project]
 channels = ["conda-forge"]
@@ -44,7 +41,11 @@ lclstreamer = { path = ".", editable = true }
 psana = ["psana"]
 psana2 = ["psana2"]
 
-[tool.pixi.tasks]
+[tool.pixi.feature.psana.activation]
+scripts = ["activation-psana.sh"]
+
+[tool.pixi.feature.psana2.activation]
+scripts = ["activation-psana2.sh"]
 
 [tool.pixi.feature.psana.dependencies]
 python = "3.11.*"
@@ -65,6 +66,8 @@ rdma-core = { version = ">=57.0,<58", channel = "conda-forge" }
 [dependency-groups]
 psana = ["typer>=0.15.2,<0.16", "numpy", "stream @ git+https://github.com/frobnitzem/stream.py", "pydantic>=2.10.6,<3", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15"]
 psana2 = ["typer>=0.15.2,<0.16", "numpy", "stream @ git+https://github.com/frobnitzem/stream.py", "pydantic>=2.10.6,<3", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15"]
+
+[tool.pixi.tasks]
 
 [tool.ruff]
 exclude = [

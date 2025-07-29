@@ -1754,7 +1754,7 @@ packages:
 - pypi: ./
   name: lclstreamer
   version: 0.1.0
-  sha256: ce50745af591c9fd9a628a256a51d34fcbf71d276b56c57f5b271723960d3da7
+  sha256: bc44d104bbf571d81470a745c79e1aaf47a46748625384abdf8e122793447811
   requires_python: '>=3.11'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/linux-64/lcms2-2.17-h717163a_0.conda
