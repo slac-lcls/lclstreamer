@@ -1,3 +1,5 @@
+from collections.abc import Iterator
+
 from typing_extensions import Protocol
 
 from ..models.parameters import Parameters
@@ -16,16 +18,10 @@ class ProcessingPipelineProtocol(Protocol):
         """Initializes the data processing pipeline"""
         ...
 
-    def process_data(
-        self, data: dict[str, StrFloatIntNDArray]
-    ) -> dict[str, StrFloatIntNDArray]:
-        """Processes a single data event and stores the results"""
-        ...
-
-    def collect_results(
-        self, data: dict[str, StrFloatIntNDArray]
-    ) -> dict[str, StrFloatIntNDArray]:
-        """Returns the stored processing results"""
+    def __call__(
+        self, stream: Iterator[dict[str, StrFloatIntNDArray | None]]
+    ) -> Iterator[dict[str, StrFloatIntNDArray | None]]:
+        """Applies the data processing pipeline"""
         ...
 
 

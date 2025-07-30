@@ -33,6 +33,10 @@ class DataStorage:
         """
 
         self._data_containers: dict[str, DataContainer] = {}
+        self._count: int = 0
+
+    def __len__(self):
+        return self._count
 
     def add_data(self, data: dict[str, StrFloatIntNDArray | None]) -> None:
         """
@@ -68,6 +72,7 @@ class DataStorage:
                         shape=data_value.shape,
                     )
                     self._data_containers[data_source_name] = data_container
+                self._count += 1
         else:
             if sorted(data.keys()) != sorted(self._data_containers.keys()):
                 log.error(
@@ -111,8 +116,9 @@ class DataStorage:
                         )
                         sys.exit(1)
                     data_container.data.append(data_value)
+                self._count += 1
 
-    def retrieve_stored_data(self) -> dict[str, StrFloatIntNDArray]:
+    def retrieve_stored_data(self) -> dict[str, StrFloatIntNDArray | None]:
         """
         Retuns the data stored in the Data Storage container object
 
@@ -127,7 +133,7 @@ class DataStorage:
             stored_data: A dictionary containing the data accumulated by the
                 Data Storage container
         """
-        stored_data: dict[str, StrFloatIntNDArray] = {}
+        stored_data: dict[str, StrFloatIntNDArray | None] = {}
 
         data_source_name: str
         for data_source_name in self._data_containers:

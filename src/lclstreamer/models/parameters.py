@@ -31,7 +31,8 @@ class HDF5SerializerParameters(CustomBaseModel):
     fields: dict[str, str]
 
 
-class NoOpProcessingPipelineParameters(CustomBaseModel): ...  # noqa: E701
+class BatchProcessingPipelineParameters(CustomBaseModel):
+    batch_size: int
 
 
 class BinaryDataStreamingDataHandlerParameters(CustomBaseModel):
@@ -54,7 +55,6 @@ class DataSourceParameters(CustomBaseModel):
 
 class LclstreamerParameters(CustomBaseModel):
     source_identifier: str
-    batch_size: int
     event_source: str
     processing_pipeline: str
     data_serializer: str
@@ -69,7 +69,7 @@ class EventSourceParameters(CustomBaseModel):
 
 
 class ProcessingPipelineParameters(CustomBaseModel):
-    NoOpProcessingPipeline: NoOpProcessingPipelineParameters | None = None
+    BatchProcessingPipeline: BatchProcessingPipelineParameters | None = None
 
 
 class DataSerializerParameters(CustomBaseModel):

@@ -1,33 +1,24 @@
 lclstreamer:
-    source_identifier: exp=xpptut15:run=430
-    event_source: Psana1EventSource
+    source_identifier: exp=tmox1016823,run=45
+    event_source: Psana2EventSource
     processing_pipeline: BatchProcessingPipeline
     data_serializer: Hdf5Serializer
-    skip_incomplete_events: false
+    skip_incomplete_events: True
     data_handlers:
         - BinaryFileWritingDataHandler
           #- BinaryDataStreamingDataHandler
 
 data_sources:
     timestamp:
-        type: Psana1Timestamp
-
-    detector_data:
-        type: Psana1AreaDetector
-        psana_name: Jungfrau1M
-        calibration: true
+        type: Psana2Timestamp
 
     random:
         type: GenericRandomNumpyArray
         array_shape: 4,4,4
         array_dtype: float32
 
-    photon_wavelength:
-        type: Psana1PV
-        psana_name: "SIOC:SYS0:ML00:AO192"
-
 event_source:
-    Psana1EventSource: {}
+    Psana2EventSource: {}
 
 processing_pipeline:
     BatchProcessingPipeline:
@@ -38,15 +29,12 @@ data_serializer:
         compression_level: 3
         compression: zfp
         fields:
-            timestamp: /data/timestamp
-            detector_data: /data/data
-            random: /data/random
-            photon_wavelength: /data/wavelength
+            timestamp: /timestamp
+            photon_wavelength: /wavelength
+            random: /drandom
 
 data_handlers:
     BinaryFileWritingDataHandler:
-        file_prefix: ""
-        file_suffix: h5
         write_directory: workspace/output
 
     BinaryDataStreamingDataHandler:

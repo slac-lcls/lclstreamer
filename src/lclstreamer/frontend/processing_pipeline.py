@@ -3,7 +3,9 @@ import sys
 from ..models.parameters import LclstreamerParameters, Parameters
 from ..protocols.frontend import ProcessingPipelineProtocol
 from ..utils.logging_utils import log
-from .processing_pipelines.generic import NoOpProcessingPipeline  # noqa: F401
+from .processing_pipelines.generic import (  # noqa: F401
+    BatchProcessingPipeline,
+)
 
 
 def initialize_processing_pipeline(
@@ -25,10 +27,11 @@ def initialize_processing_pipeline(
     try:
         processing_pipeline: ProcessingPipelineProtocol = globals()[
             lclstreamer_parameters.processing_pipeline
-        ](parameters)
+        ](parameters.processing_pipeline)
     except NameError:
         log.error(
-            f"Event source {lclstreamer_parameters.event_source} is not available"
+            f"Event source {lclstreamer_parameters.processing_pipeline} is not "
+            "available"
         )
         sys.exit(1)
 
