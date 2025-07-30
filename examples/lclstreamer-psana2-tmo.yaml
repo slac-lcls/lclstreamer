@@ -1,9 +1,9 @@
 lclstreamer:
-    source_identifier: exp=tmox1016823,run=45
+    source_identifier: exp=tmox1016823,run=44
     event_source: Psana2EventSource
     processing_pipeline: BatchProcessingPipeline
     data_serializer: Hdf5Serializer
-    skip_incomplete_events: True
+    skip_incomplete_events: true
     data_handlers:
         - BinaryFileWritingDataHandler
           #- BinaryDataStreamingDataHandler
@@ -11,11 +11,39 @@ lclstreamer:
 data_sources:
     timestamp:
         type: Psana2Timestamp
+    
+    #beam_energy:
+    #    type: Psana2EBeam
+    #    psana_function: ebeamL3Energy
 
-    random:
-        type: GenericRandomNumpyArray
-        array_shape: 4,4,4
-        array_dtype: float32
+    tmo_fzppiranha:
+        type: Psana2Camera
+        psana_name: tmo_fzppiranha
+  
+    #tmo_atmpiranha:
+    #    type: Psana2Camera
+    #    psana_name: tmo_atmpiranha
+  
+    pulse_energy:
+        type: Psana2Gmd
+        psana_name: gmd
+        psana_function: milliJoulesPerPulse
+
+    xpulse_energy:
+        type: Psana2Gmd
+        psana_name: xgmd
+        psana_function: milliJoulesPerPulse
+
+    mrco_hsd_peaks:
+        type: Psana2HsdDetector
+        psana_name: mrco_hsd
+        psana_function: peaks
+
+    mrco_hsd_waveforms:
+        type: Psana2HsdDetector
+        psana_name: mrco_hsd
+        psana_function: waveforms
+
 
 event_source:
     Psana2EventSource: {}
@@ -30,8 +58,11 @@ data_serializer:
         compression: zfp
         fields:
             timestamp: /timestamp
-            photon_wavelength: /wavelength
-            random: /drandom
+            tmo_fzppiranha: /fzpppiranha
+            pulse_energy: /pulseenergy
+            xpulse_energy: /xpulseenergy
+            mrco_hsd_peaks: /peaks
+            mrco_hsd_waveforms: //waveform
 
 data_handlers:
     BinaryFileWritingDataHandler:
