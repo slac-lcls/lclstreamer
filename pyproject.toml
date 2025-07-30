@@ -40,6 +40,8 @@ lclstreamer = { path = ".", editable = true }
 [tool.pixi.environments]
 psana1 = ["psana1"]
 psana2 = ["psana2"]
+test1 = ["psana1", "test"]
+test2 = ["psana2", "test"]
 
 [tool.pixi.feature.psana1.activation]
 scripts = ["activation-psana1.sh"]
@@ -58,6 +60,10 @@ python = "3.12.*"
 psana = { version="==4.1.10", channel="lcls-ii" }
 openmpi = "*"
 mpi4py = "*"
+
+[tool.pixi.feature.test.dependencies]
+pytest = "*"
+mypy = "*"
 
 [dependency-groups]
 psana1 = ["typer>=0.15.2,<0.16", "numpy", "stream @ git+https://github.com/frobnitzem/stream.py", "pydantic>=2.10.6,<3", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15"]
