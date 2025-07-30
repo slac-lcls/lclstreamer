@@ -80,3 +80,10 @@ the `lclstreamer` executable using the `--config` option:
 ```
 pixi run mpirun -n 8 lclstreamer --config examples/lclstreamer.yaml
 ```
+
+### Development
+
+During development, you'll want to run type checking and testing.
+This can be accomplished within the test1 or test2 environments,
+
+    pixi run -e test1 mypy src/
