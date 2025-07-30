@@ -64,9 +64,10 @@ def filter_incomplete_events(
         if consecutive >= max_consecutive:
             break
     if consecutive >= max_consecutive:
-        print(f"Stopping early at event {ev_num} after {consecutive} errors")
+        print(f"Stopping early after {consecutive} errors")
+    if num_dropped > 0:
         print(f"Failed detector counts: {nfailed}")
-    print(f"Processed {ev_num} events with {num_dropped} dropped")
+    print(f"Processed {ev_num+1} events with {num_dropped} dropped")
 
 
 def data_counter(data: bytes) -> int:

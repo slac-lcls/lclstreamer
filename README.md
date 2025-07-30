@@ -62,21 +62,28 @@ conda and PyPI packages used in the environment.
 In order to deploy LCLStreamer, install `pixi`, then run the following command from the
 top level of the GitHub repository:
 
-```
-pixi install
-```
+    pixi install -e psana1
+
+or, to install within a psana2 environment,
+
+    or pixi install -e psana2
+
+or, to install both side-by-side
+
+    pixi install -a
 
 LCLStreamer is currently designed to run exclusively using the MPI protocol. After
 deployment, it can be launched using the `pixi run` command. For example:
 
-```
-pixi run mpirun -n 8 lclstreamer
-```
+    pixi run -e psana1 mpirun -n 8 lclstreamer
+
 
 LCLStreamer will look for a configuration file called `lclstreamer.yaml` in the current
 working directory. Alternatively, the path to the configuration file can be passed to
 the `lclstreamer` executable using the `--config` option:
 
-```
-pixi run mpirun -n 8 lclstreamer --config examples/lclstreamer.yaml
-```
+    pixi run -e psana1 mpirun -n 8 lclstreamer --config examples/lclstreamer-psana1.yaml
+
+For psana2, MPI is preferred, but not required. Hence, the following will work,
+
+    pixi run -e psana2 lclstreamer --config examples/lclstreamer-psana2-tmo.yaml

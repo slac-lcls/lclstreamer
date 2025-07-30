@@ -6,7 +6,7 @@ from ..protocols.backend import EventSourceProtocol
 from ..utils.logging_utils import log
 
 try:
-    from psana import MPIDataSource
+    from psana import MPIDataSource  # type: ignore
 
     from .psana1.event_sources import Psana1EventSource  # noqa: F401
 except ImportError:

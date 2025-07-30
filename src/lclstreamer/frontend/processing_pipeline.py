@@ -30,8 +30,8 @@ def initialize_processing_pipeline(
         ](parameters.processing_pipeline)
     except NameError:
         log.error(
-            f"Event source {lclstreamer_parameters.processing_pipeline} is not "
-            "available"
+            f"Processing pipeline {lclstreamer_parameters.processing_pipeline} "
+            "is not available"
         )
         sys.exit(1)
 
