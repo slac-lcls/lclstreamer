@@ -2,7 +2,6 @@ import sys
 from collections.abc import Generator
 from typing import Any, cast
 
-from psana import DataSource, MPIDataSource  # type: ignore
 from stream.core import source
 
 from ...models.parameters import DataSourceParameters, LclstreamerParameters, Parameters
@@ -12,20 +11,12 @@ from ...protocols.backend import (
     StrFloatIntNDArray,
 )
 from ...utils.logging_utils import log
-from ..generic.data_sources import GenericRandomNumpyArray  # noqa: F401
 from .data_sources import (  # noqa: F401
-    Psana1AreaDetector,
-    Psana1AssembledAreaDetector,
-    Psana1BbmonDetectorTotalIntensity,
-    Psana1EvrCodes,
-    Psana1IpmDetector,
-    Psana1PV,
-    Psana1Timestamp,
-    Psana1UsdUsbDetector,
+    GenericRandomNumpyArray,
 )
 
 
-class Psana1EventSource(EventSourceProtocol):
+class GenericEventSource(EventSourceProtocol):
     """
     See documentation of the `__init__` function.
     """
@@ -51,20 +42,12 @@ class Psana1EventSource(EventSourceProtocol):
         data_source_parameters: dict[str, DataSourceParameters] = (
             parameters.data_sources
         )
-
-        if "shmem" in lclstreamer_parameters.source_identifier:
-            self._event_source: Generator[Any] = cast(
-                Generator[Any],
-                DataSource(lclstreamer_parameters.source_identifier).events(),
+        if parameters.event_source.GenericEventSource is None:
+            log.error(
+                "GenericEventSource must be defined in event_source:"
             )
-        else:
-            psana_source_string: str = lclstreamer_parameters.source_identifier
-            if not psana_source_string.endswith(":smd"):
-                psana_source_string = f"{psana_source_string}:smd"
-            self._event_source = cast(
-                Generator[Any],
-                MPIDataSource(psana_source_string).events(),
-            )
+            sys.exit(1)
+        self.events = parameters.event_source.GenericEventSource.events
 
         self._data_sources: dict[str, DataSourceProtocol] = {}
         data_source_name: str
@@ -82,7 +65,7 @@ class Psana1EventSource(EventSourceProtocol):
             except NameError:
                 log.error(
                     f"Data source {data_source_parameters[data_source_name].type} "
-                    "is not available for backend Psana1EventSource"
+                    "is not available for backend GenericEventSource"
                 )
                 sys.exit(1)
 
@@ -97,8 +80,7 @@ class Psana1EventSource(EventSourceProtocol):
 
             data: A dictionary storing data for an event
         """
-        psana_event: Any
-        for psana_event in self._event_source:
+        for i in range(self.events):
             data: dict[str, StrFloatIntNDArray | None] = {}
 
             data_source_name: str
@@ -106,7 +88,7 @@ class Psana1EventSource(EventSourceProtocol):
                 try:
                     data[data_source_name] = self._data_sources[
                         data_source_name
-                    ].get_data(event=psana_event)
+                    ].get_data(event=i)
                 except (TypeError, AttributeError):
                     data[data_source_name] = None
             yield data
