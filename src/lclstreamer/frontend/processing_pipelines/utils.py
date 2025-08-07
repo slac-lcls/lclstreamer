@@ -72,7 +72,6 @@ class DataStorage:
                         shape=data_value.shape,
                     )
                     self._data_containers[data_source_name] = data_container
-                self._count += 1
         else:
             if sorted(data.keys()) != sorted(self._data_containers.keys()):
                 log.error(
@@ -116,7 +115,7 @@ class DataStorage:
                         )
                         sys.exit(1)
                     data_container.data.append(data_value)
-                self._count += 1
+        self._count += 1
 
     def retrieve_stored_data(self) -> dict[str, StrFloatIntNDArray | None]:
         """
@@ -149,3 +148,4 @@ class DataStorage:
         data_source_name: str
         for data_source_name in self._data_containers:
             self._data_containers[data_source_name].data = []
+        self._count = 0
