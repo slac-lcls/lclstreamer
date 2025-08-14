@@ -63,14 +63,26 @@ In order to deploy LCLStreamer, install `pixi`, then run the following command f
 top level of the GitHub repository:
 
 ```
-pixi install
+pixi install --environment psana1
+```
+
+or, to install within a psana2 environment,
+
+```
+pixi install --environment psana2
+```
+
+or, to install both side-by-side
+
+```
+pixi install --all
 ```
 
 LCLStreamer is currently designed to run exclusively using the MPI protocol. After
 deployment, it can be launched using the `pixi run` command. For example:
 
 ```
-pixi run mpirun -n 8 lclstreamer
+pixi run --environment psana1 mpirun -n 8 lclstreamer
 ```
 
 LCLStreamer will look for a configuration file called `lclstreamer.yaml` in the current
@@ -78,7 +90,13 @@ working directory. Alternatively, the path to the configuration file can be pass
 the `lclstreamer` executable using the `--config` option:
 
 ```
-pixi run mpirun -n 8 lclstreamer --config examples/lclstreamer.yaml
+pixi run --environment psana1 mpirun -n 8 lclstreamer --config examples/lclstreamer-psana1.yaml
+```
+
+For psana2:
+
+```
+pixi run --environment psana2 mpirun -n 8 lclstreamer --config examples/lclstreamer-psana2-tmo.yaml
 ```
 
 ### Development
@@ -86,4 +104,6 @@ pixi run mpirun -n 8 lclstreamer --config examples/lclstreamer.yaml
 During development, you'll want to run type checking and testing.
 This can be accomplished within the test1 or test2 environments,
 
-    pixi run -e test1 mypy src/
+```
+pixi run --environment test1 mypy src
+```
