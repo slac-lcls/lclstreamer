@@ -1,5 +1,10 @@
 from pathlib import Path
-from typing import Literal, Self
+from typing import Literal
+
+try:
+    from typing import Self
+except ImportError:
+    Self = "Self"
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
@@ -9,6 +14,9 @@ class CustomBaseModel(BaseModel):
         extra="forbid",  # Allows extra attributes during validation
     )
 
+
+class GenericEventSourceParameters(CustomBaseModel):
+    events: int
 
 class Psana1EventSourceParameters(CustomBaseModel): ...  # noqa: E701
 
@@ -63,6 +71,8 @@ class LclstreamerParameters(CustomBaseModel):
 
 
 class EventSourceParameters(CustomBaseModel):
+    GenericEventSource: GenericEventSourceParameters | None = None
+
     Psana1EventSource: Psana1EventSourceParameters | None = None
 
     Psana2EventSource: Psana2EventSourceParameters | None = None
