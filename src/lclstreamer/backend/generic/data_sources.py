@@ -49,7 +49,7 @@ class GenericRandomNumpyArray(DataSourceProtocol):
             log.error(f"Parameter 'array_dtype' for data source {name} is malformed")
             sys.exit(1)
         try:
-            self._array_dtype: numpy.dtype[numpy.int_ | numpy.float_] = numpy.dtype(
+            self._array_dtype: numpy.dtype[numpy.int_ | numpy.float64] = numpy.dtype(
                 extra_parameters["array_dtype"]
             )
         except TypeError:
@@ -58,7 +58,7 @@ class GenericRandomNumpyArray(DataSourceProtocol):
             )
             sys.exit(1)
 
-    def get_data(self, event: Any) -> NDArray[numpy.float_ | numpy.int_]:
+    def get_data(self, event: Any) -> NDArray[numpy.float64 | numpy.int_]:
         """
         Retrieves an array of int of float random numbers
 

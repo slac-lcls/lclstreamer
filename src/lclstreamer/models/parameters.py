@@ -10,6 +10,10 @@ class CustomBaseModel(BaseModel):
     )
 
 
+class InternalEventSourceParameters(CustomBaseModel):
+    number_of_events_to_generate: int
+
+
 class Psana1EventSourceParameters(CustomBaseModel): ...  # noqa: E701
 
 
@@ -50,6 +54,7 @@ class BinaryFileWritingDataHandlerParameters(CustomBaseModel):
 
 class DataSourceParameters(CustomBaseModel):
     type: str
+
     model_config = ConfigDict(extra="allow")
 
 
@@ -63,8 +68,8 @@ class LclstreamerParameters(CustomBaseModel):
 
 
 class EventSourceParameters(CustomBaseModel):
+    InternalEventSource: InternalEventSourceParameters | None = None
     Psana1EventSource: Psana1EventSourceParameters | None = None
-
     Psana2EventSource: Psana2EventSourceParameters | None = None
 
 
@@ -85,8 +90,8 @@ class DataHandlerParameters(CustomBaseModel):
 
 
 class Parameters(CustomBaseModel):
-    event_source: EventSourceParameters
     lclstreamer: LclstreamerParameters
+    event_source: EventSourceParameters
     data_sources: dict[str, DataSourceParameters]
     data_serializer: DataSerializerParameters
     data_handlers: DataHandlerParameters

@@ -8,7 +8,7 @@ from typing_extensions import Protocol, TypeAlias
 
 from ..models.parameters import DataSourceParameters, Parameters
 
-StrFloatIntNDArray: TypeAlias = NDArray[numpy.str_ | numpy.float_ | numpy.int_]
+StrFloatIntNDArray: TypeAlias = NDArray[numpy.str_ | numpy.float64 | numpy.int_]
 
 
 class EventSourceProtocol(Protocol):

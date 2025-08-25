@@ -1,0 +1,43 @@
+lclstreamer:
+    source_identifier: ""
+    event_source: InternalEventSource
+    processing_pipeline: BatchProcessingPipeline
+    data_serializer: Hdf5Serializer
+    skip_incomplete_events: false
+    data_handlers:
+        - BinaryFileWritingDataHandler
+          #- BinaryDataStreamingDataHandler
+
+data_sources:
+    random:
+        type: GenericRandomNumpyArray
+        array_shape: 20,2
+        array_dtype: float32
+
+event_source:
+    InternalEventSource:
+        number_of_events_to_generate: 1000
+
+processing_pipeline:
+    BatchProcessingPipeline:
+        batch_size: 10
+
+data_serializer:
+    Hdf5Serializer:
+        compression_level: 3
+        compression: zfp
+        fields:
+            random: /data/random
+
+data_handlers:
+    BinaryFileWritingDataHandler:
+        file_prefix: ""
+        file_suffix: h5
+        write_directory: workspace/output
+
+#   BinaryDataStreamingDataHandler:
+#       urls:
+#           - "tcp://sdfdtn003:5000"
+#       role: client
+#       library: nng
+#       socket_type: push

@@ -74,7 +74,7 @@ class BinaryStreamingPushDataHandlerNng:
         for url in data_handler_parameters.urls:
             try:
                 if data_handler_parameters.role == "server":
-                    self._socket.listen(url, block=True)
+                    self._socket.listen(url)
                 else:
                     self._socket.dial(url, block=True)
             except ConnectionRefused as err:
