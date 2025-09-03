@@ -21,7 +21,7 @@ lclstreamer:
   [...]
   event_source: Psana1EventSource
   processing_pipeline: NoOpProcessingPipeline
-  data_serializer: Hdf5Serializer
+  data_serializer: Hdf5BinarySerializer
   data_handlers:
     - BinaryFileWritingDataHandler
     - BinaryDataStreamingDataHandler
@@ -38,7 +38,7 @@ portion of the configuration file. For example:
 
 ```
 data_serializer:
-    Hdf5Serializer:
+    Hdf5BinarySerializer:
         compression_level: 3
         compression: zfp
         fields:

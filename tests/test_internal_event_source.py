@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from typer.testing import CliRunner
 from click.testing import Result
+from typer.testing import CliRunner
 
 from lclstreamer.cmd.lclstreamer import app
 
@@ -12,7 +12,7 @@ lclstreamer:
     source_identifier: ""
     event_source: InternalEventSource
     processing_pipeline: BatchProcessingPipeline
-    data_serializer: Hdf5Serializer
+    data_serializer: Hdf5BinarySerializer
     skip_incomplete_events: false
     data_handlers:
         - BinaryFileWritingDataHandler
@@ -32,7 +32,7 @@ processing_pipeline:
         batch_size: 10
 
 data_serializer:
-    Hdf5Serializer:
+    Hdf5BinarySerializer:
         compression_level: 3
         compression: zfp
         fields:

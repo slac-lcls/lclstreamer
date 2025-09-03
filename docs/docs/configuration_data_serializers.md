@@ -5,7 +5,7 @@
 This Data Serializer class turns the Data accumulated by LCLStreamer into a binary blob
 with the internal structure of an HDF5 file.
 
-### Configuration Parameters for Hdf5Serializer
+### Configuration Parameters for Hdf5BinarySerializer
 
 * `compression` (str): This parameter is optional. If present, the HDF5 Data Serializer
   compresses the data with the specified algorithm during serialization. Possible values

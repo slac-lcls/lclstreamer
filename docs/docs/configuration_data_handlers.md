@@ -9,7 +9,7 @@ suffix is appended to the resulting string. Optionally, a prefix can be prepende
 file name.
 
 
-### Configuration Parameters for Hdf5Serializer
+### Configuration Parameters for Hdf5BinarySerializer
 
 * `file_prefix` (str): This parameter is optional. It defines a prefix that is prepended
   to the name of each file written by the Data Handler. The default value is "" (an
@@ -32,7 +32,7 @@ Sockets created by this handler are blocking: if nothing receives the data on th
 side of the socket, the data flow through the handler stops.
 
 
-### Configuration Parameters for Hdf5Serializer
+### Configuration Parameters for Hdf5BinarySerializer
 
 * `urls` (list of str): This parameter defines the list of URIS where the Data Handler
   opens its sockets. Each URI must be in a format compatible with the `ZMQ` and `NNG`

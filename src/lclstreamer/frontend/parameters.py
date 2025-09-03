@@ -1,3 +1,4 @@
+import os.path
 import sys
 from pathlib import Path
 from typing import TextIO
@@ -8,8 +9,6 @@ from yaml.parser import ParserError  # type:ignore
 from ..models.parameters import Parameters
 from ..protocols.backend import StrFloatIntNDArray
 from ..utils.logging_utils import log
-
-import os.path
 
 
 def load_configuration_parameters(
@@ -26,8 +25,6 @@ def load_configuration_parameters(
 
         parameters: The configuration parameters
     """
-    print(f"DEBUG: {filename}")
-    print(f"DEBUG: {os.path.exists(filename)}")
     if not filename.exists():
         log.error(
             f"Cannot read the configuration file {filename}: The file does not exist"

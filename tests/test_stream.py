@@ -2,7 +2,7 @@ import os
 import signal
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Callable, Any
+from typing import Any, Callable
 
 from pynng import Pull0  # type: ignore
 from typer.testing import CliRunner
@@ -16,7 +16,7 @@ lclstreamer:
     source_identifier: "none"
     event_source: InternalEventSource
     processing_pipeline: BatchProcessingPipeline
-    data_serializer: Hdf5Serializer
+    data_serializer: Hdf5BinarySerializer
     skip_incomplete_events: false
     data_handlers:
         - BinaryDataStreamingDataHandler
@@ -37,7 +37,7 @@ processing_pipeline:
         batch_size: 10
 
 data_serializer:
-    Hdf5Serializer:
+    Hdf5BinarySerializer:
         compression_level: 3
         compression: zfp
         fields:

@@ -5,13 +5,13 @@ from typing import Any
 import h5py  # type: ignore
 import hdf5plugin  # type: ignore
 
-from ...models.parameters import HDF5SerializerParameters, Parameters
+from ...models.parameters import HDF5BinarySerializerParameters, Parameters
 from ...protocols.backend import StrFloatIntNDArray
 from ...protocols.frontend import DataSerializerProtocol
 from ...utils.logging_utils import log
 
 
-class Hdf5Serializer(DataSerializerProtocol):
+class Hdf5BinarySerializer(DataSerializerProtocol):
     """
     See documentation of the `__init__` function.
     """
@@ -28,12 +28,12 @@ class Hdf5Serializer(DataSerializerProtocol):
 
             parameters: The configuration parameters
         """
-        if parameters.data_serializer.Hdf5Serializer is None:
-            log.error("No configuration parameters found for Hdf5Serializer")
+        if parameters.data_serializer.Hdf5BinarySerializer is None:
+            log.error("No configuration parameters found for Hdf5BinarySerializer")
             sys.exit(1)
 
-        data_serializer_parameters: HDF5SerializerParameters = (
-            parameters.data_serializer.Hdf5Serializer
+        data_serializer_parameters: Hdf5BinarySerializerParameters = (
+            parameters.data_serializer.Hdf5BinarySerializer
         )
 
         if data_serializer_parameters.compression == "gzip":
@@ -97,8 +97,8 @@ class Hdf5Serializer(DataSerializerProtocol):
 
         if len(mismatching_entries) != 0:
             log.error(
-                "The Hdf5Serializer is asked to serialize the following data entries "
-                "but data for these entries is not available: "
+                "The Hdf5BinarySerializer is asked to serialize the following data "
+                "entries but data for these entries is not available: "
                 f"{' '.join(list(mismatching_entries))}"
             )
             sys.exit(1)

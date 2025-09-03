@@ -41,7 +41,10 @@ class DataSourceProtocol(Protocol):
     """
 
     def __init__(
-        self, name: str, parameters: DataSourceParameters, additional_info: Any
+        self,
+        name: str,
+        parameters: DataSourceParameters,
+        additional_info: dict[str, Any],
     ):
         """Initializes the data source"""
         ...

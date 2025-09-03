@@ -18,7 +18,7 @@ lclstreamer:
   [...]
   event_source: Psana1EventSource
   processing_pipeline: NoOpProcessingPipeline
-  data_serializer: Hdf5Serializer
+  data_serializer: Hdf5BinarySerializer
   data_handlers:
     - BinaryFileWritingDataHandler
     - BinaryDataStreamingDataHandler
@@ -26,9 +26,10 @@ lclstreamer:
 
 With this configuration options, LCLStreamer reads psana1 data (`Psana1EventSource`),
 does not perform any processing of the data (`NoOpProcessingPipeline`), serializes the
-data in a binary blob with the internal structure of an HDF5 file (`Hdf5Serializer`)
-and finally hands the binary blob to two data handlers: one that saves it as a file
-(`BinaryFileWritingDataHandler`) and one that streams it through a network socket
+data in a binary blob with the internal structure of an HDF5 file
+(`Hdf5BinarySerializer`) and finally hands the binary blob to two data handlers: one
+that saves it as a file(`BinaryFileWritingDataHandler`) and one that streams it
+through a network socket
 (`BinaryDataStreamingDataHandler`)
 
 
@@ -40,13 +41,13 @@ entry with the same name as the class located in a specific section of the confi
 file (`event source`, `processing_pipeline`, `data_serializer`, or `data_handlers`
 depending on the component that the class implements)
 
-For example, the configuration parameters for the `Hdf5Serializer` class, which
-implements the `data serializer` component, are defined by the `Hdf5Serializer` entry
-in the `data_serializer` section of the configuration file:
+For example, the configuration parameters for the `Hdf5BinarySerializer` class, which
+implements the `data serializer` component, are defined by the `Hdf5BinarySerializer`
+entry in the `data_serializer` section of the configuration file:
 
 ``` yaml
 data_serializer:
-    Hdf5Serializer:
+    HdfBinary5Serializer:
         compression_level: 3
         compression: zfp
         fields:

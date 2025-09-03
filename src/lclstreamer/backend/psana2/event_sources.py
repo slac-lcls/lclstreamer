@@ -111,7 +111,10 @@ class Psana2EventSource(EventSourceProtocol):
                 self._data_sources[data_source_name] = data_source_class(
                     name=data_source_name,
                     parameters=data_source_parameters[data_source_name],
-                    additional_info=self._psana_run,
+                    additional_info={
+                        "run": self._psana_run,
+                        "source_identifier": lclstreamer_parameters.source_identifier,
+                    },
                 )
             except NameError:
                 log.error(

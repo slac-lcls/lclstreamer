@@ -1,8 +1,8 @@
 lclstreamer:
-    source_identifier: exp=mfx100852324,run=355 
+    source_identifier: exp=mfx100852324,run=355
     event_source: Psana2EventSource
     processing_pipeline: BatchProcessingPipeline
-    data_serializer: Hdf5Serializer
+    data_serializer: Hdf5BinarySerializer
     skip_incomplete_events: True
     data_handlers:
         - BinaryFileWritingDataHandler
@@ -30,7 +30,6 @@ data_sources:
         type: Psana2PV
         psana_name: "SIOC:SYS0:ML00:AO192"
 
-
 event_source:
     Psana2EventSource: {}
 
@@ -39,7 +38,7 @@ processing_pipeline:
         batch_size: 10
 
 data_serializer:
-    Hdf5Serializer:
+    Hdf5BinarySerializer:
         compression_level: 3
         compression: zfp
         fields:

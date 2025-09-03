@@ -10,9 +10,7 @@ from ...protocols.backend import (
     StrFloatIntNDArray,
 )
 from ...utils.logging_utils import log
-from .data_sources import (  # noqa: F401
-    GenericRandomNumpyArray,
-)
+from .data_sources import GenericRandomNumpyArray  # noqa: F401
 
 
 class InternalEventSource(EventSourceProtocol):
@@ -62,7 +60,9 @@ class InternalEventSource(EventSourceProtocol):
                 self._data_sources[data_source_name] = data_source_class(
                     name=data_source_name,
                     parameters=data_source_parameters[data_source_name],
-                    additional_info=None,
+                    additional_info={
+                        "source_identifier": parameters.lclstreamer.source_identifier
+                    },
                 )
             except NameError:
                 log.error(

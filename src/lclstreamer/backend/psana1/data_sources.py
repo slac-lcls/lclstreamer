@@ -16,7 +16,10 @@ class Psana1Timestamp(DataSourceProtocol):
     """
 
     def __init__(
-        self, name: str, parameters: DataSourceParameters, additional_info: Any
+        self,
+        name: str,
+        parameters: DataSourceParameters,
+        additional_info: dict[str, Any],
     ):
         """
         Initializes a psana1 Timestamp data source.
@@ -64,7 +67,7 @@ class Psana1AreaDetector(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
-        additional_info: Any,
+        additional_info: dict[str, Any],
     ):
         """
         Initializes a psana1 area detector data source.
@@ -122,7 +125,7 @@ class Psana1AssembledAreaDetector(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
-        additional_info: Any,
+        additional_info: dict[str, Any],
     ):
         """
         Initializes a psana1 assembled area detector data source.
@@ -172,7 +175,7 @@ class Psana1PV(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
-        additional_info: Any,
+        additional_info: dict[str, Any],
     ):
         """
         Initializes a psana1 PV data source.
@@ -227,7 +230,7 @@ class Psana1BbmonDetectorTotalIntensity(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
-        additional_info: Any,
+        additional_info: dict[str, Any],
     ):
         """
         Initializes a psana1 BbmonDetector data source.
@@ -277,7 +280,7 @@ class Psana1IpmDetector(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
-        additional_info: Any,
+        additional_info: dict[str, Any],
     ):
         """
         Initializes a psana1 IpmDetector data source.
@@ -336,7 +339,7 @@ class Psana1EvrCodes(DataSourceProtocol):
         *,
         name: str,
         parameters: DataSourceParameters,
-        additional_info: Any,
+        additional_info: dict[str, Any],
     ):
         """
         Intializes a psana1 EVR data source
@@ -395,7 +398,7 @@ class Psana1UsdUsbDetector(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
-        additional_info: Any,
+        additional_info: dict[str, Any],
     ):
         """
         Initializes a psana1 UsdUsbDetector data source.

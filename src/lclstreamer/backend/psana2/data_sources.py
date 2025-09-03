@@ -22,7 +22,7 @@ class Psana2Timestamp(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
-        additional_info: Any,
+        additional_info: dict[str, Any],
     ):
         """
         Initializes a psana2 Timestamp data source.
@@ -60,7 +60,7 @@ class Psana2AreaDetector(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
-        additional_info: Any,
+        additional_info: dict[str, Any],
     ):
         """
         Initializes a psana2 area detector data source.
@@ -83,7 +83,7 @@ class Psana2AreaDetector(DataSourceProtocol):
             log.error(f"Entry 'calibration' is not defined for data source {name}")
             sys.exit(1)
 
-        detector_interface: Any = additional_info.Detector(
+        detector_interface: Any = additional_info["run"].Detector(
             extra_parameters["psana_name"]
         )
 
@@ -119,7 +119,7 @@ class Psana2AssembledAreaDetector(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
-        additional_info: Any,
+        additional_info: dict[str, Any],
     ):
         """
         Initializes a psana2 assembled area detector data source.
@@ -139,7 +139,7 @@ class Psana2AssembledAreaDetector(DataSourceProtocol):
             log.error(f"Entry 'psana_name' is not defined for data source {name}")
             sys.exit(1)
 
-        detector_interface: Any = additional_info.Detector(
+        detector_interface: Any = additional_info["run"].Detector(
             extra_parameters["psana_name"]
         )
 
@@ -170,7 +170,7 @@ class Psana2PV(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
-        additional_info: Any,
+        additional_info: dict[str, Any],
     ):
         """
         Initializes a psana2 PV data source.
@@ -190,7 +190,7 @@ class Psana2PV(DataSourceProtocol):
             log.error(f"Entry 'psana_name' is not defined for data source {name}")
             sys.exit(1)
 
-        self._detector_interface: Any = additional_info.Detector(
+        self._detector_interface: Any = additional_info["run"].Detector(
             extra_parameters["psana_name"]
         )
 
@@ -219,7 +219,7 @@ class Psana2EBeam(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
-        additional_info: Any,
+        additional_info: dict[str, Any],
     ):
         """
         Initializes a psana2 EBeam data source.
@@ -245,7 +245,7 @@ class Psana2EBeam(DataSourceProtocol):
             )
             sys.exit(1)
 
-        self._detector_interface: Any = additional_info.Detector("ebeam")
+        self._detector_interface: Any = additional_info["run"].Detector("ebeam")
 
     def get_data(self, event: Any) -> NDArray[numpy.float_]:
         """
@@ -274,7 +274,7 @@ class Psana2Gmd(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
-        additional_info: Any,
+        additional_info: dict[str, Any],
     ):
         """
         Initializes a psana2 GMD data source.
@@ -303,7 +303,7 @@ class Psana2Gmd(DataSourceProtocol):
             )
             sys.exit(1)
 
-        self._detector_interface: Any = additional_info.Detector(
+        self._detector_interface: Any = additional_info["run"].Detector(
             extra_parameters["psana_name"]
         )
 
@@ -334,7 +334,7 @@ class Psana2Camera(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
-        additional_info: Any,
+        additional_info: dict[str, Any],
     ):
         """
         Initializes a psana2 camera data source.
@@ -354,7 +354,7 @@ class Psana2Camera(DataSourceProtocol):
             log.error(f"Entry 'psana_name' is not defined for data source {name}")
             sys.exit(1)
 
-        detector_interface: Any = additional_info.Detector(
+        detector_interface: Any = additional_info["run"].Detector(
             extra_parameters["psana_name"]
         )
 
@@ -385,7 +385,7 @@ class Psana2HsdDetector(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
-        additional_info: Any,
+        additional_info: dict[str, Any],
     ):
         """
         Initializes a psana2 HSD detector data source.
@@ -414,10 +414,9 @@ class Psana2HsdDetector(DataSourceProtocol):
             )
             sys.exit(1)
 
-        detector_interface: Any = additional_info.Detector(
+        detector_interface: Any = additional_info["run"].Detector(
             extra_parameters["psana_name"]
         )
-        print(f"DEBUG: {dir(detector_interface.raw)}")
 
         if extra_parameters["psana_function"] == "peaks":
             self._data_retrieval_function: Callable[[Any], Any] = (

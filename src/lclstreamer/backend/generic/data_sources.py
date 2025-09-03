@@ -18,7 +18,7 @@ class GenericRandomNumpyArray(DataSourceProtocol):
         self,
         name: str,
         parameters: DataSourceParameters,
-        additional_info: Any,
+        additional_info: dict[str, Any],
     ):
         """
         Initializes a Generic Random Numpy Array data source.
@@ -84,3 +84,45 @@ class GenericRandomNumpyArray(DataSourceProtocol):
                 "supported"
             )
             sys.exit(1)
+
+
+class SourceIdentifier(DataSourceProtocol):
+    """
+    See documentation of the `__init__` function.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        parameters: DataSourceParameters,
+        additional_info: dict[str, Any],
+    ):
+        """
+        Initializes a Generic Random Numpy Array data source.
+
+        Arguments:
+
+            name: An identifier for the data source
+
+            parameters: The configuration parameters
+        """
+        del name
+        del parameters
+        self._source_identifier: NDArray[numpy.str_] = numpy.array(
+            additional_info["source_identifier"]
+        )
+
+    def get_data(self, event: Any) -> NDArray[numpy.str_]:
+        """
+        Retrieves an array of int of float random numbers
+
+        Arguments:
+
+            event: A psana1 event
+
+        Returns:
+
+            random: an array of the type and size requested by the user, containing
+            random data (either of integer or floating type)
+        """
+        return self._source_identifier
