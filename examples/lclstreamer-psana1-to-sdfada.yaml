@@ -1,0 +1,57 @@
+lclstreamer:
+    source_identifier: exp=xpptut15:run=430
+    event_source: Psana1EventSource
+    processing_pipeline: BatchProcessingPipeline
+    data_serializer: Hdf5BinarySerializer
+    skip_incomplete_events: false
+    data_handlers:
+        - BinaryFileWritingDataHandler
+        - BinaryDataStreamingDataHandler
+
+data_sources:
+    timestamp:
+        type: Psana1Timestamp
+
+    detector_data:
+        type: Psana1AreaDetector
+        psana_name: Jungfrau1M
+        calibration: true
+
+    random:
+        type: GenericRandomNumpyArray
+        array_shape: 4,4,4
+        array_dtype: float32
+
+    photon_wavelength:
+        type: Psana1PV
+        psana_name: "SIOC:SYS0:ML00:AO192"
+
+event_source:
+    Psana1EventSource: {}
+
+processing_pipeline:
+    BatchProcessingPipeline:
+        batch_size: 10
+
+data_serializer:
+    Hdf5BinarySerializer:
+        compression_level: 3
+        compression: zfp
+        fields:
+            timestamp: /data/timestamp
+            detector_data: /data/data
+            random: /data/random
+            photon_wavelength: /data/wavelength
+
+data_handlers:
+    BinaryFileWritingDataHandler:
+        file_prefix: ""
+        file_suffix: h5
+        write_directory: workspace/output
+
+    BinaryDataStreamingDataHandler:
+        urls:
+            - "tcp://sdfada003:12321"
+        role: client
+        library: nng
+        socket_type: push

@@ -54,6 +54,35 @@ processing_pipeline:
     NoOpProcessingPipeline: {}
 ```
 
+### Distributed Streaming
+
+LCLStreamer supports distributed streaming architectures where data processing is split across specialized computing resources:
+
+- **Source nodes**: Run CPU-intensive psana applications with MPI parallelization for high-throughput data reading and preprocessing
+- **Sink nodes**: Execute downstream processing tasks (e.g., machine learning inference) optimized for different hardware (GPUs, specialized accelerators)
+
+This architecture enables real-time producer-consumer data processing pipelines, where psana applications stream processed data directly to downstream consumers without intermediate file I/O. The approach eliminates Python environment dependencies between source and sink nodes while providing GPU-friendly data delivery for accelerated computing workloads.
+
+**Configuration**: Use `BinaryDataStreamingDataHandler` with `role: client` for MPI ranks to connect to external sink nodes. Update the sink node URL in your configuration file based on the node allocated by SLURM.
+
+**Example setup**:
+```bash
+# 1. Start sink node first (server - auto-detects hostname, uses default port)
+python examples/psana_pull_script.py
+
+# 2. Update configuration file with actual sink node hostname and port
+# Edit examples/lclstreamer-psana1-to-sdfada.yaml:
+# BinaryDataStreamingDataHandler:
+#   url: tcp://your-allocated-node:your-port-number
+
+# 3. Start source node (multiple MPI ranks connecting to sink)
+pixi run --environment psana1 mpirun -n 8 lclstreamer --config examples/lclstreamer-psana1-to-sdfada.yaml
+```
+
+**Note**: When using SLURM, update the sink node URL in your configuration file to match the hostname of the node allocated for your sink job. Both hostname and port can be customized using `--hostname` and `--port` options if needed.
+
+The pull script (`examples/psana_pull_script.py`) auto-detects the hostname and provides comprehensive data inspection with configurable network endpoints for flexible deployment across heterogeneous computing environments.
+
 ### Deployment
 
 LCLStreamer uses [pixi](https://pixi.sh/latest/) for deployment, due to the mixture of
