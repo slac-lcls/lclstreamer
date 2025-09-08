@@ -1,5 +1,6 @@
 import sys
 from collections.abc import Iterator
+from stream.core import stream
 
 from ...models.parameters import ProcessingPipelineParameters
 from ...protocols.backend import StrFloatIntNDArray

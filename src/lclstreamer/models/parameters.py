@@ -20,6 +20,10 @@ class Psana1EventSourceParameters(CustomBaseModel): ...  # noqa: E701
 class Psana2EventSourceParameters(CustomBaseModel): ...  # noqa: E701
 
 
+class SimplonBinarySerializerParameters(CustomBaseModel):
+    data_source_to_serialize: str
+
+
 class HDF5BinarySerializerParameters(CustomBaseModel):
     compression_level: int = 3
     compression: (
@@ -79,6 +83,7 @@ class ProcessingPipelineParameters(CustomBaseModel):
 
 class DataSerializerParameters(CustomBaseModel):
     Hdf5BinarySerializer: HDF5BinarySerializerParameters | None = None
+    SimplonBinarySerializer: SimplonBinarySerializerParameters | None = None
 
 
 class DataHandlerParameters(CustomBaseModel):

@@ -2,7 +2,11 @@ from collections.abc import Iterator
 
 from typing_extensions import Protocol
 
-from ..models.parameters import Parameters
+from ..models.parameters import (
+    DataHandlerParameters,
+    DataSerializerParameters,
+    ProcessingPipelineParameters,
+)
 from .backend import StrFloatIntNDArray
 
 
@@ -13,7 +17,7 @@ class ProcessingPipelineProtocol(Protocol):
 
     def __init__(
         self,
-        parameters: Parameters,
+        parameters: ProcessingPipelineParameters,
     ):
         """Initializes the data processing pipeline"""
         ...
@@ -26,20 +30,20 @@ class ProcessingPipelineProtocol(Protocol):
 
 
 class DataSerializerProtocol(Protocol):
-    def __init__(self, parameters: Parameters):
+    def __init__(self, parameters: DataSerializerParameters):
         """Initializes the data serializers"""
         ...
 
-    def serialize_data(self, data: dict[str, StrFloatIntNDArray]) -> bytes:
-        """Serializes the data"""
-        ...
+    def __call__(
+        self, stream: Iterator[dict[str, StrFloatIntNDArray | None]]
+    ) -> Iterator[bytes]: ...
 
 
 class DataHandlerProtocol(Protocol):
-    def __init__(self, parameters: Parameters):
+    def __init__(self, parameters: DataHandlerParameters):
         """Initializes the data handler"""
         ...
 
-    def handle_data(self, data: bytes) -> None:
+    def __call__(self, data: bytes) -> None:
         """Handles the data"""
         ...

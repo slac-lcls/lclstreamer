@@ -1,0 +1,44 @@
+lclstreamer:
+    source_identifier: exp=mfx100852324,run=355
+    event_source: Psana2EventSource
+    processing_pipeline: BatchProcessingPipeline
+    data_serializer: SimplonBinarySerializer
+    skip_incomplete_events: True
+    data_handlers:
+        - BinaryDataStreamingDataHandler
+
+data_sources:
+    timestamp:
+        type: Psana2Timestamp
+
+    detector_data:
+        type: Psana2AreaDetector
+        psana_name: jungfrau
+        calibration: false
+
+    assembled_detector_data:
+        type: Psana2AssembledAreaDetector
+        psana_name: jungfrau
+
+    photon_wavelength:
+        type: Psana2PV
+        psana_name: "SIOC:SYS0:ML00:AO192"
+
+event_source:
+    Psana2EventSource: {}
+
+processing_pipeline:
+    BatchProcessingPipeline:
+        batch_size: 1
+
+data_serializer:
+    SimplonBinarySerializer:
+        data_source_to_serialize: detector_data
+
+data_handlers:
+    BinaryDataStreamingDataHandler:
+        urls:
+            - "tcp://127.0.0.1:12321"
+        role: client
+        library: nng
+        socket_type: push

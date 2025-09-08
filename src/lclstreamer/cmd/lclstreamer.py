@@ -9,7 +9,7 @@ from typing import (
 
 import typer
 from mpi4py import MPI
-from stream.core import stream  # type: ignore
+from stream.core import stream, Source  # type: ignore
 from stream.ops import chop, map, take, tap  # type: ignore
 
 from ..backend.event_source import initialize_event_source
@@ -149,12 +149,16 @@ def main(
         workflow >>= filter_incomplete_events(max_consecutive=1)
 
     workflow >>= processing_pipeline
+    
+    workflow = Source(workflow)
 
-    workflow >>= map(data_serializer.serialize_data)
+    workflow >>= data_serializer
+    
+    workflow = Source(workflow)
 
     data_handler: DataHandlerProtocol
     for data_handler in data_handlers:
-        workflow >>= tap(data_handler.handle_data)
+        workflow >>= tap(data_handler)
 
     workflow >>= map(data_counter)
 

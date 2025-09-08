@@ -3,7 +3,10 @@ from pathlib import Path
 
 from mpi4py import MPI
 
-from ...models.parameters import BinaryFileWritingDataHandlerParameters, Parameters
+from ...models.parameters import (
+    BinaryFileWritingDataHandlerParameters,
+    DataHandlerParameters,
+)
 from ...protocols.frontend import DataHandlerProtocol
 from ...utils.logging_utils import log
 
@@ -13,7 +16,7 @@ class BinaryFileWritingDataHandler(DataHandlerProtocol):
     See documentation of the `__init__` function.
     """
 
-    def __init__(self, parameters: Parameters):
+    def __init__(self, parameters: DataHandlerParameters):
         """
         Initializes a binary file writing data handler
 
@@ -23,14 +26,14 @@ class BinaryFileWritingDataHandler(DataHandlerProtocol):
 
               parameters: The configuration parameters
         """
-        if parameters.data_handlers.BinaryFileWritingDataHandler is None:
+        if parameters.BinaryFileWritingDataHandler is None:
             log.error(
                 "No configuration parameters found for BinaryFileWritingDataHandler"
             )
             sys.exit(1)
 
         data_handler_parameters: BinaryFileWritingDataHandlerParameters = (
-            parameters.data_handlers.BinaryFileWritingDataHandler
+            parameters.BinaryFileWritingDataHandler
         )
 
         self._rank: int = MPI.COMM_WORLD.Get_rank()
@@ -45,7 +48,7 @@ class BinaryFileWritingDataHandler(DataHandlerProtocol):
 
         self._write_directory.mkdir(exist_ok=True, parents=True)
 
-    def handle_data(self, data: bytes) -> None:
+    def __call__(self, data: bytes) -> None:
         """
         Writes a bytes object to the filesystem as a single file.
 
