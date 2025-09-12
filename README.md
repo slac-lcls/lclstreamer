@@ -68,7 +68,7 @@ This architecture enables real-time producer-consumer data processing pipelines,
 **Example setup**:
 ```bash
 # 1. Start sink node first (server - auto-detects hostname, uses default port)
-python examples/psana_pull_script.py
+python examples/psana_pull_script_inspect.py
 
 # 2. Update configuration file with actual sink node hostname and port
 # Edit examples/lclstreamer-psana1-to-sdfada.yaml:
@@ -81,7 +81,7 @@ pixi run --environment psana1 mpirun -n 8 lclstreamer --config examples/lclstrea
 
 **Note**: When using SLURM, update the sink node URL in your configuration file to match the hostname of the node allocated for your sink job. Both hostname and port can be customized using `--hostname` and `--port` options if needed.
 
-The pull script (`examples/psana_pull_script.py`) auto-detects the hostname and provides comprehensive data inspection with configurable network endpoints for flexible deployment across heterogeneous computing environments.
+Use `examples/psana_pull_script.py` for basic HDF5 data reception, or `examples/psana_pull_script_inspect.py` for comprehensive data inspection with hostname auto-detection and configurable network endpoints for flexible deployment across heterogeneous computing environments.
 
 ### Deployment
 
