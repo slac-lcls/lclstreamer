@@ -149,11 +149,11 @@ def main(
         workflow >>= filter_incomplete_events(max_consecutive=1)
 
     workflow >>= processing_pipeline
-    
+
     workflow = Source(workflow)
 
     workflow >>= data_serializer
-    
+
     workflow = Source(workflow)
 
     data_handler: DataHandlerProtocol

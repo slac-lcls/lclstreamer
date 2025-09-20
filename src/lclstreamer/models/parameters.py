@@ -22,6 +22,8 @@ class Psana2EventSourceParameters(CustomBaseModel): ...  # noqa: E701
 
 class SimplonBinarySerializerParameters(CustomBaseModel):
     data_source_to_serialize: str
+    polarization_fraction: float
+    polarization_axis: list[float]
 
 
 class HDF5BinarySerializerParameters(CustomBaseModel):

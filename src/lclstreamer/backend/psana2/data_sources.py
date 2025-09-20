@@ -439,3 +439,124 @@ class Psana2HsdDetector(DataSourceProtocol):
             array
         """
         return numpy.array(self._data_retrieval_function(event), dtype=numpy.float_)
+
+
+class Psana2DetectorValues(DataSourceProtocol):
+    """
+    See documentation of the `__init__` function.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        parameters: DataSourceParameters,
+        additional_info: dict[str, Any],
+    ):
+        """
+        Initializes a psana2 Detector values data source.
+
+        Arguments:
+
+            name: An identifier for the data source
+
+            parameters: The configuration parameters
+        """
+        extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
+
+        if extra_parameters is None:
+            log.error(f"Entries needed by the {name} data source are not defined")
+            sys.exit(1)
+        if "psana_name" not in extra_parameters:
+            log.error(f"Entry 'psana_name' is not defined for data source {name}")
+            sys.exit(1)
+        if "psana_fields" not in extra_parameters:
+            log.error(f"Entry 'psana_fields' is not defined for data source {name}")
+            sys.exit(1)
+        self._detector_interface: Any = additional_info["run"].Detector(
+            extra_parameters["psana_name"]
+        )
+
+        self._det_params = []
+        for fields in extra_parameters["psana_fields"]:
+            self._det_params.append(fields)
+
+    def get_data(self, event: Any) -> NDArray[numpy.str_]:
+        """
+        Retrieves Detector values from a psana2 event
+
+        Arguments:
+
+            event: A psana2 event
+
+         Returns:
+
+            value: The retrieved data is a list, such as:
+            [Value1, Value2, Value3, ...]
+            in the format of a numpy string array.
+        """
+
+        data = []
+
+        for param in self._det_params:
+            subfields = param.split(".")
+            base = self._detector_interface
+            for field in subfields:
+                if hasattr(base, field):
+                    base = getattr(base, field)
+                else:
+                    log.error(f"Detector {base} has no parameter {field}")
+                    sys.exit(1)
+            data.append(str(base(event)) if callable(base) else str(base))
+
+        return numpy.array(data, dtype=numpy.str_)
+
+
+class Psana2RunInfo(DataSourceProtocol):
+    """
+    See documentation of the `__init__` function.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        parameters: DataSourceParameters,
+        additional_info: dict[str, Any],
+    ):
+        """
+        Initializes a psana2 run info data source.
+
+        Arguments:
+
+            name: An identifier for the data source
+
+            parameters: The configuration parameters
+        """
+        extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
+
+        if extra_parameters is None:
+            log.error(f"Entries needed by the {name} data source are not defined")
+            sys.exit(1)
+
+        run = additional_info["run"]
+        self._data = [
+            run.expt,
+            str(run.timestamp),
+            str(run.runnum),
+            additional_info["source_identifier"],
+        ]
+
+    def get_data(self, event: Any) -> NDArray[numpy.str_]:
+        """
+        Retrieves the detector info from a psana2 event
+
+        Arguments:
+
+            event: A psana2 event
+
+         Returns:
+
+            value: A list of the experiment's name, run start's timestamp,
+            run number and source identifier.
+        """
+
+        return numpy.array(self._data, dtype=numpy.str_)
