@@ -41,6 +41,7 @@ class SimplonBinarySerializer(DataSerializerProtocol):
             "polarization_fraction": parameters.SimplonBinarySerializer.polarization_fraction,
             "polarization_axis": parameters.SimplonBinarySerializer.polarization_axis
         }
+        self._data_rate: str = parameters.SimplonBinarySerializer.data_collection_rate
         self._node_rank: int = MPI.COMM_WORLD.Get_rank()
         self._node_pool_size: int = MPI.COMM_WORLD.Get_size()
         self._rank_message_count: int = 1
@@ -88,28 +89,26 @@ class SimplonBinarySerializer(DataSerializerProtocol):
                 )
                 sys.exit(1)
 
-            experiment_data = data["run_info"][-1]
-            run_number = experiment_data[2]
+            experiment_data: numpy.ndarray = data["run_info"][-1]
+            run_number: int = experiment_data[2]
 
             if self._node_rank == self._node_pool_size - 1:
                 if first_message:
 
-                    first_message = False
+                    first_message: bool = False
 
-                    beam_energy = data["photon_wavelength"][-1]
-                    beam_pointing = data["beam_pointing"][-1]
-                    detector_info = data["detector_info"][-1]
+                    beam_energy: float = data["photon_wavelength"][-1]
+                    detector_info: numpy.ndarray = data["detector_info"][-1]
 
                     yield b"".join(
                         (
                             b"m",
                             dumps(
                                 {
-
                                     "type": "start",
                                     "run_number": run_number,
                                     "start_time": experiment_data[1],
-                                    "duration": "???",
+                                    "duration": "N/A",
                                     "beamline": experiment_data[3][4:7].upper(),
                                     "experiment": experiment_data[0],
                                     "beam_type": "X-ray",
@@ -118,14 +117,7 @@ class SimplonBinarySerializer(DataSerializerProtocol):
                                             "fraction": self._polarization["polarization_fraction"],
                                             "axis": self._polarization["polarization_axis"]
                                         },
-                                    "beam_direction":
-                                        {
-                                            "angle_x": beam_pointing[0],
-                                            "angle_y": beam_pointing[1],
-                                            "position_x": beam_pointing[2],
-                                            "position_y": beam_pointing[3]
-                                        },
-                                    "data_collection_rate": "120Hz",
+                                    "data_collection_rate": self._data_rate,
                                     "datatype": str(array.dtype),
                                     "shape": 'x'.join(map(str, array.shape)),
                                     "algorithm": "bitshuffle-lz4",
@@ -134,7 +126,8 @@ class SimplonBinarySerializer(DataSerializerProtocol):
                                             "name": detector_info[0],
                                             "id": detector_info[1],
                                             "type": detector_info[2],
-                                            "geometry": "???",
+                                            "geometry": detector_info[3],
+                                            "pixel_coords": numpy.array(detector_info[4]).tobytes(),
                                             "material": "???",
                                             "thickness": "???"
                                         },
@@ -150,11 +143,19 @@ class SimplonBinarySerializer(DataSerializerProtocol):
             array_sum: float | int = array.sum()
 
             compressed_data: NDArray[numpy.int_] = compress_lz4(array, block_size=2**12)
+            beam_pointing = data["beam_pointing"][-1]
 
             message: dict[str, Any] = {
                 "type": "image",
                 "run": run_number,
                 "compressed_data": compressed_data.tobytes(),
+                "beam_direction":
+                    {
+                        "angle_x": beam_pointing[0],
+                        "angle_y": beam_pointing[1],
+                        "position_x": beam_pointing[2],
+                        "position_y": beam_pointing[3]
+                    },
                 "dtype": str(array.dtype),
                 "sum": array_sum,
                 "message_id": self._node_rank * 10000 + self._rank_message_count,

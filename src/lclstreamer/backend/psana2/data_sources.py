@@ -480,7 +480,7 @@ class Psana2DetectorValues(DataSourceProtocol):
         for fields in extra_parameters["psana_fields"]:
             self._det_params.append(fields)
 
-    def get_data(self, event: Any) -> NDArray[numpy.str_]:
+    def get_data(self, event: Any) -> NDArray[object]:
         """
         Retrieves Detector values from a psana2 event
 
@@ -490,9 +490,9 @@ class Psana2DetectorValues(DataSourceProtocol):
 
          Returns:
 
-            value: The retrieved data is a list, such as:
-            [Value1, Value2, Value3, ...]
-            in the format of a numpy string array.
+            value: The retrieved data is a list of object, such as:
+            [Object1, Object2, Object3, ...]
+            in the format of a numpy array.
         """
 
         data = []
@@ -506,9 +506,15 @@ class Psana2DetectorValues(DataSourceProtocol):
                 else:
                     log.error(f"Detector {base} has no parameter {field}")
                     sys.exit(1)
-            data.append(str(base(event)) if callable(base) else str(base))
-
-        return numpy.array(data, dtype=numpy.str_)
+            if callable(base):
+                try:
+                    res = base(event)
+                except TypeError:
+                    res = base()
+                data.append(res)
+            else:
+                data.append(base)
+        return numpy.array(data, dtype=object)
 
 
 class Psana2RunInfo(DataSourceProtocol):

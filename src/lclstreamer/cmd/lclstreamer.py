@@ -34,7 +34,7 @@ def filter_incomplete_events(
     events: Iterator[dict[str, StrFloatIntNDArray | None]], max_consecutive: int = 100
 ) -> Iterator[dict[str, StrFloatIntNDArray | None]]:
     """
-    Ddrops events that are incomplete
+    Drops events that are incomplete
 
     Incomplete events are events where the retrieval of one or more data items
     failed.

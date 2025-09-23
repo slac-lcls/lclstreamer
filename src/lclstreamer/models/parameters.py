@@ -24,6 +24,7 @@ class SimplonBinarySerializerParameters(CustomBaseModel):
     data_source_to_serialize: str
     polarization_fraction: float
     polarization_axis: list[float]
+    data_collection_rate: str
 
 
 class HDF5BinarySerializerParameters(CustomBaseModel):
