@@ -39,6 +39,15 @@ class BatchProcessingPipelineParameters(CustomBaseModel):
     batch_size: int
 
 
+class PreprocessingBatchPipelineParameters(CustomBaseModel):
+    batch_size: int
+    target_height: int
+    target_width: int
+    pad_style: Literal["center", "bottom-right"] = "center"
+    add_channel_dim: bool = True
+    num_channels: int = 1
+
+
 class BinaryDataStreamingDataHandlerParameters(CustomBaseModel):
     urls: list[str]
     role: Literal["server", "client"] = "server"
@@ -75,6 +84,7 @@ class EventSourceParameters(CustomBaseModel):
 
 class ProcessingPipelineParameters(CustomBaseModel):
     BatchProcessingPipeline: BatchProcessingPipelineParameters | None = None
+    PreprocessingBatchPipeline: PreprocessingBatchPipelineParameters | None = None
 
 
 class DataSerializerParameters(CustomBaseModel):

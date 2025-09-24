@@ -15,6 +15,10 @@ data_sources:
         type: Psana1AssembledAreaDetector
         psana_name: epix10k2M
 
+    random:
+        type: GenericRandomNumpyArray
+        array_shape: 4,4,4
+        array_dtype: float32
 
     photon_wavelength:
         type: Psana1PV
@@ -26,8 +30,8 @@ event_source:
 processing_pipeline:
     PreprocessingBatchPipeline:
         batch_size: 16
-        target_height: 1920
-        target_width: 1920
+        target_height: 2048
+        target_width: 2048
         pad_style: center
         add_channel_dim: true
         num_channels: 1
@@ -39,6 +43,7 @@ data_serializer:
         fields:
             timestamp: /data/timestamp
             detector_data: /data/data
+            random: /data/random
             photon_wavelength: /data/wavelength
 
 data_handlers:
