@@ -55,7 +55,7 @@ class BatchProcessingPipeline(ProcessingPipelineProtocol):
             yield data_storage.retrieve_stored_data()
 
 
-class PreprocessingBatchPipeline(ProcessingPipelineProtocol):
+class PeaknetPreprocessingPipeline(ProcessingPipelineProtocol):
     """
     A processing pipeline that applies preprocessing (padding, channel dimension) and batching.
 
@@ -70,16 +70,16 @@ class PreprocessingBatchPipeline(ProcessingPipelineProtocol):
 
     def __init__(self, parameters: ProcessingPipelineParameters) -> None:
         """
-        Initializes a preprocessing batch pipeline.
+        Initializes a PeakNet preprocessing pipeline.
 
         Arguments:
             parameters: The configuration parameters
         """
-        if parameters.PreprocessingBatchPipeline is None:
-            log.error("No configuration parameters found for PreprocessingBatchPipeline")
+        if parameters.PeaknetPreprocessingPipeline is None:
+            log.error("No configuration parameters found for PeaknetPreprocessingPipeline")
             sys.exit(1)
 
-        config = parameters.PreprocessingBatchPipeline
+        config = parameters.PeaknetPreprocessingPipeline
         self._batch_size: int = config.batch_size
 
         # Initialize padding utility

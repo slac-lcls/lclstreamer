@@ -39,7 +39,7 @@ class BatchProcessingPipelineParameters(CustomBaseModel):
     batch_size: int
 
 
-class PreprocessingBatchPipelineParameters(CustomBaseModel):
+class PeaknetPreprocessingPipelineParameters(CustomBaseModel):
     batch_size: int
     target_height: int
     target_width: int
@@ -84,7 +84,7 @@ class EventSourceParameters(CustomBaseModel):
 
 class ProcessingPipelineParameters(CustomBaseModel):
     BatchProcessingPipeline: BatchProcessingPipelineParameters | None = None
-    PreprocessingBatchPipeline: PreprocessingBatchPipelineParameters | None = None
+    PeaknetPreprocessingPipeline: PeaknetPreprocessingPipelineParameters | None = None
 
 
 class DataSerializerParameters(CustomBaseModel):

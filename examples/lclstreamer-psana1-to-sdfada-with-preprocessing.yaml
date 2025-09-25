@@ -1,7 +1,7 @@
 lclstreamer:
     source_identifier: exp=mfx100903824:run=27
     event_source: Psana1EventSource
-    processing_pipeline: PreprocessingBatchPipeline
+    processing_pipeline: PeaknetPreprocessingPipeline
     data_serializer: Hdf5BinarySerializer
     skip_incomplete_events: false
     data_handlers:
@@ -28,7 +28,7 @@ event_source:
     Psana1EventSource: {}
 
 processing_pipeline:
-    PreprocessingBatchPipeline:
+    PeaknetPreprocessingPipeline:
         batch_size: 16
         target_height: 2048
         target_width: 2048
