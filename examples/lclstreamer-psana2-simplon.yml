@@ -24,6 +24,28 @@ data_sources:
         type: Psana2PV
         psana_name: "SIOC:SYS0:ML00:AO192"
 
+    detector_geometry:
+        type: Psana2DetectorInterface
+        psana_name: "jungfrau"
+        psana_fields: [
+            "_detid",                     # Detector ID
+            "raw._det_geotxt_default"     # Geometry data
+            #"raw._pixel_coords"          # Pixel coordinates (optional)
+        ]
+
+    beam_pointing:                     # Optional
+        type: Psana2DetectorInterface
+        psana_name: "ebeamh"
+        psana_fields: [
+            "raw.ebeamUndAngX",        # Angle X
+            "raw.ebeamUndAngY",        # Angle Y
+            "raw.ebeamUndPosX",        # Pos X
+            "raw.ebeamUndPosY"         # Pos Y
+        ]
+
+    run_info:
+        type: Psana2RunInfo
+
 event_source:
     Psana2EventSource: {}
 
@@ -34,6 +56,11 @@ processing_pipeline:
 data_serializer:
     SimplonBinarySerializer:
         data_source_to_serialize: detector_data
+        polarization_fraction: 0
+        polarization_axis: [1.0, 0.0, 0.0]
+        data_collection_rate: "120Hz"
+        detector_name: "jungfrau"
+        detector_type: "AreaDetector"
 
 data_handlers:
     BinaryDataStreamingDataHandler:
