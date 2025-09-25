@@ -42,6 +42,8 @@ class SimplonBinarySerializer(DataSerializerProtocol):
             "polarization_axis": parameters.SimplonBinarySerializer.polarization_axis
         }
         self._data_rate: str = parameters.SimplonBinarySerializer.data_collection_rate
+        self._detector_name: str = parameters.SimplonBinarySerializer.detector_name
+        self._detector_type: str = parameters.SimplonBinarySerializer.detector_type
         self._node_rank: int = MPI.COMM_WORLD.Get_rank()
         self._node_pool_size: int = MPI.COMM_WORLD.Get_size()
         self._rank_message_count: int = 1
@@ -94,11 +96,10 @@ class SimplonBinarySerializer(DataSerializerProtocol):
 
             if self._node_rank == self._node_pool_size - 1:
                 if first_message:
-
                     first_message: bool = False
 
                     beam_energy: float = data["photon_wavelength"][-1]
-                    detector_info: numpy.ndarray = data["detector_info"][-1]
+                    detector_geometry: numpy.ndarray = data["detector_geometry"][-1]
 
                     yield b"".join(
                         (
@@ -112,26 +113,25 @@ class SimplonBinarySerializer(DataSerializerProtocol):
                                     "beamline": experiment_data[3][4:7].upper(),
                                     "experiment": experiment_data[0],
                                     "beam_type": "X-ray",
-                                    "polarization": 
+                                    "polarization":
                                         {
-                                            "fraction": self._polarization["polarization_fraction"],
-                                            "axis": self._polarization["polarization_axis"]
+                                            "fraction": self._polarization.get("polarization_fraction", 0),
+                                            "axis": self._polarization.get("polarization_axis", [0.0,0.0,0.0]),
                                         },
                                     "data_collection_rate": self._data_rate,
                                     "datatype": str(array.dtype),
                                     "shape": 'x'.join(map(str, array.shape)),
                                     "algorithm": "bitshuffle-lz4",
-                                    "detector": 
+                                    "detector":
                                         {
-                                            "name": detector_info[0],
-                                            "id": detector_info[1],
-                                            "type": detector_info[2],
-                                            "geometry": detector_info[3],
-                                            "pixel_coords": numpy.array(detector_info[4]).tobytes(),
+                                            "name": self._detector_name,
+                                            "id": detector_geometry[0],
+                                            "type": self._detector_type,
+                                            "geometry": detector_geometry[1],
+                                            "pixel_coords": numpy.array(detector_geometry[2]).tobytes() if len(detector_geometry) > 2 else "",
                                             "material": "???",
                                             "thickness": "???"
                                         },
-
                                     "photon_wavelength": beam_energy,
                                     "message_id": self._node_rank * 10000 + self._rank_message_count,
                                     "timestamp": time()
@@ -143,19 +143,29 @@ class SimplonBinarySerializer(DataSerializerProtocol):
             array_sum: float | int = array.sum()
 
             compressed_data: NDArray[numpy.int_] = compress_lz4(array, block_size=2**12)
-            beam_pointing = data["beam_pointing"][-1]
+
+            beam_direction: dict() = {}
+            try:
+                beam_pointing: numpy.ndarray = data["beam_pointing"][-1]
+                beam_direction: dict() = {
+                    "beam_direction":
+                        {
+                            "angle_x": beam_pointing[0],
+                            "angle_y": beam_pointing[1],
+                            "position_x": beam_pointing[2],
+                            "position_y": beam_pointing[3]
+                        }
+                }
+            except KeyError as e:
+                log.info(
+                    f"Field: {e.args[0]} not found in data_sources. Skipping."
+                )
 
             message: dict[str, Any] = {
                 "type": "image",
                 "run": run_number,
                 "compressed_data": compressed_data.tobytes(),
-                "beam_direction":
-                    {
-                        "angle_x": beam_pointing[0],
-                        "angle_y": beam_pointing[1],
-                        "position_x": beam_pointing[2],
-                        "position_y": beam_pointing[3]
-                    },
+                **beam_direction,
                 "dtype": str(array.dtype),
                 "sum": array_sum,
                 "message_id": self._node_rank * 10000 + self._rank_message_count,

@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Literal, Self
 
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, model_validator, Field, conlist
 
 
 class CustomBaseModel(BaseModel):
@@ -25,6 +25,8 @@ class SimplonBinarySerializerParameters(CustomBaseModel):
     polarization_fraction: float
     polarization_axis: list[float]
     data_collection_rate: str
+    detector_name: str
+    detector_type: str
 
 
 class HDF5BinarySerializerParameters(CustomBaseModel):
@@ -59,8 +61,49 @@ class BinaryFileWritingDataHandlerParameters(CustomBaseModel):
     write_directory: Path = Path.cwd()
 
 
+class TimestampParameters(CustomBaseModel):
+    type: str
+
+
+class DetectorDataParameters(CustomBaseModel):
+    type: str
+    psana_name: str
+    calibration: bool
+
+
+class PhotonWavelengthParameters(CustomBaseModel):
+    type: str
+    psana_name: str
+
+
+class DetectorGeometryParameters(CustomBaseModel):
+    type: str
+    psana_name: str
+    psana_fields: list[str] = Field(
+        default_factory = list, min_length=2, max_length=3
+    )
+
+
+class BeamPointingParameters(CustomBaseModel):
+    type: str
+    psana_name: str
+    psana_fields: list[str] = Field(
+        default_factory = list, min_length=4, max_length=4
+    )
+
+
+class RunInfoParameters(CustomBaseModel):
+    type: str
+
+
 class DataSourceParameters(CustomBaseModel):
     type: str
+    timestamp: TimestampParameters | None = None
+    detector_data: DetectorDataParameters | None = None
+    photon_wavelength: PhotonWavelengthParameters | None = None
+    detector_info: DetectorGeometryParameters | None = None
+    beam_pointing: BeamPointingParameters | None = None
+    run_info: RunInfoParameters | None = None
 
     model_config = ConfigDict(extra="allow")
 
@@ -132,6 +175,21 @@ class Parameters(CustomBaseModel):
             if getattr(self.data_handlers, data_handler_name) is None:
                 raise ValueError(
                     f"No configuration found for {data_handler_name} data handler"
+                )
+
+        if self.lclstreamer.data_serializer == "SimplonBinarySerializer":
+            required_sources = [
+                "timestamp",
+                "detector_data",
+                "photon_wavelength",
+                "detector_geometry",
+                "run_info"
+            ]
+            source_missing = [k for k in required_sources if k not in self.data_sources.keys()]
+            if source_missing:
+                raise ValueError(
+                    f"Required field: {source_missing} is missing from data_sources "
+                    " for SimplonBinarySerializer."
                 )
 
         return self

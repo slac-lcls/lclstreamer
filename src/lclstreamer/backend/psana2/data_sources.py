@@ -441,7 +441,7 @@ class Psana2HsdDetector(DataSourceProtocol):
         return numpy.array(self._data_retrieval_function(event), dtype=numpy.float_)
 
 
-class Psana2DetectorValues(DataSourceProtocol):
+class Psana2DetectorInterface(DataSourceProtocol):
     """
     See documentation of the `__init__` function.
     """
