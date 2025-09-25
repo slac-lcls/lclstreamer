@@ -5,6 +5,7 @@ from ..protocols.frontend import ProcessingPipelineProtocol
 from ..utils.logging_utils import log
 from .processing_pipelines.generic import (  # noqa: F401
     BatchProcessingPipeline,
+    PeaknetPreprocessingPipeline,
 )
 
 
