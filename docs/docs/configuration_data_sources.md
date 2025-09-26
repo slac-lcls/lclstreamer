@@ -151,17 +151,47 @@ This Data Source class generates a random numerical array of size and type chose
 the user.
 
 * This Data Source is compatible with the following Event Source classes:
-  `Psana1EventSource`
+  `InternalEventSource`
 
 * The random array has size and type chosen by the user
 
-#### Configuration parameters for Psana1EvrCodes
+#### Configuration parameters for GenericRandomNumpyArray
 
 * `array_shape` (list of int): the shape of the generated array, with components that
-  follow the same format as numpy's `shape` obejcts
+  follow the same format as numpy's `shape` objects
 
 * `array_dtype` (str): the numerical type of the generated array, in the same format
   as numpy's numerical `dtypes`
+
+
+
+## GenericRandomTimestamp
+
+This Data Source class generates random timestamp values for synthetic data generation.
+
+* This Data Source is compatible with the following Event Source classes:
+  `InternalEventSource`
+
+* The timestamp is returned as a numpy array of type `float64`
+
+#### Configuration parameters for GenericRandomTimestamp
+
+No configuration parameters are required.
+
+
+
+## GenericRandomWavelength
+
+This Data Source class generates random wavelength values for synthetic data generation.
+
+* This Data Source is compatible with the following Event Source classes:
+  `InternalEventSource`
+
+* The wavelength is returned as a numpy array of type `float64`
+
+#### Configuration parameters for GenericRandomWavelength
+
+No configuration parameters are required.
 
 
 
