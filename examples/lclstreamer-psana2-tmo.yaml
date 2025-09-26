@@ -12,37 +12,40 @@ data_sources:
     timestamp:
         type: Psana2Timestamp
 
-    #beam_energy:
-    #    type: Psana2EBeam
-    #    psana_function: ebeamL3Energy
+    beam_energy:
+        type: Psana2DetectorInterface
+        psana_name: ebeamh
+        psana_fields: raw.ebeamL3Energy
 
     tmo_fzppiranha:
-        type: Psana2Camera
+        type: Psana2DetectorInterface
         psana_name: tmo_fzppiranha
+        psana_fields: raw.raw
 
-    #tmo_atmpiranha:
-    #    type: Psana2Camera
-    #    psana_name: tmo_atmpiranha
+    tmo_atmpiranha:
+        type: Psana2DetectorInterface
+        psana_name: tmo_atmpiranha
+        psana_fields: raw.raw
 
     pulse_energy:
-        type: Psana2Gmd
+        type: Psana2DetectorInterface
         psana_name: gmd
-        psana_function: milliJoulesPerPulse
+        psana_fields: raw.milliJoulesPerPulse
 
     xpulse_energy:
-        type: Psana2Gmd
+        type: Psana2DetectorInterface
         psana_name: xgmd
-        psana_function: milliJoulesPerPulse
+        psana_fields: raw.milliJoulesPerPulse
 
     mrco_hsd_peaks:
-        type: Psana2HsdDetector
+        type: Psana2DetectorInterface
         psana_name: mrco_hsd
-        psana_function: peaks
+        psana_fields: raw.peaks
 
     mrco_hsd_waveforms:
-        type: Psana2HsdDetector
+        type: Psana2DetectorInterface
         psana_name: mrco_hsd
-        psana_function: waveforms
+        psana_fields: raw.waveforms
 
 event_source:
     Psana2EventSource: {}

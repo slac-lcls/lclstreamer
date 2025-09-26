@@ -68,7 +68,6 @@ class TimestampParameters(CustomBaseModel):
 class DetectorDataParameters(CustomBaseModel):
     type: str
     psana_name: str
-    calibration: bool
 
 
 class PhotonWavelengthParameters(CustomBaseModel):
