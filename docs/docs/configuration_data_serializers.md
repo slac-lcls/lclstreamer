@@ -29,6 +29,7 @@ with the internal structure of an HDF5 file.
 
   ```yaml
   fields:
-    timestamp: /data/timestamp
-    detector_data: /data/data
+    detector_data: /data/data           # Main image data from detector
+    timestamp: /data/timestamp          # Event timestamp
+    photon_wavelength: /data/wavelength # Photon wavelength/energy
   ```

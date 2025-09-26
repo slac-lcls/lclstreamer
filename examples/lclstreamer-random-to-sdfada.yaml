@@ -1,51 +1,50 @@
 lclstreamer:
-    source_identifier: ""
+    source_identifier: random_data_stream
     event_source: InternalEventSource
-    processing_pipeline: BatchProcessingPipeline
+    processing_pipeline: PeaknetPreprocessingPipeline
     data_serializer: Hdf5BinarySerializer
     skip_incomplete_events: false
     data_handlers:
-        - BinaryFileWritingDataHandler
-        #- BinaryDataStreamingDataHandler
+        - BinaryDataStreamingDataHandler
 
 data_sources:
-    detector_data:
-        type: GenericRandomNumpyArray
-        array_shape: 20,2
-        array_dtype: float32
-
     timestamp:
         type: GenericRandomTimestamp
+
+    detector_data:
+        type: GenericRandomNumpyArray
+        array_shape: 1024,1024
+        array_dtype: float32
 
     photon_wavelength:
         type: GenericRandomWavelength
 
 event_source:
     InternalEventSource:
-        number_of_events_to_generate: 76
+        number_of_events_to_generate: 16000
 
 processing_pipeline:
-    BatchProcessingPipeline:
-        batch_size: 10
+    PeaknetPreprocessingPipeline:
+        batch_size: 16
+        target_height: 1024
+        target_width: 1024
+        pad_style: center
+        add_channel_dim: true
+        num_channels: 1
 
 data_serializer:
     Hdf5BinarySerializer:
         compression_level: 3
-        compression: null
+        compression: zfp
         fields:
-            detector_data: /data/data
             timestamp: /data/timestamp
+            detector_data: /data/data
             photon_wavelength: /data/wavelength
 
 data_handlers:
-    BinaryFileWritingDataHandler:
-        file_prefix: ""
-        file_suffix: h5
-        write_directory: workspace/output
-
     BinaryDataStreamingDataHandler:
         urls:
-            - "tcp://127.0.0.1:12321"
+            - "tcp://sdfada008:12321"
         role: client
         library: nng
         socket_type: push
