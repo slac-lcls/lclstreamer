@@ -10,7 +10,7 @@ from ...protocols.backend import (
     StrFloatIntNDArray,
 )
 from ...utils.logging_utils import log
-from .data_sources import GenericRandomNumpyArray  # noqa: F401
+from .data_sources import GenericRandomNumpyArray, GenericRandomTimestamp, GenericRandomWavelength  # noqa: F401
 
 
 class InternalEventSource(EventSourceProtocol):

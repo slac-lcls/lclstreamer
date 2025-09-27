@@ -86,6 +86,82 @@ class GenericRandomNumpyArray(DataSourceProtocol):
             sys.exit(1)
 
 
+class GenericRandomTimestamp(DataSourceProtocol):
+    """
+    A data source that generates random timestamp values.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        parameters: DataSourceParameters,
+        additional_info: dict[str, Any],
+    ):
+        """
+        Initializes a Generic Random Timestamp data source.
+
+        Arguments:
+            name: An identifier for the data source
+            parameters: The configuration parameters
+        """
+        del name
+        del parameters
+        del additional_info
+
+    def get_data(self, event: Any) -> NDArray[numpy.float64]:
+        """
+        Retrieves a random timestamp value
+
+        Arguments:
+            event: An event (ignored for random data)
+
+        Returns:
+            timestamp: a 1D numpy array containing a random timestamp
+        """
+        del event
+        # Generate a random timestamp (Unix epoch time in seconds)
+        random_timestamp = numpy.random.uniform(1600000000, 1700000000)  # ~2020-2023 range
+        return numpy.array(random_timestamp, dtype=numpy.float64)
+
+
+class GenericRandomWavelength(DataSourceProtocol):
+    """
+    A data source that generates random wavelength values.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        parameters: DataSourceParameters,
+        additional_info: dict[str, Any],
+    ):
+        """
+        Initializes a Generic Random Wavelength data source.
+
+        Arguments:
+            name: An identifier for the data source
+            parameters: The configuration parameters
+        """
+        del name
+        del parameters
+        del additional_info
+
+    def get_data(self, event: Any) -> NDArray[numpy.float64]:
+        """
+        Retrieves a random wavelength value
+
+        Arguments:
+            event: An event (ignored for random data)
+
+        Returns:
+            wavelength: a 1D numpy array containing a random wavelength value
+        """
+        del event
+        # Generate a random wavelength in typical X-ray range (0.1 to 10 Angstroms)
+        random_wavelength = numpy.random.uniform(0.1, 10.0)
+        return numpy.array(random_wavelength, dtype=numpy.float64)
+
+
 class SourceIdentifier(DataSourceProtocol):
     """
     See documentation of the `__init__` function.
