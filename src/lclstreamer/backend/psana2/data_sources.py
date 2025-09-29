@@ -125,11 +125,10 @@ class Psana2DetectorInterface(DataSourceProtocol):
                         log.error(f"Detector {base} has no parameter {field}")
                         sys.exit(1)
                 if callable(base):
-                    while callable(base):
-                        try:
-                            base = base(event)
-                        except TypeError:
-                            base = base()
+                    try:
+                        base = base(event)
+                    except TypeError:
+                        base = base()
                     data.append(base)
                 else:
                     data.append(base)
