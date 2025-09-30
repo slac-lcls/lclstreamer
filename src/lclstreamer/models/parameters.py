@@ -35,6 +35,10 @@ class HDF5BinarySerializerParameters(CustomBaseModel):
     fields: dict[str, str]
 
 
+class NumpyBinarySerializerParameters(CustomBaseModel):
+    use_compression: bool = True
+
+
 class BatchProcessingPipelineParameters(CustomBaseModel):
     batch_size: int
 
@@ -89,6 +93,7 @@ class ProcessingPipelineParameters(CustomBaseModel):
 
 class DataSerializerParameters(CustomBaseModel):
     Hdf5BinarySerializer: HDF5BinarySerializerParameters | None = None
+    NumpyBinarySerializer: NumpyBinarySerializerParameters | None = None
 
 
 class DataHandlerParameters(CustomBaseModel):

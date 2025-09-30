@@ -4,8 +4,13 @@ from typing import Any
 
 import h5py  # type: ignore
 import hdf5plugin  # type: ignore
+import numpy as np
 
-from ...models.parameters import HDF5BinarySerializerParameters, Parameters
+from ...models.parameters import (
+    HDF5BinarySerializerParameters,
+    NumpyBinarySerializerParameters,
+    Parameters,
+)
 from ...protocols.backend import StrFloatIntNDArray
 from ...protocols.frontend import DataSerializerProtocol
 from ...utils.logging_utils import log
@@ -116,5 +121,53 @@ class Hdf5BinarySerializer(DataSerializerProtocol):
                             data=data[data_block_name],
                             **self._compression_options,
                         )
+
+            return byte_block.getvalue()
+
+
+class NumpyBinarySerializer(DataSerializerProtocol):
+    """
+    See documentation of the `__init__` function.
+    """
+
+    def __init__(self, parameters: Parameters):
+        """
+        Initializes a Numpy data serializer
+
+        This serializer turns a dictionary of numpy arrays into a binary blob with the
+        internal structure of a .npz file (numpy's native format), according to the
+        preferences specified by the configuration parameters.
+
+        Arguments:
+
+            parameters: The configuration parameters
+        """
+        if parameters.data_serializer.NumpyBinarySerializer is None:
+            log.error("No configuration parameters found for NumpyBinarySerializer")
+            sys.exit(1)
+
+        data_serializer_parameters: NumpyBinarySerializerParameters = (
+            parameters.data_serializer.NumpyBinarySerializer
+        )
+
+        self._use_compression: bool = data_serializer_parameters.use_compression
+
+    def serialize_data(self, data: dict[str, StrFloatIntNDArray]) -> bytes:
+        """
+        Serializes data to a binary blob with an internal .npz structure
+
+        Arguments:
+
+            data: A dictionary storing numpy arrays
+
+        Returns
+
+            byte_block: A binary blob (a bytes object)
+        """
+        with BytesIO() as byte_block:
+            if self._use_compression:
+                np.savez_compressed(byte_block, **data)
+            else:
+                np.savez(byte_block, **data)
 
             return byte_block.getvalue()
