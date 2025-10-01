@@ -13,13 +13,14 @@ data_sources:
         type: Psana2Timestamp
 
     detector_data:
-        type: Psana2AreaDetector
+        type: Psana2DetectorInterface
         psana_name: jungfrau
-        calibration: false
+        psana_fields: raw.raw             # Use raw.calib for calibrated data
 
     assembled_detector_data:
-        type: Psana2AssembledAreaDetector
+        type: Psana2DetectorInterface
         psana_name: jungfrau
+        psana_fields: raw.image
 
     random:
         type: GenericRandomNumpyArray
@@ -27,7 +28,7 @@ data_sources:
         array_dtype: float32
 
     photon_wavelength:
-        type: Psana2PV
+        type: Psana2DetectorInterface
         psana_name: "SIOC:SYS0:ML00:AO192"
 
 event_source:

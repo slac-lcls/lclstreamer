@@ -14,14 +14,7 @@ from ...protocols.backend import (
 from ...utils.logging_utils import log
 from ..generic.data_sources import GenericRandomNumpyArray  # noqa: F401
 from .data_sources import (  # noqa: F401
-    Psana2AreaDetector,
-    Psana2AssembledAreaDetector,
-    Psana2Camera,
     Psana2DetectorInterface,
-    Psana2EBeam,
-    Psana2Gmd,
-    Psana2HsdDetector,
-    Psana2PV,
     Psana2RunInfo,
     Psana2Timestamp,
 )

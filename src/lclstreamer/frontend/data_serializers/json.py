@@ -64,7 +64,7 @@ class SimplonBinarySerializer(DataSerializerProtocol):
         """
 
         if self._node_rank == self._node_pool_size - 1:
-            first_message = True
+            first_message: bool = True
 
         data: dict[str, StrFloatIntNDArray | None]
         for data in stream:
@@ -96,7 +96,7 @@ class SimplonBinarySerializer(DataSerializerProtocol):
 
             if self._node_rank == self._node_pool_size - 1:
                 if first_message:
-                    first_message: bool = False
+                    first_message = False
 
                     beam_energy: float = data["photon_wavelength"][-1]
                     detector_geometry: numpy.ndarray = data["detector_geometry"][-1]
