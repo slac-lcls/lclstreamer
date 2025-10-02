@@ -98,7 +98,6 @@ class SimplonBinarySerializer(DataSerializerProtocol):
                 if first_message:
                     first_message = False
 
-                    beam_energy: float = data["photon_wavelength"][-1]
                     detector_geometry: numpy.ndarray = data["detector_geometry"][-1]
 
                     yield b"".join(
@@ -132,7 +131,6 @@ class SimplonBinarySerializer(DataSerializerProtocol):
                                             "material": "???",
                                             "thickness": "???"
                                         },
-                                    "photon_wavelength": beam_energy,
                                     "message_id": self._node_rank * 10000 + self._rank_message_count,
                                     "timestamp": time()
                                 }
@@ -144,17 +142,19 @@ class SimplonBinarySerializer(DataSerializerProtocol):
 
             compressed_data: NDArray[numpy.int_] = compress_lz4(array, block_size=2**12)
 
-            beam_direction: dict() = {}
+            beam_data_dict: dict() = {}
             try:
-                beam_pointing: numpy.ndarray = data["beam_pointing"][-1]
-                beam_direction: dict() = {
+                beam_data: numpy.ndarray = data["beam_data"][-1]
+                beam_data_dict = {
                     "beam_direction":
                         {
-                            "angle_x": beam_pointing[0],
-                            "angle_y": beam_pointing[1],
-                            "position_x": beam_pointing[2],
-                            "position_y": beam_pointing[3]
-                        }
+                            "angle_x": beam_data[0],
+                            "angle_y": beam_data[1],
+                            "position_x": beam_data[2],
+                            "position_y": beam_data[3]
+                        },
+                    "photon_energy": beam_data[4],
+                    "photon_wavelength": data["photon_wavelength"][-1]
                 }
             except KeyError as e:
                 log.info(
@@ -165,13 +165,12 @@ class SimplonBinarySerializer(DataSerializerProtocol):
                 "type": "image",
                 "run": run_number,
                 "compressed_data": compressed_data.tobytes(),
-                **beam_direction,
+                **beam_data_dict,
                 "dtype": str(array.dtype),
                 "sum": array_sum,
                 "message_id": self._node_rank * 10000 + self._rank_message_count,
-                "timestamp": time(),  # Will be set at send time
+                "timestamp": data["timestamp"][-1],
             }
-
             yield b"".join((b"m", dumps(message)))
 
         if self._node_rank == self._node_pool_size - 1:

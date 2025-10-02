@@ -112,11 +112,13 @@ class Psana2DetectorInterface(DataSourceProtocol):
 
         data: list[Any] = []
 
-        base: Any = self._detector_interface
+        base: Any
         if getattr(self, "_is_pv", False):
+            base = self._detector_interface
             data.append(base(event))
         else:
             for param in self._det_params:
+                base = self._detector_interface
                 subfields: list[str] = param.split(".")
                 for field in subfields:
                     if hasattr(base, field):

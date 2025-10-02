@@ -34,14 +34,15 @@ data_sources:
             #"raw._pixel_coords"          # Pixel coordinates (optional)
         ]
 
-    beam_pointing:                     # Optional
+    beam_data:                         # Optional
         type: Psana2DetectorInterface
         psana_name: "ebeamh"
         psana_fields: [
             "raw.ebeamUndAngX",        # Angle X
             "raw.ebeamUndAngY",        # Angle Y
             "raw.ebeamUndPosX",        # Pos X
-            "raw.ebeamUndPosY"         # Pos Y
+            "raw.ebeamUndPosY",        # Pos Y
+            "raw.ebeamL3Energy"        # Beam energy
         ]
 
     run_info:
