@@ -21,9 +21,9 @@ data_sources:
         psana_name: jungfrau
         psana_fields: raw.image
 
-    photon_wavelength:
-        type: Psana2DetectorInterface
-        psana_name: "SIOC:SYS0:ML00:AO192"
+    #photon_wavelength:
+    #    type: Psana2DetectorInterface
+    #    psana_name: "SIOC:SYS0:ML00:AO192"
 
     detector_geometry:
         type: Psana2DetectorInterface
@@ -34,14 +34,15 @@ data_sources:
             #"raw._pixel_coords"          # Pixel coordinates (optional)
         ]
 
-    beam_pointing:                     # Optional
+    beam_data:                         # Optional
         type: Psana2DetectorInterface
         psana_name: "ebeamh"
         psana_fields: [
             "raw.ebeamUndAngX",        # Angle X
             "raw.ebeamUndAngY",        # Angle Y
             "raw.ebeamUndPosX",        # Pos X
-            "raw.ebeamUndPosY"         # Pos Y
+            "raw.ebeamUndPosY",        # Pos Y
+            "raw.ebeamL3Energy"        # Beam energy
         ]
 
     run_info:
