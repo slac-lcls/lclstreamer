@@ -21,9 +21,9 @@ data_sources:
         psana_name: jungfrau
         psana_fields: raw.image
 
-    #photon_wavelength:
-    #    type: Psana2DetectorInterface
-    #    psana_name: "SIOC:SYS0:ML00:AO192"
+    photon_wavelength:
+        type: Psana2DetectorInterface
+        psana_name: "SIOC:SYS0:ML00:AO192"
 
     detector_geometry:
         type: Psana2DetectorInterface

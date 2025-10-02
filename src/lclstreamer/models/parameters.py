@@ -180,6 +180,7 @@ class Parameters(CustomBaseModel):
             required_sources = [
                 "timestamp",
                 "detector_data",
+                "photon_wavelength",
                 "detector_geometry",
                 "run_info"
             ]

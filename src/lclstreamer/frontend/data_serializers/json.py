@@ -154,7 +154,7 @@ class SimplonBinarySerializer(DataSerializerProtocol):
                             "position_y": beam_data[3]
                         },
                     "photon_energy": beam_data[4],
-                    "photon_wavelength": 1239.8419843320026/beam_data[4]
+                    "photon_wavelength": data["photon_wavelength"][-1]
                 }
             except KeyError as e:
                 log.info(
