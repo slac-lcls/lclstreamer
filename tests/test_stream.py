@@ -1,10 +1,11 @@
+import multiprocessing
 import os
 import signal
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Tuple
 
-from pynng import Pull0  # type: ignore
+from pynng import Pull0, Timeout # type: ignore[import-untyped]
 from typer.testing import CliRunner
 
 from lclstreamer.cmd.lclstreamer import app
@@ -24,12 +25,12 @@ lclstreamer:
 data_sources:
     random:
         type: GenericRandomNumpyArray
-        array_shape: 20,2
+        array_shape: 200,20
         array_dtype: float32
 
 event_source:
     InternalEventSource:
-        number_of_events_to_generate: 1001
+        number_of_events_to_generate: 1009
 
 
 processing_pipeline:
@@ -52,14 +53,40 @@ data_handlers:
         socket_type: push
 """
 
-
 @contextmanager
-def child_process(function: Callable[[str], None], args: list[str]):
-    """Create a child process and run fn.
+def child_process(target_func, *args):
+    """
+    A context manager that sets up a pipe
+    and starts a new multiprocessing.Process to run a target function.
 
+    It ensures the process is terminated after a timeout upon exit.
+    """
+    p = None
+
+    try:
+        parent_conn, child_conn = multiprocessing.Pipe()
+        p = multiprocessing.Process(target=target_func,
+                                    args=(child_conn,)+tuple(args))
+        p.start()
+        yield parent_conn, p
+
+    finally:
+        # 5. Cleanup block: Ensure the process terminates
+        if p is not None:
+            p.join(timeout=1.0)
+            if p.is_alive():
+                print(f"\n⚠️ Process (PID {p.pid}) did not complete in 1 second. Terminating...")
+                p.terminate()
+                p.join() # Wait for the process to be fully terminated
+            else:
+                print(f"\n✅ Process (PID {p.pid}) completed successfully.")
+
+"""Create a child process and run fn.
     After context completes, the child
     process is sent a SIGTERM.
-    """
+@contextmanager
+def child_process(function: Callable[[str], None], args: list[str]):
+
     child_pid = os.fork()
     if child_pid:  # parent process yields
         try:
@@ -68,16 +95,40 @@ def child_process(function: Callable[[str], None], args: list[str]):
             os.kill(child_pid, signal.SIGTERM)
     else:  # child process
         function(*args)
+"""
 
 
-def run_pull(uri: str):
-    socket = Pull0(listen="tcp://127.0.0.1:50101")
-    while True:
-        _: Any = socket.recv()
+def run_pull(conn, uri: str) -> None:
+    count = 0
+    done = 0
+    started = 0
+    def show_open(pipe):
+        nonlocal started
+        print("Pull: pipe opened")
+        started += 1
+    def show_close(pipe):
+        nonlocal done
+        print("Pull: pipe closed")
+        done += 1
 
+    try:
+        with Pull0(listen=uri, recv_timeout=500) as pull:
+            pull.add_post_pipe_connect_cb(show_open)
+            pull.add_post_pipe_remove_cb(show_close)
+            while started == 0 or (done != started):
+                try:
+                    _: bytes = pull.recv()
+                    count += 1
+                except Timeout:
+                    pass
+    except Exception as e:
+        print("Pull raised error: {e}")
+        pass
+    conn.send(count)
+    conn.close()
 
 def test_app() -> None:
-    with child_process(run_pull, ["tcp://127.0.0.1:50101"]):
+    with child_process(run_pull, "tcp://127.0.0.1:50101") as (conn, p):
         with runner.isolated_filesystem():
             current_directory: Path = Path.cwd()
             configuration_file_name: Path = current_directory / "lclstreamer.yaml"
@@ -91,3 +142,8 @@ def test_app() -> None:
                 print(result.exc_info)
 
             assert result.exit_code == 0
+
+            count = conn.recv()
+            print(f"Receiver counted {count} messages")
+            assert count == 101
+    pass
