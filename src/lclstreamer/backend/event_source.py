@@ -1,7 +1,11 @@
 import sys
 from ast import Import
+from collections.abc import AsyncIterable
+
+from aiostream import operator
 
 from ..models.parameters import LclstreamerParameters, Parameters
+from ..models.types import LossyEvent
 from ..protocols.backend import EventSourceProtocol
 from ..utils.logging_utils import log
 
@@ -24,7 +28,7 @@ def initialize_event_source(
     parameters: Parameters,
     worker_pool_size: int,
     worker_rank: int,
-) -> EventSourceProtocol:
+) -> AsyncIterable[LossyEvent]:
     """
     Initializes the Event Source specified by the configuration parameters
 
@@ -50,9 +54,9 @@ def initialize_event_source(
             worker_pool_size=worker_pool_size,
             worker_rank=worker_rank,
         )
-    except NameError:
+    except NameError as e:
         log.error(
-            f"Event source {lclstreamer_parameters.event_source} is not available"
+            f"Event source {lclstreamer_parameters.event_source} is not available: {e}"
         )
         sys.exit(1)
     return event_source

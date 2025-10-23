@@ -1,11 +1,11 @@
 import sys
-from collections.abc import Generator
 from typing import Any, cast
+from collections.abc import AsyncIterable, Generator
 
 from psana import DataSource, MPIDataSource  # type: ignore
-from stream.core import source
 
 from ...models.parameters import DataSourceParameters, LclstreamerParameters, Parameters
+from ...models.types import LossyEvent
 from ...protocols.backend import (
     DataSourceProtocol,
     EventSourceProtocol,
@@ -88,22 +88,22 @@ class Psana1EventSource(EventSourceProtocol):
                 )
                 sys.exit(1)
 
-    @source
-    def get_events(
+    async def get_events(
         self,
-    ) -> Generator[dict[str, StrFloatIntNDArray | None]]:
+    ) -> AsyncIterable[LossyEvent]:
         """
-        Retrieves an event from the data source
+        Retrieves events from the data source
 
-        Returns:
+        Yields:
 
             data: A dictionary storing data for an event
         """
         psana_event: Any
         for psana_event in self._event_source:
-            data: dict[str, StrFloatIntNDArray | None] = {}
 
+            data: LossyEvent = {}
             data_source_name: str
+
             for data_source_name in self._data_sources:
                 try:
                     data[data_source_name] = self._data_sources[

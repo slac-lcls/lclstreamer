@@ -1,9 +1,8 @@
 import sys
-from collections.abc import Generator
-
-from stream.core import source
+from collections.abc import AsyncIterable
 
 from ...models.parameters import DataSourceParameters, LclstreamerParameters, Parameters
+from ...models.types import LossyEvent
 from ...protocols.backend import (
     DataSourceProtocol,
     EventSourceProtocol,
@@ -71,19 +70,19 @@ class InternalEventSource(EventSourceProtocol):
                 )
                 sys.exit(1)
 
-    @source
-    def get_events(
+    async def get_events(
         self,
-    ) -> Generator[dict[str, StrFloatIntNDArray | None]]:
+    ) -> AsyncIterable[LossyEvent]:
         """
         Retrieves an event from the data source
         Returns:
             data: A dictionary storing data for an event
         """
         for i in range(self.number_of_events_to_generate):
-            data: dict[str, StrFloatIntNDArray | None] = {}
 
+            data: LossyEvent = {}
             data_source_name: str
+
             for data_source_name in self._data_sources:
                 try:
                     data[data_source_name] = self._data_sources[

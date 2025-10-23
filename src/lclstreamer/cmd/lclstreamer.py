@@ -1,6 +1,7 @@
 #!/sdf/group/lcls/ds/ana/sw/conda2/manage/bin/psconda.sh
 
-from collections.abc import Iterator
+import asyncio
+from collections.abc import AsyncIterator, AsyncIterable
 from pathlib import Path
 from typing import (
     Annotated,
@@ -9,8 +10,9 @@ from typing import (
 
 import typer
 from mpi4py import MPI
-from stream.core import stream  # type: ignore
-from stream.ops import chop, map, take, tap  # type: ignore
+#from stream.core import stream  # type: ignore
+#from stream.ops import chop, map, take, tap  # type: ignore
+from aiostream import Stream, pipable_operator, pipe, streamcontext #, chunk, map, take, action (these are used from pipe)
 
 from ..backend.event_source import initialize_event_source
 from ..frontend.data_handling import initialize_data_handlers
@@ -18,7 +20,8 @@ from ..frontend.data_serializer import initialize_data_serializer
 from ..frontend.parameters import load_configuration_parameters
 from ..frontend.processing_pipeline import initialize_processing_pipeline
 from ..models.parameters import LclstreamerParameters, Parameters
-from ..protocols.backend import EventSourceProtocol, StrFloatIntNDArray
+from ..models.types import LossyEvent, Event, StrFloatIntNDArray
+from ..protocols.backend import EventSourceProtocol
 from ..protocols.frontend import (
     DataHandlerProtocol,
     DataSerializerProtocol,
@@ -29,12 +32,12 @@ from ..utils.stream_utils import clock
 app = typer.Typer()
 
 
-@stream
-def filter_incomplete_events(
-    events: Iterator[dict[str, StrFloatIntNDArray | None]], max_consecutive: int = 100
-) -> Iterator[dict[str, StrFloatIntNDArray | None]]:
+@pipable_operator
+async def filter_incomplete_events(
+    events: AsyncIterable[LossyEvent], max_consecutive: int = 100
+) -> AsyncIterator[LossyEvent]:
     """
-    Ddrops events that are incomplete
+    Drops events that are incomplete
 
     Incomplete events are events where the retrieval of one or more data items
     failed.
@@ -42,6 +45,7 @@ def filter_incomplete_events(
     Arguments:
 
         events: An event iterator
+        max_consecutive (int): maximum number of consecutive frames containing any "missing" value before terminating early
 
     Returns:
 
@@ -51,18 +55,21 @@ def filter_incomplete_events(
     ev_num: int = 0
     num_dropped: int = 0
     nfailed: dict[str, int] = {}  # number from each detector
-    for ev_num, event in enumerate(events):
-        if all(v is not None for v in event.values()):
-            yield event
-            consecutive = 0
-            continue
-        for name, v in event.items():
-            if v is None:
-                nfailed[name] = nfailed.get(name, 0) + 1
-        consecutive += 1
-        num_dropped += 1
-        if consecutive >= max_consecutive:
-            break
+    async with streamcontext(events) as streamer:
+        ev_num = -1
+        async for event in streamer: # async doesn't commute through enumerate()
+            ev_num += 1
+            if all(v is not None for v in event.values()):
+                yield event
+                consecutive = 0
+                continue
+            for name, v in event.items():
+                if v is None:
+                    nfailed[name] = nfailed.get(name, 0) + 1
+            consecutive += 1
+            num_dropped += 1
+            if consecutive >= max_consecutive:
+                break
     if consecutive >= max_consecutive:
         print(f"Stopping early after {consecutive} errors")
     if num_dropped > 0:
@@ -85,30 +92,10 @@ def data_counter(data: bytes) -> int:
     return len(data)
 
 
-@app.command()
-def main(
-    config: Annotated[
-        Path,
-        typer.Option(
-            "--config",
-            "-c",
-            help="configuration file (default: monitor.yaml file in the current "
-            "working directory",
-        ),
-    ] = Path("lclstreamer.yaml"),
-    num_events: Annotated[
-        int,
-        typer.Option(
-            "--num-events", "-n", help="number of data events to read before stopping"
-        ),
-    ] = 0,
+async def amain(
+    config: Path,
+    num_events: int,
 ) -> None:
-    """
-    An application that retrieves data from an event source, processes it, serializes
-    it, and passes it to a series of data handlers that forwards it to external
-    applications. The event source, data processing, serialization strategy, and
-    further data handling are defined by a configuration file.
-    """
     # 1. Read and recover configuration parameters
     mpi_size: int = MPI.COMM_WORLD.Get_size()
     mpi_rank: int = MPI.COMM_WORLD.Get_rank()
@@ -140,25 +127,53 @@ def main(
     data_handlers: list[DataHandlerProtocol] = initialize_data_handlers(parameters)
     print(f"[Rank {mpi_rank}] Initializing data handlers: Done!")
 
-    workflow: Any = source.get_events()
+    workflow: Stream[LossyEvent] = Stream(source.get_events)
 
     if num_events > 0:
-        workflow >>= take(num_events)
+        workflow |= pipe.take(num_events)
 
     if lclstreamer_parameters.skip_incomplete_events is True:
-        workflow >>= filter_incomplete_events(max_consecutive=1)
+        workflow |= filter_incomplete_events.pipe(max_consecutive=1)
 
-    workflow >>= processing_pipeline
+    workflow |= processing_pipeline.pipe()
 
-    workflow >>= map(data_serializer.serialize_data)
+    workflow |= pipe.map(data_serializer.serialize_data)
 
     data_handler: DataHandlerProtocol
     for data_handler in data_handlers:
-        workflow >>= tap(data_handler.handle_data)
+        workflow |= pipe.action(data_handler.handle_data)
 
-    workflow >>= map(data_counter)
+    workflow |= pipe.map(data_counter)
+    workflow |= clock.pipe()
 
-    for stat in workflow >> clock():
-        print(f"[Rank {mpi_rank}] {stat}]", flush=True)
+    async with streamcontext(workflow) as streamer:
+        async for stat in streamer:
+            print(f"[Rank {mpi_rank}] {stat}]", flush=True)
 
     print(f"[Rank {mpi_rank}] Hello, I'm done now.  Have a most excellent day!")
+
+@app.command()
+def main(
+    config: Annotated[
+        Path,
+        typer.Option(
+            "--config",
+            "-c",
+            help="configuration file (default: monitor.yaml file in the current "
+            "working directory",
+        ),
+    ] = Path("lclstreamer.yaml"),
+    num_events: Annotated[
+        int,
+        typer.Option(
+            "--num-events", "-n", help="number of data events to read before stopping"
+        ),
+    ] = 0,
+) -> None:
+    """
+    An application that retrieves data from an event source, processes it, serializes
+    it, and passes it to a series of data handlers that forwards it to external
+    applications. The event source, data processing, serialization strategy, and
+    further data handling are defined by a configuration file.
+    """
+    asyncio.run( amain(config, num_events) )

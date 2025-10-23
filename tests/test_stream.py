@@ -1,5 +1,6 @@
 import multiprocessing
 import os
+import time
 import signal
 from contextlib import contextmanager
 from pathlib import Path
@@ -119,6 +120,7 @@ def run_pull(conn, uri: str) -> None:
                 try:
                     _: bytes = pull.recv()
                     count += 1
+                    time.sleep(0.001)
                 except Timeout:
                     pass
     except Exception as e:
@@ -143,7 +145,10 @@ def test_app() -> None:
 
             assert result.exit_code == 0
 
-            count = conn.recv()
-            print(f"Receiver counted {count} messages")
-            assert count == 101
+            if conn.poll(2.0):
+                count = conn.recv()
+                print(f"Receiver counted {count} messages")
+                assert count == 101
+            else:
+                assert False, "Receiver did not report before its timeout."
     pass
