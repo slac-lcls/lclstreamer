@@ -25,7 +25,7 @@ show_error_codes = true
 python_version = 3.11
 python_executable = ".pixi/envs/psana2/bin/python"
 
-[tool.pixi.project]
+[tool.pixi.workspace]
 channels = ["conda-forge"]
 platforms = ["linux-64"]
 

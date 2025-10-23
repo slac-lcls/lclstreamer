@@ -102,7 +102,7 @@ class SimplonBinarySerializer(DataSerializerProtocol):
 
                     yield b"".join(
                         (
-                            b"m",
+                            b"c",
                             dumps(
                                 {
                                     "type": "start",
@@ -176,7 +176,7 @@ class SimplonBinarySerializer(DataSerializerProtocol):
         if self._node_rank == self._node_pool_size - 1:
             yield b"".join(
                 (
-                    b"m",
+                    b"c",
                     dumps(
                         {
                             "type": "stop",

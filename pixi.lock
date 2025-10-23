@@ -1884,7 +1884,7 @@ packages:
 - pypi: ./
   name: lclstreamer
   version: 0.1.0
-  sha256: ffa9033a9acc926118082f21d567498e2e775a2d52834eed2314c1df0f8aa9f4
+  sha256: 23248430768b2f0f8b397ed25a56717dc99f4e09bd57ac8a290c65ec49befc75
   requires_dist:
   - typer>=0.15.2,<0.16
   - numpy

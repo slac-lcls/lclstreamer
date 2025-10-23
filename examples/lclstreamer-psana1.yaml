@@ -5,8 +5,8 @@ lclstreamer:
     data_serializer: Hdf5BinarySerializer
     skip_incomplete_events: false
     data_handlers:
-        - BinaryFileWritingDataHandler
-          #- BinaryDataStreamingDataHandler
+            #- BinaryFileWritingDataHandler
+      - BinaryDataStreamingDataHandler
 
 data_sources:
     timestamp:
