@@ -1,6 +1,7 @@
 from collections.abc import Iterator
-from typing import Callable
+from typing import Callable, Self
 from typing_extensions import Protocol, TypeAlias
+from contextlib import AbstractAsyncContextManager
 
 from aiostream.core import PipableOperator
 
@@ -25,12 +26,23 @@ class DataSerializerProtocol(Protocol):
         """Serializes the data"""
         ...
 
-
-class DataHandlerProtocol(Protocol):
+class DataHandlerProtocol(Protocol, AbstractAsyncContextManager):
     def __init__(self, parameters: Parameters):
-        """Initializes the data handler"""
+        """Initializes the data handler.
+
+           Use this as in,
+
+               async with handler(parameters) as handle_data:
+                   async for data in stream:
+                       await handle_data(data)
+        """
         ...
 
-    def handle_data(self, data: bytes) -> None:
+    async def __aenter__(self) -> Self:
+        return self
+    async def __aexit__(self, exc_type, exc, tb) -> None:
+        pass
+
+    async def __call__(self, data: bytes) -> None:
         """Handles the data"""
         ...

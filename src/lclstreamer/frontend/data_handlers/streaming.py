@@ -41,7 +41,7 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
         else:
             self._streaming = BinaryStreamingPushDataHandlerZmq(data_handler_parameters)
 
-    def handle_data(self, data: bytes) -> None:
+    async def __call__(self, data: bytes) -> None:
         """
         Stream a bytes object through the network socket.
 
@@ -49,7 +49,7 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
 
             data: A bytes object
         """
-        self._streaming.handle_data(data)
+        await self._streaming(data)
 
 
 class BinaryStreamingPushDataHandlerNng:
@@ -84,7 +84,7 @@ class BinaryStreamingPushDataHandlerNng:
                 )
                 sys.exit(1)
 
-    def handle_data(self, data: bytes) -> None:
+    async def __call__(self, data: bytes) -> None:
         """
         Sends a binary object through the NNG socket
 
@@ -94,7 +94,7 @@ class BinaryStreamingPushDataHandlerNng:
         """
         self._socket.send(data)
 
-    def __del__(self) -> None:
+    async def __aexit__(self, exc_type, exc, tb) -> None:
         """
         Destructor
         """
@@ -130,7 +130,7 @@ class BinaryStreamingPushDataHandlerZmq:
                 )
                 sys.exit(1)
 
-    def handle_data(self, data: bytes) -> None:
+    async def __call__(self, data: bytes) -> None:
         """
         Sends a binary object through the ZMQ socket
 
@@ -140,7 +140,7 @@ class BinaryStreamingPushDataHandlerZmq:
         """
         self._socket.send(data)
 
-    def __del__(self) -> None:
+    async def __aexit__(self, exc_type, exc, tb) -> None:
         """
         Destructor
         """

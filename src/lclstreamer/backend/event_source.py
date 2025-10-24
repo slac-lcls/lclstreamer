@@ -28,7 +28,7 @@ def initialize_event_source(
     parameters: Parameters,
     worker_pool_size: int,
     worker_rank: int,
-) -> AsyncIterable[LossyEvent]:
+) -> EventSourceProtocol:
     """
     Initializes the Event Source specified by the configuration parameters
 

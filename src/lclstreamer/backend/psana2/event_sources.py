@@ -1,5 +1,5 @@
 import sys
-from collections.abc import Generator, AsyncIterable
+from collections.abc import Generator, AsyncIterable, Iterable
 from typing import Any, cast
 
 from psana import DataSource  # type: ignore
