@@ -2,6 +2,7 @@
 
 import asyncio
 from collections.abc import AsyncIterator, AsyncIterable
+from contextlib import AsyncExitStack
 from pathlib import Path
 from typing import (
     Annotated,
@@ -10,12 +11,10 @@ from typing import (
 
 import typer
 from mpi4py import MPI
-#from stream.core import stream  # type: ignore
-#from stream.ops import chop, map, take, tap  # type: ignore
-from aiostream import Stream, pipable_operator, pipe, streamcontext #, chunk, map, take, action (these are used from pipe)
+from aiostream import Stream, pipable_operator, pipe, streamcontext, async_
 
 from ..backend.event_source import initialize_event_source
-from ..frontend.data_handling import initialize_data_handlers
+from ..frontend.data_handling import ParallelDataHandler
 from ..frontend.data_serializer import initialize_data_serializer
 from ..frontend.parameters import load_configuration_parameters
 from ..frontend.processing_pipeline import initialize_processing_pipeline
@@ -124,31 +123,30 @@ async def amain(
     print(f"[Rank {mpi_rank}] Initializing data serializer: Done!")
 
     print(f"[Rank {mpi_rank}] Initializing data handlers....")
-    data_handlers: list[DataHandlerProtocol] = initialize_data_handlers(parameters)
+    parallel_data_handler = ParallelDataHandler(parameters)
     print(f"[Rank {mpi_rank}] Initializing data handlers: Done!")
 
-    workflow: Stream[LossyEvent] = Stream(source.get_events)
+    async with parallel_data_handler as handle_data: # connect / open files / etc.
+        workflow: Stream[LossyEvent] = Stream(source.get_events)
 
-    if num_events > 0:
-        workflow |= pipe.take(num_events)
+        if num_events > 0:
+            workflow |= pipe.take(num_events)
 
-    if lclstreamer_parameters.skip_incomplete_events is True:
-        workflow |= filter_incomplete_events.pipe(max_consecutive=1)
+        if lclstreamer_parameters.skip_incomplete_events is True:
+            workflow |= filter_incomplete_events.pipe(max_consecutive=1)
 
-    workflow |= processing_pipeline.pipe()
+        workflow |= processing_pipeline.pipe()
 
-    workflow |= pipe.map(data_serializer.serialize_data)
+        workflow |= pipe.map(data_serializer.serialize_data)
 
-    data_handler: DataHandlerProtocol
-    for data_handler in data_handlers:
-        workflow |= pipe.action(data_handler.handle_data)
+        workflow |= pipe.action(async_(handle_data))
 
-    workflow |= pipe.map(data_counter)
-    workflow |= clock.pipe()
+        workflow |= pipe.map(data_counter)
+        workflow |= clock.pipe()
 
-    async with streamcontext(workflow) as streamer:
-        async for stat in streamer:
-            print(f"[Rank {mpi_rank}] {stat}]", flush=True)
+        async with streamcontext(workflow) as streamer:
+            async for stat in streamer:
+                print(f"[Rank {mpi_rank}] {stat}]", flush=True)
 
     print(f"[Rank {mpi_rank}] Hello, I'm done now.  Have a most excellent day!")
 

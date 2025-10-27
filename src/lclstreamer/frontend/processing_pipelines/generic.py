@@ -4,7 +4,7 @@ from collections.abc import AsyncIterable, AsyncIterator
 from aiostream import streamcontext, pipable_operator
 
 from ...models.parameters import ProcessingPipelineParameters
-from ...models.types import LossyEvent
+from ...models.types import LossyEvent, Event
 from ...protocols.backend import StrFloatIntNDArray
 from ...protocols.frontend import ProcessingPipelineProtocol
 from ...utils.logging_utils import log

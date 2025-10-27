@@ -45,7 +45,7 @@ class BinaryFileWritingDataHandler(DataHandlerProtocol):
 
         self._write_directory.mkdir(exist_ok=True, parents=True)
 
-    def handle_data(self, data: bytes) -> None:
+    async def __call__(self, data: bytes) -> None:
         """
         Writes a bytes object to the filesystem as a single file.
 

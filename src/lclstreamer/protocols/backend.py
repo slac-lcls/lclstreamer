@@ -1,9 +1,9 @@
 from typing import Any
-from collections.abc import AsyncIterable
-
-import numpy
-from aiostream import Stream
+from collections.abc import AsyncIterable, Iterable
 from typing_extensions import Protocol
+
+from aiostream.core import Stream
+import numpy
 
 from ..models.parameters import DataSourceParameters, Parameters
 from ..models.types import StrFloatIntNDArray, LossyEvent
@@ -25,7 +25,7 @@ class EventSourceProtocol(Protocol):
         """
         ...
 
-    async def get_events(self) -> AsyncIterable[LossyEvent]:
+    def get_events(self) -> AsyncIterable[LossyEvent]:
         """
         Gets the next event from event source
         """

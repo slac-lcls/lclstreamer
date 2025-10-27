@@ -2385,11 +2385,12 @@ packages:
 - pypi: ./
   name: lclstreamer
   version: 0.2.0
-  sha256: 41794639cee7911789f1d26bc8d7a09ca47d6caec1a4df451b63e0a40f76bec9
+  sha256: fa2c7714a5580ee4ab29b60b40fad02813c41649c0a4aaaadd5280560d800901
   requires_dist:
   - typer>=0.15.2,<0.16
   - numpy
   - pydantic>=2.10.6,<3
+  - aiostream>=0.7.1
   - pyyaml>=6.0.2,<7
   - hdf5plugin>=5.1.0,<6
   - pyzmq
@@ -2398,7 +2399,6 @@ packages:
   - mkdocstrings-python>=1.16.10,<2
   - rich>=14.0.0,<15
   - pytest>=8.4.1,<9
-  - aiostream>=0.7.1
   requires_python: '>=3.11'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/linux-64/lcms2-2.17-h717163a_0.conda
