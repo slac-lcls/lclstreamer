@@ -32,7 +32,7 @@ class Hdf5BinarySerializer(DataSerializerProtocol):
             log.error("No configuration parameters found for Hdf5BinarySerializer")
             sys.exit(1)
 
-        data_serializer_parameters: Hdf5BinarySerializerParameters = (
+        data_serializer_parameters: HDF5BinarySerializerParameters = (
             parameters.data_serializer.Hdf5BinarySerializer
         )
 

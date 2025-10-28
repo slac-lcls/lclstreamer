@@ -1,4 +1,4 @@
-from collections.abc import Iterator
+from collections.abc import Iterator, AsyncIterator, AsyncIterable
 from typing import Callable, Self
 from typing_extensions import Protocol, TypeAlias
 from contextlib import AbstractAsyncContextManager
@@ -9,20 +9,32 @@ from ..models.parameters import Parameters, ProcessingPipelineParameters
 from .backend import StrFloatIntNDArray
 from ..models.types import LossyEvent, Event, StrFloatIntNDArray
 
-""" A processing pipeline is a PipableOperator that takes a stream of events
-    and returns a stream of events.
-"""
-# this is the type of the function which outputs a processing pipeline
-#ProcessingPipelineProtocol = TypeAlias[ Callable[[ProcessingPipelineParameters], PipableOperator[LossyEvent, [], LossyEvent]] ]
-# this is the actual processing pipeline type
-ProcessingPipelineProtocol : TypeAlias = PipableOperator[LossyEvent, [], LossyEvent]
+
+class ProcessingPipelineProtocol(Protocol):
+    """
+    See documentation of the `__init__` function.
+    """
+
+    def __init__(
+        self,
+        parameters: Parameters,
+    ):
+        """Initializes the data processing pipeline"""
+        ...
+
+    def __call__(
+        self, stream: AsyncIterable[LossyEvent]
+    ) -> AsyncIterator[LossyEvent]:
+        """Applies the data processing pipeline"""
+        ...
+
 
 class DataSerializerProtocol(Protocol):
     def __init__(self, parameters: Parameters):
         """Initializes the data serializers"""
         ...
 
-    def serialize_data(self, data: dict[str, StrFloatIntNDArray]) -> bytes:
+    def serialize_data(self, data: Event) -> bytes:
         """Serializes the data"""
         ...
 
