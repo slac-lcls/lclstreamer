@@ -1,5 +1,5 @@
 from typing import Dict, Union
-from collections.abc import AsyncIterable
+from collections.abc import AsyncIterable, AsyncIterator
 from time import time
 
 #from stream.core import Stream
@@ -39,7 +39,7 @@ def rate_clock(
         "time": t,
     }
 
-@pipable_operator
+@pipable_operator # type: ignore[arg-type]
 def clock(source: AsyncIterable[int]) -> Stream[Clock]:
     """
     Returns a rate clock counting from now.
@@ -51,4 +51,4 @@ def clock(source: AsyncIterable[int]) -> Stream[Clock]:
 
         clock: A Stream objet
     """
-    return stream.reduce(source, rate_clock, clock0())
+    return stream.reduce(source, rate_clock, clock0()) # type: ignore[arg-type]

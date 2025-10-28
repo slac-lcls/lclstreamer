@@ -126,10 +126,10 @@ class BinaryStreamingPushDataHandlerZmq:
                 data_handler
         """
         self.data_handler_parameters = data_handler_parameters
-        self._context: Context[Socket[bytes]] = Context()
+        self._context: Context = Context()
 
-    async def __aenter__(self):
-        self._socket: Socket[bytes] = self._context.socket(PUSH)
+    async def __aenter__(self) -> Self:
+        self._socket: Socket = self._context.socket(PUSH)
 
         url: str
         for url in self.data_handler_parameters.urls:
@@ -144,6 +144,7 @@ class BinaryStreamingPushDataHandlerZmq:
                     f"error: {err}"
                 )
                 sys.exit(1)
+        return self
 
     async def __call__(self, data: bytes) -> None:
         """

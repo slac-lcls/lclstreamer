@@ -26,7 +26,7 @@ from ..protocols.frontend import (
     DataSerializerProtocol,
     ProcessingPipelineProtocol,
 )
-from ..utils.stream_utils import clock
+from ..utils.stream_utils import clock, Clock
 
 app = typer.Typer()
 
@@ -116,6 +116,8 @@ async def amain(
     processing_pipeline: ProcessingPipelineProtocol = initialize_processing_pipeline(
         parameters
     )
+    processing_pipeline.__name__="processing_pipeline"
+    run_processing = pipable_operator(processing_pipeline)
     print(f"[Rank {mpi_rank}] Initializing processing pipeline: Done!")
 
     print(f"[Rank {mpi_rank}] Initializing data serializer....")
@@ -127,22 +129,25 @@ async def amain(
     print(f"[Rank {mpi_rank}] Initializing data handlers: Done!")
 
     async with parallel_data_handler as handle_data: # connect / open files / etc.
-        workflow: Stream[LossyEvent] = Stream(source.get_events)
+        lossy_events: Stream[LossyEvent] = Stream(source.get_events)
 
         if num_events > 0:
-            workflow |= pipe.take(num_events)
+            lossy_events |= pipe.take(num_events)
 
         if lclstreamer_parameters.skip_incomplete_events is True:
-            workflow |= filter_incomplete_events.pipe(max_consecutive=1)
+            lossy_events |= filter_incomplete_events.pipe(max_consecutive=1)
 
-        workflow |= processing_pipeline.pipe()
+        events = lossy_events | run_processing.pipe()
 
-        workflow |= pipe.map(data_serializer.serialize_data)
+        serialized = ( events
+                     | pipe.map(data_serializer.serialize_data) # type: ignore[arg-type]
+                     | pipe.action(async_(handle_data))
+                     )
 
-        workflow |= pipe.action(async_(handle_data))
-
-        workflow |= pipe.map(data_counter)
-        workflow |= clock.pipe()
+        workflow : Stream[Clock] = ( serialized
+                   | pipe.map(data_counter) # type: ignore[arg-type]
+                   | clock.pipe()
+                   )
 
         async with streamcontext(workflow) as streamer:
             async for stat in streamer:
