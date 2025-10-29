@@ -1,11 +1,12 @@
 import sys
+from collections.abc import Iterator
 from io import BytesIO
 from typing import Any
 
 import h5py  # type: ignore
 import hdf5plugin  # type: ignore
 
-from ...models.parameters import HDF5BinarySerializerParameters, Parameters
+from ...models.parameters import DataSerializerParameters
 from ...protocols.backend import StrFloatIntNDArray
 from ...protocols.frontend import DataSerializerProtocol
 from ...utils.logging_utils import log
@@ -16,7 +17,7 @@ class Hdf5BinarySerializer(DataSerializerProtocol):
     See documentation of the `__init__` function.
     """
 
-    def __init__(self, parameters: Parameters):
+    def __init__(self, data_serializer_parameters: DataSerializerParameters) -> None:
         """
         Initializes an HDF5 data serializer
 
@@ -28,14 +29,6 @@ class Hdf5BinarySerializer(DataSerializerProtocol):
 
             parameters: The configuration parameters
         """
-        if parameters.data_serializer.Hdf5BinarySerializer is None:
-            log.error("No configuration parameters found for Hdf5BinarySerializer")
-            sys.exit(1)
-
-        data_serializer_parameters: HDF5BinarySerializerParameters = (
-            parameters.data_serializer.Hdf5BinarySerializer
-        )
-
         if data_serializer_parameters.compression == "gzip":
             self._compression_options: dict[str, Any] = {
                 "compression": "gzip",
@@ -69,7 +62,9 @@ class Hdf5BinarySerializer(DataSerializerProtocol):
 
         self._hdf5_fields: dict[str, str] = data_serializer_parameters.fields
 
-    def serialize_data(self, data: dict[str, StrFloatIntNDArray]) -> bytes:
+    def __call__(
+        self, stream: Iterator[dict[str, StrFloatIntNDArray | None]]
+    ) -> Iterator[bytes]:
         """
         Serializes data to a binary blob with an internal HDF5 structure
 
@@ -81,40 +76,47 @@ class Hdf5BinarySerializer(DataSerializerProtocol):
 
             byte_block: A binary blob (a bytes object)
         """
+        data: dict[str, StrFloatIntNDArray | None]
+        for data in stream:
 
-        depth_of_data_blocks: list[int] = [
-            data[data_block].shape[0] for data_block in data
-        ]
+            depth_of_data_blocks: list[int] = [
+                value.shape[0]
+                for data_block in data
+                if (value := data[data_block]) is not None
+            ]
 
-        if len(set(depth_of_data_blocks)) != 1:
-            log.error(
-                "The data blocks that should be written to the HDF5 file have"
-                "different depths"
-            )
-            sys.exit(1)
+            if len(set(depth_of_data_blocks)) != 1:
+                log.error(
+                    "The data blocks that should be written to the HDF5 file have"
+                    "different depths"
+                )
+                sys.exit(1)
 
-        mismatching_entries: set[str] = data.keys() - self._hdf5_fields.keys()
+            mismatching_entries: set[str] = data.keys() - self._hdf5_fields.keys()
 
-        if len(mismatching_entries) != 0:
-            log.error(
-                "The Hdf5BinarySerializer is asked to serialize the following data "
-                "entries but data for these entries is not available: "
-                f"{' '.join(list(mismatching_entries))}"
-            )
-            sys.exit(1)
+            if len(mismatching_entries) != 0:
+                log.error(
+                    "The Hdf5BinarySerializer is asked to serialize the following data "
+                    "entries but data for these entries is not available: "
+                    f"{' '.join(list(mismatching_entries))}"
+                )
+                sys.exit(1)
 
-        with BytesIO() as byte_block:
-            with h5py.File(byte_block, "w") as fh:
-                data_block_name: str
-                for data_block_name in data:
-                    if data_block_name in self._hdf5_fields:
-                        fh.create_dataset(
-                            name=self._hdf5_fields[data_block_name],
-                            shape=data[data_block_name].shape,
-                            dtype=data[data_block_name].dtype,
-                            chunks=(1,) + data[data_block_name][0].shape,
-                            data=data[data_block_name],
-                            **self._compression_options,
-                        )
+            with BytesIO() as byte_block:
+                with h5py.File(byte_block, "w") as fh:
+                    data_block_name: str
+                    for data_block_name in data:
+                        if (
+                            data_block_name in self._hdf5_fields
+                            and (data_block := data[data_block_name]) is not None
+                        ):
+                            fh.create_dataset(
+                                name=self._hdf5_fields[data_block_name],
+                                shape=data_block.shape,
+                                dtype=data_block.dtype,
+                                chunks=(1,) + data_block[0].shape,
+                                data=data_block,
+                                **self._compression_options,
+                            )
 
-            return byte_block.getvalue()
+                yield byte_block.getvalue()

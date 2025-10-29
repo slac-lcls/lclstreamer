@@ -1,12 +1,9 @@
-lclstreamer:
-    source_identifier: ""
-    event_source: InternalEventSource
-    processing_pipeline: BatchProcessingPipeline
-    data_serializer: Hdf5BinarySerializer
-    skip_incomplete_events: false
-    data_handlers:
-        - BinaryFileWritingDataHandler
-        #- BinaryDataStreamingDataHandler
+source_identifier: ""
+skip_incomplete_events: false
+
+event_source:
+    type: InternalEventSource
+    number_of_events_to_generate: 76
 
 data_sources:
     random:
@@ -14,30 +11,26 @@ data_sources:
         array_shape: 20,2
         array_dtype: float32
 
-event_source:
-    InternalEventSource:
-        number_of_events_to_generate: 76
-
 processing_pipeline:
-    BatchProcessingPipeline:
-        batch_size: 10
+    type: BatchProcessingPipeline
+    batch_size: 10
 
 data_serializer:
-    Hdf5BinarySerializer:
-        compression_level: 3
-        compression: null
-        fields:
-            random: /data/random
+    type: Hdf5BinarySerializer
+    compression_level: 3
+    compression: null
+    fields:
+        random: /data/random
 
 data_handlers:
-    BinaryFileWritingDataHandler:
-        file_prefix: ""
-        file_suffix: h5
-        write_directory: workspace/output
+    - type: BinaryFileWritingDataHandler
+      file_prefix: ""
+      file_suffix: h5
+      write_directory: workspace/output
 
-    BinaryDataStreamingDataHandler:
-        urls:
-            - "tcp://127.0.0.1:12321"
-        role: client
-        library: nng
-        socket_type: push
+#   - type: BinaryDataStreamingDataHandler
+#     urls:
+#         - "tcp://127.0.0.1:12321"
+#     role: client
+#     library: nng
+#     socket_type: push

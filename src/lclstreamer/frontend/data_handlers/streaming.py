@@ -1,11 +1,14 @@
 import sys
-from typing import Union, Self
+from typing import Self
 
 from pynng import ConnectionRefused, Push0  # type: ignore
 from zmq import PUSH, ZMQError
 from zmq.asyncio import Context, Socket
 
-from ...models.parameters import BinaryDataStreamingDataHandlerParameters, Parameters
+from ...models.parameters import (
+    BinaryDataStreamingDataHandlerParameters,
+    DataHandlerParameters,
+)
 from ...protocols.frontend import DataHandlerProtocol
 from ...utils.logging_utils import log
 
@@ -15,7 +18,7 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
     See documentation of the `__init__` function.
     """
 
-    def __init__(self, parameters: Parameters):
+    def __init__(self, parameters: DataHandlerParameters):
         """
         Initializes a binary data streaming data handler
 
@@ -25,20 +28,20 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
 
               parameters: The configuration parameters
         """
-        if parameters.data_handlers.BinaryDataStreamingDataHandler is None:
+        if parameters.BinaryDataStreamingDataHandler is None:
             log.error(
                 "No configuration parameters found for BinaryStreamingPushDataHandler"
             )
             sys.exit(1)
 
         data_handler_parameters: BinaryDataStreamingDataHandlerParameters = (
-            parameters.data_handlers.BinaryDataStreamingDataHandler
+            parameters.BinaryDataStreamingDataHandler
         )
 
         if data_handler_parameters.library == "nng":
-            self._streaming: Union[
-                BinaryStreamingPushDataHandlerNng, BinaryStreamingPushDataHandlerZmq
-            ] = BinaryStreamingPushDataHandlerNng(data_handler_parameters)
+            self._streaming: (
+                BinaryStreamingPushDataHandlerNng | BinaryStreamingPushDataHandlerZmq
+            ) = BinaryStreamingPushDataHandlerNng(data_handler_parameters)
         else:
             self._streaming = BinaryStreamingPushDataHandlerZmq(data_handler_parameters)
 

@@ -1,12 +1,8 @@
-lclstreamer:
-    source_identifier: exp=xpply5120:run=318
-    event_source: Psana1EventSource
-    processing_pipeline: BatchProcessingPipeline
-    data_serializer: Hdf5BinarySerializer
-    skip_incomplete_events: false
-    data_handlers:
-        - BinaryFileWritingDataHandler
-        #- BinaryDataStreamingDataHandler
+source_identifier: exp=xpply5120:run=318
+skip_incomplete_events: false
+
+event_source:
+    type: Psana1EventSource
 
 data_sources:
     timestamp:
@@ -50,39 +46,36 @@ data_sources:
         type: Psana1EvrCodes
         psana_name: evr0
 
-event_source:
-    Psana1EventSource: {}
-
 processing_pipeline:
-    BatchProcessingPipeline:
-        batch_size: 100
+    type: BatchProcessingPipeline
+    batch_size: 100
 
 data_serializer:
-    Hdf5BinarySerializer:
-        compression_level: 3
-        compression: zfp
-        fields:
-            timestamp: /data/timestamp
-            detector_data: /data/data
-            ipm2sum: /data/ipm2sum
-            ipm3sum: /data/ipm3sum
-            diodeUchannel: /data/diodeuchannel
-            timetool_ampl: /data/timetoolampl
-            timetool_delay: /data/timetooldelay
-            timetool_delay_ps: /data/timetooldelayps
-            usb_encoder_2: /data/usbencoder2
-            evr_codes: /data/evrcodes
+    type: Hdf5BinarySerializer
+    compression_level: 3
+    compression: zfp
+    fields:
+        timestamp: /data/timestamp
+        detector_data: /data/data
+        ipm2sum: /data/ipm2sum
+        ipm3sum: /data/ipm3sum
+        diodeUchannel: /data/diodeuchannel
+        timetool_ampl: /data/timetoolampl
+        timetool_delay: /data/timetooldelay
+        timetool_delay_ps: /data/timetooldelayps
+        usb_encoder_2: /data/usbencoder2
+        evr_codes: /data/evrcodes
 
 data_handlers:
-    BinaryFileWritingDataHandler:
-        file_prefix: "xpply5120-run31"
-        file_suffix: h5
-        write_directory: workspace/output
+  - type: BinaryFileWritingDataHandler
+    file_prefix: "xpply5120-run31"
+    file_suffix: h5
+    write_directory: workspace/output
 
-    BinaryDataStreamingDataHandler:
-        urls:
-            #           - "tcp://sdfdtn003:5000"
-            - "tcp://127.0.0.1:12321"
-        role: client
-        library: nng
-        socket_type: push
+# - type:  BinaryDataStreamingDataHandler
+#   urls:
+#    #  - "tcp://sdfdtn003:5000"
+#       - "tcp://127.0.0.1:12321"
+#   role: client
+#   library: nng
+#   socket_type: push

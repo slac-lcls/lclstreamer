@@ -25,7 +25,7 @@ show_error_codes = true
 python_version = 3.11
 python_executable = ".pixi/envs/psana2/bin/python"
 
-[tool.pixi.project]
+[tool.pixi.workspace]
 channels = ["conda-forge"]
 platforms = ["linux-64"]
 
@@ -41,8 +41,6 @@ lclstreamer = { path = ".", editable = true }
 [tool.pixi.environments]
 psana1 = ["psana1"]
 psana2 = ["psana2"]
-test1 = ["psana1", "test"]
-test2 = ["psana2", "test"]
 
 [tool.pixi.feature.psana1.activation]
 scripts = ["activation-psana1.sh"]
@@ -68,8 +66,8 @@ mypy = "*"
 pytest-asyncio = ">=1.2.0,<2.0"
 
 [dependency-groups]
-psana1 = ["typer>=0.15.2,<0.16", "numpy", "pydantic>=2.10.6,<3", "aiostream>=0.7.1", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15", "pytest>=8.4.1,<9"]
-psana2 = ["typer>=0.15.2,<0.16", "numpy", "pydantic>=2.10.6,<3", "aiostream>=0.7.1", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15", "pytest>=8.4.1,<9"]
+psana1 = ["typer>=0.15.2,<0.16", "numpy", "pydantic>=2.10.6,<3", "aiostream>=0.7.1,<0.8", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15", "pytest>=8.4.1,<9", "bitshuffle>=0.5.2,<0.6", "cbor>=1.0.0,<2"]
+psana2 = ["typer>=0.15.2,<0.16", "numpy", "pydantic>=2.10.6,<3", "aiostream>=0.7.1,<0.8", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15", "pytest>=8.4.1,<9", "bitshuffle>=0.5.2,<0.6", "cbor>=1.0.0,<2"]
 
 [tool.pixi.tasks]
 

@@ -1,11 +1,8 @@
-lclstreamer:
-    source_identifier: exp=mfx100903824:run=27
-    event_source: Psana1EventSource
-    processing_pipeline: PeaknetPreprocessingPipeline
-    data_serializer: Hdf5BinarySerializer
-    skip_incomplete_events: false
-    data_handlers:
-        - BinaryDataStreamingDataHandler
+source_identifier: exp=mfx100903824:run=27
+skip_incomplete_events: false
+
+event_source:
+    type: Psana1EventSource
 
 data_sources:
     timestamp:
@@ -24,32 +21,29 @@ data_sources:
         type: Psana1PV
         psana_name: "SIOC:SYS0:ML00:AO192"
 
-event_source:
-    Psana1EventSource: {}
-
 processing_pipeline:
-    PeaknetPreprocessingPipeline:
-        batch_size: 16
-        target_height: 2048
-        target_width: 2048
-        pad_style: center
-        add_channel_dim: true
-        num_channels: 1
+    type: PeaknetPreprocessingPipeline
+    batch_size: 16
+    target_height: 2048
+    target_width: 2048
+    pad_style: center
+    add_channel_dim: true
+    num_channels: 1
 
 data_serializer:
-    Hdf5BinarySerializer:
-        compression_level: 3
-        compression: zfp
-        fields:
-            timestamp: /data/timestamp
-            detector_data: /data/data
-            random: /data/random
-            photon_wavelength: /data/wavelength
+    type: Hdf5BinarySerializer
+    compression_level: 3
+    compression: zfp
+    fields:
+        timestamp: /data/timestamp
+        detector_data: /data/data
+        random: /data/random
+        photon_wavelength: /data/wavelength
 
 data_handlers:
-    BinaryDataStreamingDataHandler:
-        urls:
-            - "tcp://sdfada001:12321"
-        role: client
-        library: nng
-        socket_type: push
+  - type: BinaryDataStreamingDataHandler
+    urls:
+        - "tcp://sdfada001:12321"
+    role: client
+    library: nng
+    socket_type: push

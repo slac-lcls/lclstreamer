@@ -5,7 +5,11 @@ from contextlib import AbstractAsyncContextManager
 
 from aiostream.core import PipableOperator
 
-from ..models.parameters import Parameters, ProcessingPipelineParameters
+from ..models.parameters import (
+    DataHandlerParameters,
+    DataSerializerParameters,
+    ProcessingPipelineParameters,
+)
 from .backend import StrFloatIntNDArray
 from ..models.types import LossyEvent, Event, StrFloatIntNDArray
 
@@ -17,8 +21,8 @@ class ProcessingPipelineProtocol(Protocol):
 
     def __init__(
         self,
-        parameters: Parameters,
-    ):
+        parameters: ProcessingPipelineParameters,
+    ) -> None:
         """Initializes the data processing pipeline"""
         ...
 
@@ -30,7 +34,7 @@ class ProcessingPipelineProtocol(Protocol):
 
 
 class DataSerializerProtocol(Protocol):
-    def __init__(self, parameters: Parameters):
+    def __init__(self, parameters: DataSerializerParameters) -> None:
         """Initializes the data serializers"""
         ...
 
@@ -39,7 +43,7 @@ class DataSerializerProtocol(Protocol):
         ...
 
 class DataHandlerProtocol(Protocol, AbstractAsyncContextManager):
-    def __init__(self, parameters: Parameters):
+    def __init__(self, parameters: DataHandlerParameters) -> None:
         """Initializes the data handler.
 
            Use this as in,

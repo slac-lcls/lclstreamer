@@ -44,19 +44,11 @@ def initialize_event_source(
 
         event_source: The initialized event source
     """
-    lclstreamer_parameters: LclstreamerParameters = parameters.lclstreamer
-
-    try:
-        event_source: EventSourceProtocol = globals()[
-            lclstreamer_parameters.event_source
-        ](
-            parameters=parameters,
-            worker_pool_size=worker_pool_size,
-            worker_rank=worker_rank,
-        )
-    except NameError as e:
-        log.error(
-            f"Event source {lclstreamer_parameters.event_source} is not available: {e}"
-        )
-        sys.exit(1)
+    event_source: EventSourceProtocol = globals()[
+        parameters.event_source.type
+    ](
+        parameters=parameters,
+        worker_pool_size=worker_pool_size,
+        worker_rank=worker_rank,
+    )
     return event_source
