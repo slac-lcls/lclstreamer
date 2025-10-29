@@ -125,7 +125,7 @@ async def amain(
     print(f"[Rank {mpi_rank}] Initializing data serializer: Done!")
 
     print(f"[Rank {mpi_rank}] Initializing data handlers....")
-    parallel_data_handler = ParallelDataHandler(parameters)
+    parallel_data_handler = ParallelDataHandler(parameters.data_handlers)
     print(f"[Rank {mpi_rank}] Initializing data handlers: Done!")
 
     async with parallel_data_handler as handle_data: # connect / open files / etc.

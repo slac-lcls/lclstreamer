@@ -41,11 +41,11 @@ class InternalEventSource(EventSourceProtocol):
         data_source_parameters: dict[str, DataSourceParameters] = (
             parameters.data_sources
         )
-        if parameters.event_source.InternalEventSource is None:
-            log.error("No configuration parameters found for InternalEventSource")
+        if parameters.event_source.type != "InternalEventSource":
+            log.error(f"Tried to initialize an InternalEventSource from a {parameters.event_source.type}!")
             sys.exit(1)
         self.number_of_events_to_generate = (
-            parameters.event_source.InternalEventSource.number_of_events_to_generate
+            parameters.event_source.number_of_events_to_generate
         )
 
         self._data_sources: dict[str, DataSourceProtocol] = {}

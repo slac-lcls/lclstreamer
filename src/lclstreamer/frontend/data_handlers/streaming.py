@@ -18,7 +18,7 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
     See documentation of the `__init__` function.
     """
 
-    def __init__(self, parameters: DataHandlerParameters):
+    def __init__(self, data_handler_parameters: BinaryDataStreamingDataHandlerParameters) -> None:
         """
         Initializes a binary data streaming data handler
 
@@ -28,16 +28,6 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
 
               parameters: The configuration parameters
         """
-        if parameters.BinaryDataStreamingDataHandler is None:
-            log.error(
-                "No configuration parameters found for BinaryStreamingPushDataHandler"
-            )
-            sys.exit(1)
-
-        data_handler_parameters: BinaryDataStreamingDataHandlerParameters = (
-            parameters.BinaryDataStreamingDataHandler
-        )
-
         if data_handler_parameters.library == "nng":
             self._streaming: (
                 BinaryStreamingPushDataHandlerNng | BinaryStreamingPushDataHandlerZmq
@@ -70,7 +60,7 @@ class BinaryStreamingPushDataHandlerNng:
 
     def __init__(
         self, data_handler_parameters: BinaryDataStreamingDataHandlerParameters
-    ):
+    ) -> None:
         """
         Initializes an NNG binary data streaming socket
 
@@ -119,7 +109,7 @@ class BinaryStreamingPushDataHandlerNng:
 class BinaryStreamingPushDataHandlerZmq:
     def __init__(
         self, data_handler_parameters: BinaryDataStreamingDataHandlerParameters
-    ):
+    ) -> None:
         """
         Initializes a ZMQ binary data streaming socket
 

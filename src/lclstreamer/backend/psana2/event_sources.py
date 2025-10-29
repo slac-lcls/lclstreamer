@@ -71,12 +71,11 @@ class Psana2EventSource(EventSourceProtocol):
         del worker_pool_size
         del worker_rank
 
-        lclstreamer_parameters: LclstreamerParameters = parameters.lclstreamer
         data_source_parameters: dict[str, DataSourceParameters] = (
             parameters.data_sources
         )
 
-        if "shmem" in lclstreamer_parameters.source_identifier:
+        if "shmem" in parameters.source_identifier:
             log.error(
                 "Shared memory mode is not currently available for the psana2 data "
                 "event source"
@@ -84,7 +83,7 @@ class Psana2EventSource(EventSourceProtocol):
             sys.exit(1)
         else:
             data_source_arguments: dict[str, str | int] = _parse_source_identifier(
-                lclstreamer_parameters.source_identifier
+                parameters.source_identifier
             )
             psana_data_source: Any = DataSource(**data_source_arguments)
             self._psana_run: Any = next(psana_data_source.runs())
@@ -93,7 +92,7 @@ class Psana2EventSource(EventSourceProtocol):
                 self._psana_run.events(),
             )
 
-        # self._event_source = DataSource(lclstreamer_parameters.source_identifier).events()
+        # self._event_source = DataSource(parameters.source_identifier).events()
 
         self._data_sources: dict[str, DataSourceProtocol] = {}
         data_source_name: str
@@ -108,7 +107,7 @@ class Psana2EventSource(EventSourceProtocol):
                     parameters=data_source_parameters[data_source_name],
                     additional_info={
                         "run": self._psana_run,
-                        "source_identifier": lclstreamer_parameters.source_identifier,
+                        "source_identifier": parameters.source_identifier,
                     },
                 )
             except NameError:

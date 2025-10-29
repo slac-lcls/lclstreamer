@@ -16,7 +16,7 @@ from ...utils.logging_utils import log
 
 
 class SimplonBinarySerializer(DataSerializerProtocol):
-    def __init__(self, parameters: DataSerializerParameters):
+    def __init__(self, parameters: DataSerializerParameters) -> None:
         """
         Initializes a Simplon data serializer
 
@@ -28,22 +28,16 @@ class SimplonBinarySerializer(DataSerializerProtocol):
 
             parameters: The configuration parameters
         """
-        if parameters.SimplonBinarySerializer is None:
-            log.error(
-                "No configuration parameters found for "
-                "SimplonPythonDictionarySerializer"
-            )
-            sys.exit(1)
         self._data_source_to_serialize: str = (
-            parameters.SimplonBinarySerializer.data_source_to_serialize
+            parameters.data_source_to_serialize
         )
         self._polarization: dict() = {
-            "polarization_fraction": parameters.SimplonBinarySerializer.polarization_fraction,
-            "polarization_axis": parameters.SimplonBinarySerializer.polarization_axis
+            "polarization_fraction": parameters.polarization_fraction,
+            "polarization_axis": parameters.polarization_axis
         }
-        self._data_rate: str = parameters.SimplonBinarySerializer.data_collection_rate
-        self._detector_name: str = parameters.SimplonBinarySerializer.detector_name
-        self._detector_type: str = parameters.SimplonBinarySerializer.detector_type
+        self._data_rate: str = parameters.data_collection_rate
+        self._detector_name: str = parameters.detector_name
+        self._detector_type: str = parameters.detector_type
         self._node_rank: int = MPI.COMM_WORLD.Get_rank()
         self._node_pool_size: int = MPI.COMM_WORLD.Get_size()
         self._rank_message_count: int = 1

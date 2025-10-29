@@ -90,9 +90,9 @@ class PeaknetPreprocessingPipelineParameters(CustomBaseModel):
     add_channel_dim: bool = True
     num_channels: int = 1
 
-ProcessingPipeline = Annotated[ Union[BatchProcessingPipelineParameters,
-                                      PeaknetPreprocessingPipelineParameters],
-                         Field(discriminator="type")]
+ProcessingPipelineParameters = Annotated[ Union[BatchProcessingPipelineParameters,
+                                                PeaknetPreprocessingPipelineParameters],
+                                          Field(discriminator="type")]
 
 
 ####### Serializers ##########
@@ -122,9 +122,9 @@ class HDF5BinarySerializerParameters(CustomBaseModel):
     ) = None
     fields: Dict[str, str]
 
-DataSerializer = Annotated[ Union[HDF5BinarySerializerParameters,
-                                  SimplonBinarySerializerParameters],
-                         Field(discriminator="type")]
+DataSerializerParameters = Annotated[ Union[HDF5BinarySerializerParameters,
+                                            SimplonBinarySerializerParameters],
+                                      Field(discriminator="type")]
 
 
 ######### Data Handlers #################
@@ -143,9 +143,9 @@ class BinaryFileWritingDataHandlerParameters(CustomBaseModel):
     file_suffix: str = "h5"
     write_directory: Path = Path.cwd()
 
-DataHandler = Annotated[ Union[BinaryDataStreamingDataHandlerParameters,
-                               BinaryFileWritingDataHandlerParameters],
-                         Field(discriminator="type")]
+DataHandlerParameters = Annotated[ Union[BinaryDataStreamingDataHandlerParameters,
+                                         BinaryFileWritingDataHandlerParameters],
+                                   Field(discriminator="type")]
 
 
 class Parameters(CustomBaseModel):
@@ -154,9 +154,9 @@ class Parameters(CustomBaseModel):
 
     event_source: EventSource
     data_sources: Dict[str, DataSourceParameters]
-    processing_pipeline: ProcessingPipeline
-    data_serializer: DataSerializer
-    data_handlers: List[DataHandler]
+    processing_pipeline: ProcessingPipelineParameters
+    data_serializer: DataSerializerParametersParameters
+    data_handlers: List[DataHandlerParameters]
 
     @model_validator(mode="after")
     def check_model(self) -> Self:

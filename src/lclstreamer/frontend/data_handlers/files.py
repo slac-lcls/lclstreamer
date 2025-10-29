@@ -16,7 +16,7 @@ class BinaryFileWritingDataHandler(DataHandlerProtocol):
     See documentation of the `__init__` function.
     """
 
-    def __init__(self, parameters: DataHandlerParameters):
+    def __init__(self, data_handler_parameters: BinaryFileWritingDataHandlerParameters) -> None:
         """
         Initializes a binary file writing data handler
 
@@ -26,16 +26,6 @@ class BinaryFileWritingDataHandler(DataHandlerProtocol):
 
               parameters: The configuration parameters
         """
-        if parameters.BinaryFileWritingDataHandler is None:
-            log.error(
-                "No configuration parameters found for BinaryFileWritingDataHandler"
-            )
-            sys.exit(1)
-
-        data_handler_parameters: BinaryFileWritingDataHandlerParameters = (
-            parameters.BinaryFileWritingDataHandler
-        )
-
         self._rank: int = MPI.COMM_WORLD.Get_rank()
         self._prefix: str = data_handler_parameters.file_prefix
         if self._prefix != "" and not self._prefix.endswith("_"):

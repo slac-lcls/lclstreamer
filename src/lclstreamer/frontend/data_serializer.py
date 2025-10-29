@@ -2,7 +2,6 @@ import sys
 
 from ..models.parameters import (
     DataSerializerParameters,
-    LclstreamerParameters,
     Parameters,
 )
 from ..protocols.frontend import DataSerializerProtocol
@@ -25,17 +24,10 @@ def initialize_data_serializer(
 
         data_serializer: An initialized Data Serializer
     """
-    lclstreamer_parameters: LclstreamerParameters = parameters.lclstreamer
     data_serializer_parameters: DataSerializerParameters = parameters.data_serializer
 
-    try:
-        data_serializer: DataSerializerProtocol = globals()[
-            lclstreamer_parameters.data_serializer
-        ](data_serializer_parameters)
-    except NameError:
-        log.error(
-            f"Data serializer {lclstreamer_parameters.data_serializer} is "
-            "not available"
-        )
-        sys.exit(1)
+    data_serializer: DataSerializerProtocol = globals()[
+        data_serializer_parameters.type
+    ](data_serializer_parameters)
+
     return data_serializer

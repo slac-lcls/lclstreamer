@@ -47,18 +47,17 @@ class Psana1EventSource(EventSourceProtocol):
         del worker_pool_size
         del worker_rank
 
-        lclstreamer_parameters: LclstreamerParameters = parameters.lclstreamer
         data_source_parameters: dict[str, DataSourceParameters] = (
             parameters.data_sources
         )
 
-        if "shmem" in lclstreamer_parameters.source_identifier:
+        if "shmem" in parameters.source_identifier:
             self._event_source: Generator[Any] = cast(
                 Generator[Any],
-                DataSource(lclstreamer_parameters.source_identifier).events(),
+                DataSource(parameters.source_identifier).events(),
             )
         else:
-            psana_source_string: str = lclstreamer_parameters.source_identifier
+            psana_source_string: str = parameters.source_identifier
             if not psana_source_string.endswith(":smd"):
                 psana_source_string = f"{psana_source_string}:smd"
             self._event_source = cast(
@@ -78,7 +77,7 @@ class Psana1EventSource(EventSourceProtocol):
                     name=data_source_name,
                     parameters=data_source_parameters[data_source_name],
                     additional_info={
-                        "source_identifier": lclstreamer_parameters.source_identifier
+                        "source_identifier": parameters.source_identifier
                     },
                 )
             except NameError:
