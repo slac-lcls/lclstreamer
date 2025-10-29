@@ -31,7 +31,7 @@ processing_pipeline:
     num_channels: 1
 
 data_serializer:
-    type: Hdf5BinarySerializer
+    type: HDF5BinarySerializer
     compression_level: 3
     compression: zfp
     fields:

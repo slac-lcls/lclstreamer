@@ -1,6 +1,6 @@
 import sys
 
-from ..models.parameters import LclstreamerParameters, Parameters
+from ..models.parameters import Parameters
 from ..protocols.frontend import ProcessingPipelineProtocol
 from ..utils.logging_utils import log
 from .processing_pipelines.generic import (
@@ -23,17 +23,8 @@ def initialize_processing_pipeline(
 
         data_handlers: An initialized Processing Pipeline
     """
-    lclstreamer_parameters: LclstreamerParameters = parameters.lclstreamer
-
-    try:
-        processing_pipeline: ProcessingPipelineProtocol = globals()[
-            lclstreamer_parameters.processing_pipeline
-        ](parameters.processing_pipeline)
-    except NameError as e:
-        log.error(
-            f"Processing pipeline {lclstreamer_parameters.processing_pipeline} "
-            f"is not available: {e}"
-        )
-        sys.exit(1)
+    processing_pipeline: ProcessingPipelineProtocol = globals()[
+        parameters.processing_pipeline.type
+    ](parameters.processing_pipeline)
 
     return processing_pipeline

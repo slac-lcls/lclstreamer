@@ -2,7 +2,7 @@
 name = "lclstreamer"
 requires-python = ">= 3.11"
 version = "0.2.0"
-dependencies = ["typer>=0.15.2,<0.16", "numpy", "pydantic>=2.10.6,<3", "aiostream>=0.7.1", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15", "pytest>=8.4.1,<9"]
+dependencies = ["typer>=0.15.2,<0.16", "numpy", "pydantic>=2.10.6,<3", "aiostream>=0.7.1", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15"]
 
 [build-system]
 build-backend = "setuptools.build_meta"
@@ -41,6 +41,8 @@ lclstreamer = { path = ".", editable = true }
 [tool.pixi.environments]
 psana1 = ["psana1"]
 psana2 = ["psana2"]
+test1 = ["psana1", "test"]
+test2 = ["psana2", "test"]
 
 [tool.pixi.feature.psana1.activation]
 scripts = ["activation-psana1.sh"]
@@ -61,13 +63,15 @@ mpi4py = "*"
 openmpi = ">=4.1.6,<5"
 
 [tool.pixi.feature.test.dependencies]
-pytest = "*"
+pytest = ">=8.4.1,<9"
 mypy = "*"
 pytest-asyncio = ">=1.2.0,<2.0"
+mkdocs-material = ">=9.6.11,<10"
+mkdocstrings-python = ">=1.16.10,<2"
 
 [dependency-groups]
-psana1 = ["typer>=0.15.2,<0.16", "numpy", "pydantic>=2.10.6,<3", "aiostream>=0.7.1,<0.8", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15", "pytest>=8.4.1,<9", "bitshuffle>=0.5.2,<0.6", "cbor>=1.0.0,<2"]
-psana2 = ["typer>=0.15.2,<0.16", "numpy", "pydantic>=2.10.6,<3", "aiostream>=0.7.1,<0.8", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15", "pytest>=8.4.1,<9", "bitshuffle>=0.5.2,<0.6", "cbor>=1.0.0,<2"]
+psana1 = ["typer>=0.15.2,<0.16", "numpy", "pydantic>=2.10.6,<3", "aiostream>=0.7.1,<0.8", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "rich>=14.0.0,<15", "bitshuffle>=0.5.2,<0.6", "cbor>=1.0.0,<2"]
+psana2 = ["typer>=0.15.2,<0.16", "numpy", "pydantic>=2.10.6,<3", "aiostream>=0.7.1,<0.8", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "rich>=14.0.0,<15", "bitshuffle>=0.5.2,<0.6", "cbor>=1.0.0,<2"]
 
 [tool.pixi.tasks]
 

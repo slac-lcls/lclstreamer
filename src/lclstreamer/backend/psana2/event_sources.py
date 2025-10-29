@@ -4,7 +4,7 @@ from typing import Any, cast
 
 from psana import DataSource  # type: ignore
 
-from ...models.parameters import DataSourceParameters, LclstreamerParameters, Parameters
+from ...models.parameters import DataSourceParameters, Parameters
 from ...models.types import LossyEvent
 from ...protocols.backend import (
     DataSourceProtocol,
@@ -110,10 +110,10 @@ class Psana2EventSource(EventSourceProtocol):
                         "source_identifier": parameters.source_identifier,
                     },
                 )
-            except NameError:
+            except NameError as e:
                 log.error(
                     f"Data source {data_source_parameters[data_source_name].type} "
-                    "is not available for backend Psana2EventSource"
+                    f"is not available for backend Psana2EventSource: {e}"
                 )
                 sys.exit(1)
 

@@ -1,9 +1,9 @@
 import sys
-from typing import Self
+from typing import Self, List
 from asyncio import TaskGroup
 from contextlib import AsyncExitStack
 
-from ..models.parameters import DataHandlerParameters, LclstreamerParameters
+from ..models.parameters import DataHandlerParameters
 from ..protocols.frontend import DataHandlerProtocol
 from ..utils.logging_utils import log
 from .data_handlers.files import BinaryFileWritingDataHandler  # noqa: F401

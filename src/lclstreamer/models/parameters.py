@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Literal, Self, List, Dict, Union
+from typing_extensions import Annotated
 
 from pydantic import BaseModel, ConfigDict, model_validator, Field, conlist
 
@@ -155,7 +156,7 @@ class Parameters(CustomBaseModel):
     event_source: EventSource
     data_sources: Dict[str, DataSourceParameters]
     processing_pipeline: ProcessingPipelineParameters
-    data_serializer: DataSerializerParametersParameters
+    data_serializer: DataSerializerParameters
     data_handlers: List[DataHandlerParameters]
 
     @model_validator(mode="after")

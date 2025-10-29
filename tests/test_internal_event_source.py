@@ -8,41 +8,35 @@ from lclstreamer.cmd.lclstreamer import app
 runner: CliRunner = CliRunner()
 
 configuration: str = """
-lclstreamer:
-    source_identifier: ""
-    event_source: InternalEventSource
-    processing_pipeline: BatchProcessingPipeline
-    data_serializer: Hdf5BinarySerializer
-    skip_incomplete_events: false
-    data_handlers:
-        - BinaryFileWritingDataHandler
+source_identifier: ""
+skip_incomplete_events: false
 
 data_sources:
-    random:
-        type: GenericRandomNumpyArray
-        array_shape: 20,2
-        array_dtype: float32
+    type: random
+    type: GenericRandomNumpyArray
+    array_shape: 20,2
+    array_dtype: float32
 
 event_source:
-    InternalEventSource:
-        number_of_events_to_generate: 1000
+    type: InternalEventSource
+    number_of_events_to_generate: 1000
 
 processing_pipeline:
-    BatchProcessingPipeline:
-        batch_size: 10
+    type: BatchProcessingPipeline
+    batch_size: 10
 
 data_serializer:
-    Hdf5BinarySerializer:
-        compression_level: 3
-        compression: zfp
-        fields:
-            random: /data/random
+    type: HDF5BinarySerializer
+    compression_level: 3
+    compression: zfp
+    fields:
+        random: /data/random
 
 data_handlers:
-    BinaryFileWritingDataHandler:
-        file_prefix: ""
-        file_suffix: h5
-        write_directory: output
+    type: BinaryFileWritingDataHandler
+    file_prefix: ""
+    file_suffix: h5
+    write_directory: output
 """
 
 

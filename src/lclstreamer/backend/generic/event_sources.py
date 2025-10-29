@@ -1,7 +1,7 @@
 import sys
 from collections.abc import AsyncIterable
 
-from ...models.parameters import DataSourceParameters, LclstreamerParameters, Parameters
+from ...models.parameters import DataSourceParameters, Parameters
 from ...models.types import LossyEvent
 from ...protocols.backend import (
     DataSourceProtocol,

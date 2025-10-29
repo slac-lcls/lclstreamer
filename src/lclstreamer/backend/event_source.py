@@ -4,7 +4,7 @@ from collections.abc import AsyncIterable
 
 from aiostream import operator
 
-from ..models.parameters import LclstreamerParameters, Parameters
+from ..models.parameters import Parameters
 from ..models.types import LossyEvent
 from ..protocols.backend import EventSourceProtocol
 from ..utils.logging_utils import log

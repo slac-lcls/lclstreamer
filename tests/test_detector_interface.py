@@ -1,10 +1,33 @@
-from psana import DataSource
-from lclstreamer.backend.psana2.data_sources import Psana2DetectorInterface
+from pathlib import Path
+import pytest
+
+try:
+    from lclstreamer.backend.event_source import Psana2EventSource
+    from psana import DataSource
+    from lclstreamer.backend.psana2.data_sources import Psana2DetectorInterface
+    using_psana2 = True
+except ImportError:
+    using_psana2 = False
+
+try:
+    from lclstreamer.backend.event_source import Psana1EventSource
+    using_psana1 = True
+except ImportError:
+    using_psana1 = False
+
 from lclstreamer.models.parameters import DataSourceParameters, DetectorDataParameters
 from typing import Any, cast, Generator
 import numpy
 
+test_path = Path("/sdf/data/lcls/ds/mfx/mfx100852324/xtc/smalldata/")
+try:
+    test_path.stat()
+    can_access = True
+except PermissionError:
+    can_access = False
 
+@pytest.mark.skipif(not using_psana2, reason="Test requires psana2")
+@pytest.mark.skipif(not can_access, reason="Inaccessible data")
 def test_detector_interface() -> None:
 
     parameters = DataSourceParameters(type="Detector_data")

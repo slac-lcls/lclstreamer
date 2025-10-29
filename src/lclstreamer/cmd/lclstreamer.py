@@ -18,7 +18,7 @@ from ..frontend.data_handling import ParallelDataHandler
 from ..frontend.data_serializer import initialize_data_serializer
 from ..frontend.parameters import load_configuration_parameters
 from ..frontend.processing_pipeline import initialize_processing_pipeline
-from ..models.parameters import LclstreamerParameters, Parameters
+from ..models.parameters import Parameters
 from ..models.types import LossyEvent, Event, StrFloatIntNDArray
 from ..protocols.backend import EventSourceProtocol
 from ..protocols.frontend import (
@@ -100,7 +100,6 @@ async def amain(
     mpi_rank: int = MPI.COMM_WORLD.Get_rank()
 
     parameters: Parameters = load_configuration_parameters(filename=config)
-    lclstreamer_parameters: LclstreamerParameters = parameters.lclstreamer
 
     print(f"[Rank {mpi_rank}] Initializing event source....")
 
@@ -134,7 +133,7 @@ async def amain(
         if num_events > 0:
             lossy_events |= pipe.take(num_events)
 
-        if lclstreamer_parameters.skip_incomplete_events is True:
+        if parameters.skip_incomplete_events is True:
             lossy_events |= filter_incomplete_events.pipe(max_consecutive=1)
 
         events = lossy_events | run_processing.pipe()
