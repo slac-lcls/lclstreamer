@@ -6,7 +6,7 @@ from ..models.parameters import (
 )
 from ..protocols.frontend import DataSerializerProtocol
 from ..utils.logging_utils import log
-from .data_serializers.file_formats import Hdf5BinarySerializer  # noqa: F401
+from .data_serializers.file_formats import HDF5BinarySerializer  # noqa: F401
 from .data_serializers.json import SimplonBinarySerializer  # noqa: F401
 
 

@@ -32,7 +32,7 @@ class ParallelDataHandler(DataHandlerProtocol):
         """
 
         self._data_handlers = []
-        for parameters in data_handlers.items():
+        for parameters in data_handlers:
             data_handler: DataHandlerProtocol = globals()[parameters.type](parameters)
             self._data_handlers.append(data_handler)
 

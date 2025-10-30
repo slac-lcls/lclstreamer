@@ -60,7 +60,7 @@ class InternalEventSource(EventSourceProtocol):
                     name=data_source_name,
                     parameters=data_source_parameters[data_source_name],
                     additional_info={
-                        "source_identifier": parameters.lclstreamer.source_identifier
+                        "source_identifier": parameters.source_identifier
                     },
                 )
             except NameError:

@@ -7,12 +7,13 @@ import h5py  # type: ignore
 import hdf5plugin  # type: ignore
 
 from ...models.parameters import DataSerializerParameters
+from ...models.types import Event
 from ...protocols.backend import StrFloatIntNDArray
 from ...protocols.frontend import DataSerializerProtocol
 from ...utils.logging_utils import log
 
 
-class Hdf5BinarySerializer(DataSerializerProtocol):
+class HDF5BinarySerializer(DataSerializerProtocol):
     """
     See documentation of the `__init__` function.
     """
@@ -62,23 +63,20 @@ class Hdf5BinarySerializer(DataSerializerProtocol):
 
         self._hdf5_fields: dict[str, str] = data_serializer_parameters.fields
 
-    def __call__(
-        self, stream: Iterator[dict[str, StrFloatIntNDArray | None]]
-    ) -> Iterator[bytes]:
-        """
-        Serializes data to a binary blob with an internal HDF5 structure
+    def serialize_data(
+        self, data: Event
+    ) -> bytes:
+            """
+            Serializes data to a binary blob with an internal HDF5 structure
 
-        Arguments:
+            Arguments:
 
-            data: A dictionary storing numpy arrays
+                data: A dictionary storing numpy arrays
 
-        Returns
+            Returns
 
-            byte_block: A binary blob (a bytes object)
-        """
-        data: dict[str, StrFloatIntNDArray | None]
-        for data in stream:
-
+                byte_block: A binary blob (a bytes object)
+            """
             depth_of_data_blocks: list[int] = [
                 value.shape[0]
                 for data_block in data
@@ -119,4 +117,4 @@ class Hdf5BinarySerializer(DataSerializerProtocol):
                                 **self._compression_options,
                             )
 
-                yield byte_block.getvalue()
+                return byte_block.getvalue()

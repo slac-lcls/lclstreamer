@@ -23,10 +23,10 @@ class BatchProcessingPipeline(ProcessingPipelineProtocol):
             parameters: The configuration parameters
         """
 
-        if parameters.BatchProcessingPipeline is None:
-            log.error("No configuration parameters found for BatchProcessingPipeline")
+        if parameters.type != "BatchProcessingPipeline":
+            log.error(f"Tried to initialize BatchProcessingPipeline from {parameters.type}")
             sys.exit(1)
-        self.batch_size: int = parameters.BatchProcessingPipeline.batch_size
+        self.batch_size: int = parameters.batch_size
 
     async def __call__(self,
         source: AsyncIterable[LossyEvent]

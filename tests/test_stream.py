@@ -2,6 +2,7 @@ import multiprocessing
 import os
 import time
 import signal
+import traceback
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Callable, Tuple
@@ -14,14 +15,8 @@ from lclstreamer.cmd.lclstreamer import app
 runner: CliRunner = CliRunner()
 
 configuration: str = """
-lclstreamer:
-    source_identifier: "none"
-    event_source: InternalEventSource
-    processing_pipeline: BatchProcessingPipeline
-    data_serializer: Hdf5BinarySerializer
-    skip_incomplete_events: false
-    data_handlers:
-        - BinaryDataStreamingDataHandler
+source_identifier: "none"
+skip_incomplete_events: false
 
 data_sources:
     random:
@@ -30,28 +25,27 @@ data_sources:
         array_dtype: float32
 
 event_source:
-    InternalEventSource:
-        number_of_events_to_generate: 1009
-
+    type: InternalEventSource
+    number_of_events_to_generate: 1009
 
 processing_pipeline:
-    BatchProcessingPipeline:
-        batch_size: 10
+    type: BatchProcessingPipeline
+    batch_size: 10
 
 data_serializer:
-    Hdf5BinarySerializer:
-        compression_level: 3
-        compression: zfp
-        fields:
-            random: /data/random
+    type: HDF5BinarySerializer
+    compression_level: 3
+    compression: zfp
+    fields:
+        random: /data/random
 
 data_handlers:
-    BinaryDataStreamingDataHandler:
-        urls:
-            - "tcp://127.0.0.1:50101"
-        role: client
-        library: nng
-        socket_type: push
+  - type: BinaryDataStreamingDataHandler
+    urls:
+        - "tcp://127.0.0.1:50101"
+    role: client
+    library: nng
+    socket_type: push
 """
 
 @contextmanager
@@ -141,7 +135,8 @@ def test_app() -> None:
             if result.exception is not None:
                 print("--- Exceptions")
                 print(result.exception)
-                print(result.exc_info)
+                #print(result.exc_info)
+                traceback.print_tb(result.exc_info[2])
 
             assert result.exit_code == 0
 
