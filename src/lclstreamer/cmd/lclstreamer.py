@@ -115,12 +115,14 @@ async def amain(
     processing_pipeline: ProcessingPipelineProtocol = initialize_processing_pipeline(
         parameters
     )
-    processing_pipeline.__name__="processing_pipeline"
-    run_processing = pipable_operator(processing_pipeline)
+    processing_pipeline.__name__="processing_pipeline" # type: ignore[attr-defined]
+    run_processing = pipable_operator(processing_pipeline) # requires __name__
     print(f"[Rank {mpi_rank}] Initializing processing pipeline: Done!")
 
     print(f"[Rank {mpi_rank}] Initializing data serializer....")
     data_serializer: DataSerializerProtocol = initialize_data_serializer(parameters)
+    data_serializer.__name__="data_serializer" # type: ignore[attr-defined]
+    run_serializer = pipable_operator(data_serializer) # requires __name__
     print(f"[Rank {mpi_rank}] Initializing data serializer: Done!")
 
     print(f"[Rank {mpi_rank}] Initializing data handlers....")
@@ -139,7 +141,7 @@ async def amain(
         events = lossy_events | run_processing.pipe()
 
         serialized = ( events
-                     | pipe.map(data_serializer.serialize_data) # type: ignore[arg-type]
+                     | run_serializer.pipe()
                      | pipe.action(async_(handle_data))
                      )
 

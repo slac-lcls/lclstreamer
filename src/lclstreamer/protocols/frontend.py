@@ -38,7 +38,9 @@ class DataSerializerProtocol(Protocol):
         """Initializes the data serializers"""
         ...
 
-    def serialize_data(self, data: Event) -> bytes:
+    def __call__(
+        self, stream: AsyncIterable[Event]
+    ) -> AsyncIterator[bytes]:
         """Serializes the data"""
         ...
 

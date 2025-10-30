@@ -1,12 +1,14 @@
 import sys
-from collections.abc import Iterator
+from collections.abc import AsyncIterator, AsyncIterable
 from io import BytesIO
 from typing import Any
 
 import h5py  # type: ignore
 import hdf5plugin  # type: ignore
 
-from ...models.parameters import DataSerializerParameters
+from aiostream import streamcontext
+
+from ...models.parameters import DataSerializerParameters, HDF5BinarySerializerParameters
 from ...models.types import Event
 from ...protocols.backend import StrFloatIntNDArray
 from ...protocols.frontend import DataSerializerProtocol
@@ -30,6 +32,7 @@ class HDF5BinarySerializer(DataSerializerProtocol):
 
             parameters: The configuration parameters
         """
+        assert isinstance(data_serializer_parameters, HDF5BinarySerializerParameters)
         if data_serializer_parameters.compression == "gzip":
             self._compression_options: dict[str, Any] = {
                 "compression": "gzip",
@@ -63,20 +66,23 @@ class HDF5BinarySerializer(DataSerializerProtocol):
 
         self._hdf5_fields: dict[str, str] = data_serializer_parameters.fields
 
-    def serialize_data(
-        self, data: Event
-    ) -> bytes:
-            """
-            Serializes data to a binary blob with an internal HDF5 structure
+    async def __call__(
+        self, source: AsyncIterable[Event]
+    ) -> AsyncIterator[bytes]:
+        """
+        Serializes data to a binary blob with an internal HDF5 structure
 
-            Arguments:
+        Arguments:
 
-                data: A dictionary storing numpy arrays
+            source: An async iterable (stream) of event data.
 
-            Returns
+        Yields:
 
-                byte_block: A binary blob (a bytes object)
-            """
+            byte_block: A binary blob (a bytes object)
+        """
+        async with streamcontext(source) as streamer:
+          data: Event
+          async for data in streamer:
             depth_of_data_blocks: list[int] = [
                 value.shape[0]
                 for data_block in data
@@ -117,4 +123,4 @@ class HDF5BinarySerializer(DataSerializerProtocol):
                                 **self._compression_options,
                             )
 
-                return byte_block.getvalue()
+                yield byte_block.getvalue()

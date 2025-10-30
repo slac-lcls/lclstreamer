@@ -1,7 +1,9 @@
 import sys
-from collections.abc import Iterator
+from collections.abc import AsyncIterator, AsyncIterable
 from time import time
 from typing import Any
+
+from aiostream import streamcontext
 
 import numpy
 from bitshuffle import compress_lz4  # type: ignore
@@ -9,7 +11,8 @@ from cbor import dumps  # type: ignore
 from mpi4py import MPI
 from numpy.typing import NDArray
 
-from ...models.parameters import DataSerializerParameters
+from ...models.parameters import DataSerializerParameters, SimplonBinarySerializerParameters
+from ...models.types import Event
 from ...protocols.backend import StrFloatIntNDArray
 from ...protocols.frontend import DataSerializerProtocol
 from ...utils.logging_utils import log
@@ -28,10 +31,11 @@ class SimplonBinarySerializer(DataSerializerProtocol):
 
             parameters: The configuration parameters
         """
+        assert isinstance(parameters, SimplonBinarySerializerParameters)
         self._data_source_to_serialize: str = (
             parameters.data_source_to_serialize
         )
-        self._polarization: dict() = {
+        self._polarization: dict[str,Any] = {
             "polarization_fraction": parameters.polarization_fraction,
             "polarization_axis": parameters.polarization_axis
         }
@@ -42,17 +46,17 @@ class SimplonBinarySerializer(DataSerializerProtocol):
         self._node_pool_size: int = MPI.COMM_WORLD.Get_size()
         self._rank_message_count: int = 1
 
-    def __call__(
-        self, stream: Iterator[dict[str, StrFloatIntNDArray | None]]
-    ) -> Iterator[bytes]:
+    async def __call__(
+        self, source: AsyncIterable[Event]
+    ) -> AsyncIterator[bytes]:
         """
         Serializes data to a binary blob with an internal Simplon message structure
 
         Arguments:
 
-            data: A dictionary storing numpy arrays
+            source: A stream of Event information (dictionary storing numpy arrays)
 
-        Returns
+        Yields:
 
             byte_block: A binary blob (a bytes object)
         """
@@ -60,8 +64,8 @@ class SimplonBinarySerializer(DataSerializerProtocol):
         if self._node_rank == self._node_pool_size - 1:
             first_message: bool = True
 
-        data: dict[str, StrFloatIntNDArray | None]
-        for data in stream:
+        async with streamcontext(source) as streamer:
+          async for data in streamer:
             try:
                 if (data_block := data[self._data_source_to_serialize]) is not None:
                     array: StrFloatIntNDArray = data_block[-1]
@@ -136,7 +140,7 @@ class SimplonBinarySerializer(DataSerializerProtocol):
 
             compressed_data: NDArray[numpy.int_] = compress_lz4(array, block_size=2**12)
 
-            beam_data_dict: dict() = {}
+            beam_data_dict: dict[str, Any] = {}
             try:
                 beam_data: numpy.ndarray = data["beam_data"][-1]
                 beam_data_dict = {

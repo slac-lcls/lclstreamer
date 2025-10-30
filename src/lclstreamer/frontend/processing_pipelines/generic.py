@@ -3,7 +3,11 @@ from collections.abc import AsyncIterable, AsyncIterator
 
 from aiostream import streamcontext, pipable_operator
 
-from ...models.parameters import ProcessingPipelineParameters
+from ...models.parameters import (
+    ProcessingPipelineParameters,
+    BatchProcessingPipelineParameters,
+    PeaknetPreprocessingPipelineParameters,
+)
 from ...models.types import LossyEvent, Event
 from ...protocols.backend import StrFloatIntNDArray
 from ...protocols.frontend import ProcessingPipelineProtocol
@@ -23,9 +27,7 @@ class BatchProcessingPipeline(ProcessingPipelineProtocol):
             parameters: The configuration parameters
         """
 
-        if parameters.type != "BatchProcessingPipeline":
-            log.error(f"Tried to initialize BatchProcessingPipeline from {parameters.type}")
-            sys.exit(1)
+        assert isinstance(parameters, BatchProcessingPipelineParameters)
         self.batch_size: int = parameters.batch_size
 
     async def __call__(self,
@@ -84,9 +86,7 @@ class PeaknetPreprocessingPipeline(ProcessingPipelineProtocol):
         (timestamps, scalars, etc.) are passed through unchanged.
         """
 
-        if parameters.PeaknetPreprocessingPipeline is None:
-            log.error("No configuration parameters found for PeaknetPreprocessingPipeline")
-            sys.exit(1)
+        assert isinstance(parameters, PeaknetPreprocessingPipelineParameters)
 
         config = parameters.PeaknetPreprocessingPipeline
         self._batch_size: int = config.batch_size

@@ -95,7 +95,7 @@ class Psana2DetectorInterface(DataSourceProtocol):
         )
 
 
-    def get_data(self, event: Any) -> NDArray[object]:
+    def get_data(self, event: Any) -> NDArray[Any]:
         """
         Retrieves Detector values from a psana2 event
 
