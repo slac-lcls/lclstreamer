@@ -90,6 +90,12 @@ class Psana2DetectorInterface(DataSourceProtocol):
             fields: list[str] | str = extra_parameters["psana_fields"]
             self._det_params: list[str] = [fields] if isinstance(fields, str) else fields
 
+        self.dtype: type
+        if "dtype" not in extra_parameters:
+            self.dtype = numpy.float64
+        else:
+            self.dtype = extra_parameters["dtype"]
+
         self._detector_interface: Any = additional_info["run"].Detector(
             extra_parameters["psana_name"]
         )
@@ -142,7 +148,7 @@ class Psana2DetectorInterface(DataSourceProtocol):
                 exit(1)
             else:
                 return numpy.array(data, dtype=numpy.float_)
-        return numpy.array(data, dtype=object)
+        return numpy.array(data, dtype=self.dtype)
 
 
 class Psana2RunInfo(DataSourceProtocol):
