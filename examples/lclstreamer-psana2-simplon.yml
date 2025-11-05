@@ -1,4 +1,6 @@
 source_identifier: exp=mfx100852324,run=51
+#source_identifier: exp=mfx100848724,run=51
+
 skip_incomplete_events: True
 
 data_sources:
@@ -61,7 +63,7 @@ data_serializer:
 data_handlers:
   - type: BinaryDataStreamingDataHandler
     urls: 
-        - "tcp://127.0.0.1:5004" #127.0.0.1:12321"
+        - "tcp://134.79.23.43:5000" #127.0.0.1:12321"
     role: client
     library: nng 
     #library: zmq

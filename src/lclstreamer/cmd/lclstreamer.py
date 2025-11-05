@@ -154,7 +154,9 @@ async def amain(
             async for stat in streamer:
                 print(f"[Rank {mpi_rank}] {stat}]", flush=True)
 
-    print(f"[Rank {mpi_rank}] Hello, I'm done now.  Have a most excellent day!")
+    MPI.COMM_WORLD.Barrier()
+    if mpi_rank == 0:
+        print("Hello, I'm done now.  Have a most excellent day!")
 
 @app.command()
 def main(

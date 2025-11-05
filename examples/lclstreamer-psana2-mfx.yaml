@@ -13,15 +13,15 @@ data_sources:
         psana_name: jungfrau
         psana_fields: raw.raw             # Use raw.calib for calibrated data
 
-    assembled_detector_data:
-        type: Psana2DetectorInterface
-        psana_name: jungfrau
-        psana_fields: raw.image
+    #assembled_detector_data:
+    #    type: Psana2DetectorInterface
+    #    psana_name: jungfrau
+    #    psana_fields: raw.image
 
-    random:
-        type: GenericRandomNumpyArray
-        array_shape: 4,4,4
-        array_dtype: float32
+    #random:
+    #    type: GenericRandomNumpyArray
+    #    array_shape: 4,4,4
+    #    array_dtype: float32
 
     photon_wavelength:
         type: Psana2DetectorInterface
@@ -38,17 +38,17 @@ data_serializer:
     fields:
         timestamp: /timestamp
         detector_data: /data
-        assembled_detector_data: /assembled
+        #assembled_detector_data: /assembled
         photon_wavelength: /wavelength
-        random: /drandom
+        #random: /drandom
 
 data_handlers:
-  - type: BinaryFileWritingDataHandler
-    write_directory: workspace/output
+#  - type: BinaryFileWritingDataHandler
+#    write_directory: workspace/output
 
-# - type: BinaryDataStreamingDataHandler
-#   urls:
-#       - "tcp://sdfdtn003:5000"
-#   role: client
-#   library: nng
-#   socket_type: push
+ - type: BinaryDataStreamingDataHandler
+   urls:
+       - "tcp://134.79.23.43:5000"
+   role: client
+   library: nng
+   socket_type: push
