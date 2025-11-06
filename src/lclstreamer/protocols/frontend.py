@@ -1,9 +1,17 @@
-from collections.abc import Iterator
+from collections.abc import Iterator, AsyncIterator, AsyncIterable
+from typing import Callable, Self
+from typing_extensions import Protocol, TypeAlias
+from contextlib import AbstractAsyncContextManager
 
-from typing_extensions import Protocol
+from aiostream.core import PipableOperator
 
-from ..models.parameters import Parameters
+from ..models.parameters import (
+    DataHandlerParameters,
+    DataSerializerParameters,
+    ProcessingPipelineParameters,
+)
 from .backend import StrFloatIntNDArray
+from ..models.types import LossyEvent, Event, StrFloatIntNDArray
 
 
 class ProcessingPipelineProtocol(Protocol):
@@ -13,33 +21,46 @@ class ProcessingPipelineProtocol(Protocol):
 
     def __init__(
         self,
-        parameters: Parameters,
-    ):
+        parameters: ProcessingPipelineParameters,
+    ) -> None:
         """Initializes the data processing pipeline"""
         ...
 
     def __call__(
-        self, stream: Iterator[dict[str, StrFloatIntNDArray | None]]
-    ) -> Iterator[dict[str, StrFloatIntNDArray | None]]:
+        self, stream: AsyncIterable[LossyEvent]
+    ) -> AsyncIterator[LossyEvent]:
         """Applies the data processing pipeline"""
         ...
 
 
 class DataSerializerProtocol(Protocol):
-    def __init__(self, parameters: Parameters):
+    def __init__(self, parameters: DataSerializerParameters) -> None:
         """Initializes the data serializers"""
         ...
 
-    def serialize_data(self, data: dict[str, StrFloatIntNDArray]) -> bytes:
+    def __call__(
+        self, stream: AsyncIterable[Event]
+    ) -> AsyncIterator[bytes]:
         """Serializes the data"""
         ...
 
+class DataHandlerProtocol(Protocol, AbstractAsyncContextManager):
+    def __init__(self, parameters: DataHandlerParameters) -> None:
+        """Initializes the data handler.
 
-class DataHandlerProtocol(Protocol):
-    def __init__(self, parameters: Parameters):
-        """Initializes the data handler"""
+           Use this as in,
+
+               async with handler(parameters) as handle_data:
+                   async for data in stream:
+                       await handle_data(data)
+        """
         ...
 
-    def handle_data(self, data: bytes) -> None:
+    async def __aenter__(self) -> Self:
+        return self
+    async def __aexit__(self, exc_type, exc, tb) -> None:
+        pass
+
+    async def __call__(self, data: bytes) -> None:
         """Handles the data"""
         ...

@@ -1,11 +1,11 @@
 import sys
-from collections.abc import Generator
 from typing import Any, cast
+from collections.abc import AsyncIterable, Generator
 
 from psana import DataSource, MPIDataSource  # type: ignore
-from stream.core import source
 
-from ...models.parameters import DataSourceParameters, LclstreamerParameters, Parameters
+from ...models.parameters import DataSourceParameters, Parameters
+from ...models.types import LossyEvent
 from ...protocols.backend import (
     DataSourceProtocol,
     EventSourceProtocol,
@@ -47,18 +47,17 @@ class Psana1EventSource(EventSourceProtocol):
         del worker_pool_size
         del worker_rank
 
-        lclstreamer_parameters: LclstreamerParameters = parameters.lclstreamer
         data_source_parameters: dict[str, DataSourceParameters] = (
             parameters.data_sources
         )
 
-        if "shmem" in lclstreamer_parameters.source_identifier:
+        if "shmem" in parameters.source_identifier:
             self._event_source: Generator[Any] = cast(
                 Generator[Any],
-                DataSource(lclstreamer_parameters.source_identifier).events(),
+                DataSource(parameters.source_identifier).events(),
             )
         else:
-            psana_source_string: str = lclstreamer_parameters.source_identifier
+            psana_source_string: str = parameters.source_identifier
             if not psana_source_string.endswith(":smd"):
                 psana_source_string = f"{psana_source_string}:smd"
             self._event_source = cast(
@@ -78,7 +77,7 @@ class Psana1EventSource(EventSourceProtocol):
                     name=data_source_name,
                     parameters=data_source_parameters[data_source_name],
                     additional_info={
-                        "source_identifier": lclstreamer_parameters.source_identifier
+                        "source_identifier": parameters.source_identifier
                     },
                 )
             except NameError:
@@ -88,22 +87,22 @@ class Psana1EventSource(EventSourceProtocol):
                 )
                 sys.exit(1)
 
-    @source
-    def get_events(
+    async def get_events(
         self,
-    ) -> Generator[dict[str, StrFloatIntNDArray | None]]:
+    ) -> AsyncIterable[LossyEvent]:
         """
-        Retrieves an event from the data source
+        Retrieves events from the data source
 
-        Returns:
+        Yields:
 
             data: A dictionary storing data for an event
         """
         psana_event: Any
         for psana_event in self._event_source:
-            data: dict[str, StrFloatIntNDArray | None] = {}
 
+            data: LossyEvent = {}
             data_source_name: str
+
             for data_source_name in self._data_sources:
                 try:
                     data[data_source_name] = self._data_sources[

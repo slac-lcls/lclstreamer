@@ -1,11 +1,14 @@
+from typing import Dict, Union
+from collections.abc import AsyncIterable, AsyncIterator
 from time import time
-from typing import Any, Callable, Union
 
-from stream.core import Stream
-from stream.ops import fold
+#from stream.core import Stream
+#from stream.ops import fold
+from aiostream import stream, Stream, pipable_operator
 
+Clock = Dict[str, Union[int, float]]
 
-def clock0() -> dict[str, Union[int, float]]:
+def clock0() -> Clock:
     return {
         "count": 0,
         "size": 0,
@@ -13,16 +16,16 @@ def clock0() -> dict[str, Union[int, float]]:
         "time": time(),
     }
 
-
 def rate_clock(
-    state: dict[str, Union[int, float]], sz: int
-) -> dict[str, Union[int, float]]:
+    state: Clock, sz: int
+) -> Clock:
     """
     Implements a rate clock
 
     Arguments:
 
         clock: the values of the clock at the previous step of the stream
+        sz: size to add to state["size"]
 
     Returns:
 
@@ -36,8 +39,8 @@ def rate_clock(
         "time": t,
     }
 
-
-def clock() -> Stream[Any, Any]:
+@pipable_operator # type: ignore[arg-type]
+def clock(source: AsyncIterable[int]) -> Stream[Clock]:
     """
     Returns a rate clock counting from now.
 
@@ -48,4 +51,4 @@ def clock() -> Stream[Any, Any]:
 
         clock: A Stream objet
     """
-    return fold(rate_clock, clock0())
+    return stream.reduce(source, rate_clock, clock0()) # type: ignore[arg-type]

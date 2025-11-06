@@ -1,60 +1,54 @@
-lclstreamer:
-    source_identifier: exp=mfx100852324,run=355
-    event_source: Psana2EventSource
-    processing_pipeline: BatchProcessingPipeline
-    data_serializer: Hdf5BinarySerializer
-    skip_incomplete_events: True
-    data_handlers:
-        - BinaryFileWritingDataHandler
-          #- BinaryDataStreamingDataHandler
+source_identifier: exp=mfx100852324,run=355
+skip_incomplete_events: true
+
+event_source:
+    type: Psana2EventSource
 
 data_sources:
     timestamp:
         type: Psana2Timestamp
 
     detector_data:
-        type: Psana2AreaDetector
+        type: Psana2DetectorInterface
         psana_name: jungfrau
-        calibration: false
+        psana_fields: raw.raw             # Use raw.calib for calibrated data
 
-    assembled_detector_data:
-        type: Psana2AssembledAreaDetector
-        psana_name: jungfrau
+    #assembled_detector_data:
+    #    type: Psana2DetectorInterface
+    #    psana_name: jungfrau
+    #    psana_fields: raw.image
 
-    random:
-        type: GenericRandomNumpyArray
-        array_shape: 4,4,4
-        array_dtype: float32
+    #random:
+    #    type: GenericRandomNumpyArray
+    #    array_shape: 4,4,4
+    #    array_dtype: float32
 
     photon_wavelength:
-        type: Psana2PV
+        type: Psana2DetectorInterface
         psana_name: "SIOC:SYS0:ML00:AO192"
 
-event_source:
-    Psana2EventSource: {}
-
 processing_pipeline:
-    BatchProcessingPipeline:
-        batch_size: 10
+    type: BatchProcessingPipeline
+    batch_size: 10
 
 data_serializer:
-    Hdf5BinarySerializer:
-        compression_level: 3
-        compression: zfp
-        fields:
-            timestamp: /timestamp
-            detector_data: /data
-            assembled_detector_data: /assembled
-            photon_wavelength: /wavelength
-            random: /drandom
+    type: HDF5BinarySerializer
+    compression_level: 3
+    compression: zfp
+    fields:
+        timestamp: /timestamp
+        detector_data: /data
+        #assembled_detector_data: /assembled
+        photon_wavelength: /wavelength
+        #random: /drandom
 
 data_handlers:
-    BinaryFileWritingDataHandler:
-        write_directory: workspace/output
+#  - type: BinaryFileWritingDataHandler
+#    write_directory: workspace/output
 
-    BinaryDataStreamingDataHandler:
-        urls:
-            - "tcp://sdfdtn003:5000"
-        role: client
-        library: nng
-        socket_type: push
+ - type: BinaryDataStreamingDataHandler
+   urls:
+       - "tcp://134.79.23.43:5000"
+   role: client
+   library: nng
+   socket_type: push

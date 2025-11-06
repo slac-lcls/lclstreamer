@@ -1,14 +1,12 @@
-from collections.abc import Generator
 from typing import Any
+from collections.abc import AsyncIterable, Iterable
+from typing_extensions import Protocol
 
+from aiostream.core import Stream
 import numpy
-from numpy.typing import NDArray
-from stream.core import source
-from typing_extensions import Protocol, TypeAlias
 
 from ..models.parameters import DataSourceParameters, Parameters
-
-StrFloatIntNDArray: TypeAlias = NDArray[numpy.str_ | numpy.float64 | numpy.int_]
+from ..models.types import StrFloatIntNDArray, LossyEvent
 
 
 class EventSourceProtocol(Protocol):
@@ -27,8 +25,7 @@ class EventSourceProtocol(Protocol):
         """
         ...
 
-    @source
-    def get_events(self) -> Generator[dict[str, StrFloatIntNDArray | None]]:
+    def get_events(self) -> AsyncIterable[LossyEvent]:
         """
         Gets the next event from event source
         """

@@ -1,10 +1,14 @@
 import sys
-from typing import Any, Union
+from typing import Self
 
 from pynng import ConnectionRefused, Push0  # type: ignore
-from zmq import PUSH, Context, Socket, ZMQError
+from zmq import PUSH, ZMQError
+from zmq.asyncio import Context, Socket
 
-from ...models.parameters import BinaryDataStreamingDataHandlerParameters, Parameters
+from ...models.parameters import (
+    BinaryDataStreamingDataHandlerParameters,
+    DataHandlerParameters,
+)
 from ...protocols.frontend import DataHandlerProtocol
 from ...utils.logging_utils import log
 
@@ -14,7 +18,7 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
     See documentation of the `__init__` function.
     """
 
-    def __init__(self, parameters: Parameters):
+    def __init__(self, data_handler_parameters: BinaryDataStreamingDataHandlerParameters) -> None:
         """
         Initializes a binary data streaming data handler
 
@@ -24,24 +28,21 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
 
               parameters: The configuration parameters
         """
-        if parameters.data_handlers.BinaryDataStreamingDataHandler is None:
-            log.error(
-                "No configuration parameters found for BinaryStreamingPushDataHandler"
-            )
-            sys.exit(1)
-
-        data_handler_parameters: BinaryDataStreamingDataHandlerParameters = (
-            parameters.data_handlers.BinaryDataStreamingDataHandler
-        )
-
         if data_handler_parameters.library == "nng":
-            self._streaming: Union[
-                BinaryStreamingPushDataHandlerNng, BinaryStreamingPushDataHandlerZmq
-            ] = BinaryStreamingPushDataHandlerNng(data_handler_parameters)
+            self._streaming: (
+                BinaryStreamingPushDataHandlerNng | BinaryStreamingPushDataHandlerZmq
+            ) = BinaryStreamingPushDataHandlerNng(data_handler_parameters)
         else:
             self._streaming = BinaryStreamingPushDataHandlerZmq(data_handler_parameters)
 
-    def handle_data(self, data: bytes) -> None:
+    async def __aenter__(self) -> Self:
+        await self._streaming.__aenter__()
+        return self
+
+    async def __aexit__(self, *exc) -> None:
+        await self._streaming.__aexit__(*exc)
+
+    async def __call__(self, data: bytes) -> None:
         """
         Stream a bytes object through the network socket.
 
@@ -49,7 +50,7 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
 
             data: A bytes object
         """
-        self._streaming.handle_data(data)
+        await self._streaming(data)
 
 
 class BinaryStreamingPushDataHandlerNng:
@@ -59,7 +60,7 @@ class BinaryStreamingPushDataHandlerNng:
 
     def __init__(
         self, data_handler_parameters: BinaryDataStreamingDataHandlerParameters
-    ):
+    ) -> None:
         """
         Initializes an NNG binary data streaming socket
 
@@ -68,12 +69,15 @@ class BinaryStreamingPushDataHandlerNng:
             data_handler_parameters: The configuration parameters for the streaming
                 data_handler
         """
-        self._socket: Any = Push0()
+        self.data_handler_parameters = data_handler_parameters
+
+    async def __aenter__(self) -> Self:
+        self._socket: Push0 = Push0()
 
         url: str
-        for url in data_handler_parameters.urls:
+        for url in self.data_handler_parameters.urls:
             try:
-                if data_handler_parameters.role == "server":
+                if self.data_handler_parameters.role == "server":
                     self._socket.listen(url)
                 else:
                     self._socket.dial(url, block=True)
@@ -83,8 +87,9 @@ class BinaryStreamingPushDataHandlerNng:
                     f"error: {err}"
                 )
                 sys.exit(1)
+        return self
 
-    def handle_data(self, data: bytes) -> None:
+    async def __call__(self, data: bytes) -> None:
         """
         Sends a binary object through the NNG socket
 
@@ -92,9 +97,9 @@ class BinaryStreamingPushDataHandlerNng:
 
             data: a bytes object
         """
-        self._socket.send(data)
+        await self._socket.asend(data)
 
-    def __del__(self) -> None:
+    async def __aexit__(self, exc_type, exc, tb) -> None:
         """
         Destructor
         """
@@ -104,7 +109,7 @@ class BinaryStreamingPushDataHandlerNng:
 class BinaryStreamingPushDataHandlerZmq:
     def __init__(
         self, data_handler_parameters: BinaryDataStreamingDataHandlerParameters
-    ):
+    ) -> None:
         """
         Initializes a ZMQ binary data streaming socket
 
@@ -113,13 +118,16 @@ class BinaryStreamingPushDataHandlerZmq:
             data_handler_parameters: The configuration parameters for the streaming
                 data_handler
         """
-        self._context: Context[Socket[bytes]] = Context()
-        self._socket: Socket[bytes] = self._context.socket(PUSH)
+        self.data_handler_parameters = data_handler_parameters
+        self._context: Context = Context()
+
+    async def __aenter__(self) -> Self:
+        self._socket: Socket = self._context.socket(PUSH)
 
         url: str
-        for url in data_handler_parameters.urls:
+        for url in self.data_handler_parameters.urls:
             try:
-                if data_handler_parameters.role == "server":
+                if self.data_handler_parameters.role == "server":
                     self._socket.bind(url)
                 else:
                     self._socket.connect(url)
@@ -129,8 +137,9 @@ class BinaryStreamingPushDataHandlerZmq:
                     f"error: {err}"
                 )
                 sys.exit(1)
+        return self
 
-    def handle_data(self, data: bytes) -> None:
+    async def __call__(self, data: bytes) -> None:
         """
         Sends a binary object through the ZMQ socket
 
@@ -138,11 +147,13 @@ class BinaryStreamingPushDataHandlerZmq:
 
             data: a bytes object
         """
-        self._socket.send(data)
+        await self._socket.send(data)
 
-    def __del__(self) -> None:
+    async def __aexit__(self, exc_type, exc, tb) -> None:
         """
         Destructor
         """
         self._socket.close()
+
+    def __del__(self) -> None:
         self._context.destroy()

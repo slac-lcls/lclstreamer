@@ -1,9 +1,8 @@
 import sys
-from collections.abc import Generator
+from collections.abc import AsyncIterable
 
-from stream.core import source
-
-from ...models.parameters import DataSourceParameters, LclstreamerParameters, Parameters
+from ...models.parameters import DataSourceParameters, Parameters
+from ...models.types import LossyEvent
 from ...protocols.backend import (
     DataSourceProtocol,
     EventSourceProtocol,
@@ -42,11 +41,11 @@ class InternalEventSource(EventSourceProtocol):
         data_source_parameters: dict[str, DataSourceParameters] = (
             parameters.data_sources
         )
-        if parameters.event_source.InternalEventSource is None:
-            log.error("No configuration parameters found for InternalEventSource")
+        if parameters.event_source.type != "InternalEventSource":
+            log.error(f"Tried to initialize an InternalEventSource from a {parameters.event_source.type}!")
             sys.exit(1)
         self.number_of_events_to_generate = (
-            parameters.event_source.InternalEventSource.number_of_events_to_generate
+            parameters.event_source.number_of_events_to_generate
         )
 
         self._data_sources: dict[str, DataSourceProtocol] = {}
@@ -61,7 +60,7 @@ class InternalEventSource(EventSourceProtocol):
                     name=data_source_name,
                     parameters=data_source_parameters[data_source_name],
                     additional_info={
-                        "source_identifier": parameters.lclstreamer.source_identifier
+                        "source_identifier": parameters.source_identifier
                     },
                 )
             except NameError:
@@ -71,19 +70,19 @@ class InternalEventSource(EventSourceProtocol):
                 )
                 sys.exit(1)
 
-    @source
-    def get_events(
+    async def get_events(
         self,
-    ) -> Generator[dict[str, StrFloatIntNDArray | None]]:
+    ) -> AsyncIterable[LossyEvent]:
         """
         Retrieves an event from the data source
         Returns:
             data: A dictionary storing data for an event
         """
         for i in range(self.number_of_events_to_generate):
-            data: dict[str, StrFloatIntNDArray | None] = {}
 
+            data: LossyEvent = {}
             data_source_name: str
+
             for data_source_name in self._data_sources:
                 try:
                     data[data_source_name] = self._data_sources[
