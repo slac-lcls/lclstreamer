@@ -142,7 +142,7 @@ async def amain(
 
         serialized = ( events
                      | run_serializer.pipe()
-                     | pipe.action(async_(handle_data))
+                     | pipe.action(async_(handle_data), task_limit=1)
                      )
 
         workflow : Stream[Clock] = ( serialized

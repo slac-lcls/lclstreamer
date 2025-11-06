@@ -90,7 +90,8 @@ class SimplonBinarySerializer(DataSerializerProtocol):
                 sys.exit(1)
 
             experiment_data: numpy.ndarray = data["run_info"][-1]
-            run_number: int = experiment_data[2]
+            run_number: int = 0
+            run_number = experiment_data[2]
 
             if self._node_rank == self._node_pool_size - 1:
                 if first_message:
