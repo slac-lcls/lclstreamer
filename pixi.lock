@@ -3035,8 +3035,8 @@ packages:
   timestamp: 1664996250081
 - pypi: ./
   name: lclstreamer
-  version: 0.2.0
-  sha256: 44467640c2dda67176a79901b5317d6c332e1cd1e760f5860e28d3bd489eb6ca
+  version: 0.3.0
+  sha256: 97bfe6031039a2a380883bc542c3ce3b5630c3948d57c00dff67e14acd5b6fb7
   requires_dist:
   - typer>=0.16.0,<0.17
   - numpy

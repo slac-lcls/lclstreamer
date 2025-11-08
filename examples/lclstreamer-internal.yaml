@@ -10,6 +10,12 @@ data_sources:
         type: GenericRandomNumpyArray
         array_shape: 20,2
         array_dtype: float32
+    int:
+        type: IntValue
+        value: 3
+    float:
+        type: FloatValue
+        value: 4.5
 
 processing_pipeline:
     type: BatchProcessingPipeline
@@ -21,13 +27,14 @@ data_serializer:
     compression: null
     fields:
         random: /data/random
+        int: /data/int
+        float: /data/float
 
 data_handlers:
     - type: BinaryFileWritingDataHandler
       file_prefix: ""
       file_suffix: h5
       write_directory: workspace/output
-
 #   - type: BinaryDataStreamingDataHandler
 #     urls:
 #         - "tcp://127.0.0.1:12321"

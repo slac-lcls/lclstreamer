@@ -9,6 +9,105 @@ from ...protocols.backend import DataSourceProtocol
 from ...utils.logging_utils import log
 
 
+class FloatValue(DataSourceProtocol):
+    """
+    See documentation of the `__init__` function.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        parameters: DataSourceParameters,
+        additional_info: dict[str, Any],
+    ):
+        """
+        Initializes a Float Value data source
+
+        Arguments:
+
+            name: An identifier for the data source
+
+            parameters: The configuration parameters
+        """
+        del additional_info
+        extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
+        if extra_parameters is None:
+            log.error(f"Entries needed by the {name} data source are not defined")
+            sys.exit(1)
+        if "value" not in extra_parameters:
+            log.error(f"Entry 'array_shape' is not defined for data source {name}")
+            sys.exit(1)
+        try:
+            self._value: float = float(extra_parameters["value"])
+        except ValueError:
+            log.error(f"Entry 'value' is not a valid float for data source {name}")
+            sys.exit(1)
+
+    def get_data(self, event: Any) -> NDArray[numpy.float64]:
+        """
+        Retrieves the float value defined in the configuration file as an 1d array
+
+        Arguments:
+
+            event: A psana1 event
+
+        Returns:
+
+            random: an 1d array storing the value defined by the data source
+            configuration parameters.
+        """
+        return numpy.array(self._value, dtype=numpy.float64)
+
+class IntValue(DataSourceProtocol):
+    """
+    See documentation of the `__init__` function.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        parameters: DataSourceParameters,
+        additional_info: dict[str, Any],
+    ):
+        """
+        Initializes a Int Value data source
+
+        Arguments:
+
+            name: An identifier for the data source
+
+            parameters: The configuration parameters
+        """
+        del additional_info
+        extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
+        if extra_parameters is None:
+            log.error(f"Entries needed by the {name} data source are not defined")
+            sys.exit(1)
+        if "value" not in extra_parameters:
+            log.error(f"Entry 'array_shape' is not defined for data source {name}")
+            sys.exit(1)
+        try:
+            self._value: int = int(extra_parameters["value"])
+        except ValueError:
+            log.error(f"Entry 'value' is not a valid int for data source {name}")
+            sys.exit(1)
+
+    def get_data(self, event: Any) -> NDArray[numpy.int_]:
+        """
+        Retrieves the int value defined in the configuration file as an 1d array
+
+        Arguments:
+
+            event: A psana1 event
+
+        Returns:
+
+            random: an 1d array storing the value defined by the data source
+            configuration parameters.
+        """
+        return numpy.array(self._value, dtype=numpy.int_)
+
+
 class GenericRandomNumpyArray(DataSourceProtocol):
     """
     See documentation of the `__init__` function.
