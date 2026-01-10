@@ -90,9 +90,10 @@ class Psana2DetectorInterface(DataSourceProtocol):
             fields: list[str] | str = extra_parameters["psana_fields"]
             self._det_params: list[str] = [fields] if isinstance(fields, str) else fields
 
-        self.dtype: type
+        # dtype: None means preserve original dtype (e.g., uint16 for raw detector data)
+        self.dtype: type | None
         if "dtype" not in extra_parameters:
-            self.dtype = numpy.float64
+            self.dtype = None  # Preserve original dtype
         else:
             self.dtype = extra_parameters["dtype"]
 
@@ -147,7 +148,13 @@ class Psana2DetectorInterface(DataSourceProtocol):
                 log.error(f"Data is in dict format: {self._name}!")
                 exit(1)
             else:
-                return numpy.array(data, dtype=numpy.float_)
+                # Preserve original dtype if self.dtype is None
+                if self.dtype is None:
+                    return numpy.asarray(data)
+                return numpy.array(data, dtype=self.dtype)
+        # Preserve original dtype if self.dtype is None
+        if self.dtype is None:
+            return numpy.asarray(data)
         return numpy.array(data, dtype=self.dtype)
 
 
