@@ -12,6 +12,7 @@ from ...utils.protocols import (
 )
 from ...utils.typing import StrFloatIntNDArray
 from ..generic.data_sources import GenericRandomNumpyArray as GenericRandomNumpyArray
+from ..generic.data_sources import MpiRank as MpiRank
 from .data_sources import (
     Psana2DetectorInterface as Psana2DetectorInterface,
 )
@@ -44,6 +45,10 @@ def _parse_source_identifier(source_identifier: str) -> dict[str, str | int]:
         elif item.startswith("max_events="):
             source_dict["max_events"] = int(
                 item.split("max_events=")[1].strip().lstrip()
+            )
+        elif item.startswith("batch_size="):
+            source_dict["batch_size"] = int(
+                item.split("batch_size=")[1].strip().lstrip()
             )
         else:
             log_error_and_exit(

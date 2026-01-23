@@ -238,8 +238,27 @@ class HDF5BinarySerializerParameters(_CustomBaseModel):
     fields: Dict[str, str]
 
 
+class FastBinarySerializerParameters(_CustomBaseModel):
+    """
+    Fast binary serializer for high-throughput numpy array streaming.
+
+    ~10-50x faster than HDF5 for large arrays (e.g., Jungfrau detector data).
+    Uses simple binary format with optional Blosc compression.
+    """
+
+    type: Literal["FastBinarySerializer"]
+    compression: Literal["none", "lz4", "zstd"] | None = None
+    compression_level: int = 3  # 1-9, higher = better ratio, slower
+    n_threads: int = 4  # Blosc compression threads
+    fields: Dict[str, str]
+
+
 DataSerializerParameters = Annotated[
-    Union[HDF5BinarySerializerParameters, SimplonBinarySerializerParameters],
+    Union[
+        HDF5BinarySerializerParameters,
+        SimplonBinarySerializerParameters,
+        FastBinarySerializerParameters,
+    ],
     Field(discriminator="type"),
 ]
 
