@@ -12,7 +12,7 @@ from ...protocols.backend import (
     StrFloatIntNDArray,
 )
 from ...utils.logging_utils import log
-from ..generic.data_sources import GenericRandomNumpyArray  # noqa: F401
+from ..generic.data_sources import GenericRandomNumpyArray, MpiRank  # noqa: F401
 from .data_sources import (  # noqa: F401
     Psana2DetectorInterface,
     Psana2RunInfo,
@@ -41,6 +41,10 @@ def _parse_source_identifier(source_identifier: str) -> dict[str, str | int]:
         elif item.startswith("max_events="):
             source_dict["max_events"] = int(
                 item.split("max_events=")[1].strip().lstrip()
+            )
+        elif item.startswith("batch_size="):
+            source_dict["batch_size"] = int(
+                item.split("batch_size=")[1].strip().lstrip()
             )
         else:
             log.error("Part of the source string for psana2 cannot be parsed:")
