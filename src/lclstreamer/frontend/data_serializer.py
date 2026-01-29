@@ -8,7 +8,7 @@ from ..protocols.frontend import DataSerializerProtocol
 from ..utils.logging_utils import log
 from .data_serializers.file_formats import HDF5BinarySerializer  # noqa: F401
 from .data_serializers.json import SimplonBinarySerializer  # noqa: F401
-
+from .data_serializers.tensor import TensorSerializer # noqa: F401
 
 def initialize_data_serializer(
     parameters: Parameters,

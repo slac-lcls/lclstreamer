@@ -9,7 +9,7 @@ from ..models.types import LossyEvent
 from ..protocols.backend import EventSourceProtocol
 from ..utils.logging_utils import log
 
-from .generic.event_sources import InternalEventSource
+from .generic.event_sources import InternalEventSource, FileEventSource
 
 try:
     from psana import MPIDataSource  # type: ignore

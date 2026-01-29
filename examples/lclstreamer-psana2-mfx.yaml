@@ -48,7 +48,7 @@ data_handlers:
 
  - type: BinaryDataStreamingDataHandler
    urls:
-       - "tcp://134.79.23.43:5000"
+       - "tcp://172.24.49.219:5001"
    role: client
-   library: nng
+   library: zmq
    socket_type: push

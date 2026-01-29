@@ -61,6 +61,7 @@ python = "3.12.*"
 psana = { version="==4.1.10", channel="lcls-ii" }
 mpi4py = "*"
 openmpi = ">=4.1.6,<5"
+libstdcxx-ng = ">=15.2.0,<16"
 
 [tool.pixi.feature.test.dependencies]
 pytest = ">=8.4.1,<9"
@@ -71,7 +72,8 @@ mkdocstrings-python = ">=1.16.10,<2"
 
 [dependency-groups]
 psana1 = ["typer>=0.16.0,<0.17", "numpy", "pydantic>=2.10.6,<3", "aiostream>=0.7.1,<0.8", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "rich>=14.0.0,<15", "bitshuffle>=0.5.2,<0.6", "cbor>=1.0.0,<2"]
-psana2 = ["typer>=0.16.0,<0.17", "numpy", "pydantic>=2.10.6,<3", "aiostream>=0.7.1,<0.8", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "rich>=14.0.0,<15", "bitshuffle>=0.5.2,<0.6", "cbor>=1.0.0,<2"]
+psana2 = ["typer>=0.16.0,<0.17", "numpy", "pydantic>=2.10.6,<3", "aiostream>=0.7.1,<0.8", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "rich>=14.0.0,<15", "bitshuffle>=0.5.2,<0.6", "cbor>=1.0.0,<2", "watchfiles>=1.1.1,<2", "torch>=2.10.0,<3", "gpsr>=0.1.0,<0.2"]
+filemon = ["watchfiles", "torch"]
 
 [tool.pixi.tasks]
 

@@ -8,6 +8,7 @@ from ...models.parameters import DataSourceParameters
 from ...protocols.backend import DataSourceProtocol
 from ...utils.logging_utils import log
 
+import torch
 
 class FloatValue(DataSourceProtocol):
     """
@@ -225,3 +226,62 @@ class SourceIdentifier(DataSourceProtocol):
             random data (either of integer or floating type)
         """
         return self._source_identifier
+
+import __main__
+from gpsr.datasets import ObservableDataset
+class CustomObservableDataset(ObservableDataset):
+    def __init__(self, parameters, observables, metadata):
+        super().__init__(parameters, observables)
+        self.metadata = metadata
+__main__.CustomObservableDataset = CustomObservableDataset
+
+class FileSource(DataSourceProtocol):
+    """
+    See documentation of the `__init__` function.
+    """
+    def __init__(
+        self,
+        name: str,
+        parameters: DataSourceParameters,
+        additional_info: dict[str, Any],
+    ):
+        """
+        Initializes a file run info data source.
+
+        Arguments:
+
+            name: An identifier for the data source
+
+            parameters: The configuration parameters
+        """
+        extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
+
+        if extra_parameters is None:
+            log.error(f"Entries needed by the {name} data source are not defined")
+            sys.exit(1)
+
+
+    def get_data(self, event: Any) -> NDArray[numpy.str_]:
+        """
+        Retrieves the detector info from a file event
+
+        Arguments:
+
+            event: A file event
+
+         Returns:
+
+            value: The data from the file event.
+        """
+
+        #tensor = torch.load(event, map_location="cpu", weights_only=False)
+
+        #if hasattr(tensor, "observations"):
+        #    data = tensor.observations
+        #if not isinstance(data, torch.Tensor):
+        #    data = torch.tensor(data)
+        #return tensor.cpu().numpy()
+
+        data = event.read_bytes()
+        return numpy.array([data], dtype=object)
+

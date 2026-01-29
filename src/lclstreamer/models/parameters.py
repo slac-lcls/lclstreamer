@@ -22,9 +22,13 @@ class Psana1EventSourceParameters(CustomBaseModel):
 class Psana2EventSourceParameters(CustomBaseModel):
     type: Literal["Psana2EventSource"]
 
+class FileEventSourceParameters(CustomBaseModel):
+    type: Literal["FileEventSource"]
+
 EventSource = Annotated[ Union[InternalEventSourceParameters,
                                Psana1EventSourceParameters,
-                               Psana2EventSourceParameters],
+                               Psana2EventSourceParameters,
+                               FileEventSourceParameters],
                          Field(discriminator="type")]
 
 
@@ -33,6 +37,10 @@ EventSource = Annotated[ Union[InternalEventSourceParameters,
 class TimestampParameters(CustomBaseModel):
     type: str
 
+class FileSourceParameters(CustomBaseModel):
+    type: str
+    directory_location: str
+    file_extensions: str
 
 class DetectorDataParameters(CustomBaseModel):
     type: str
@@ -107,6 +115,8 @@ class SimplonBinarySerializerParameters(CustomBaseModel):
     detector_name: str
     detector_type: str
 
+class TensorSerializerParameters(CustomBaseModel):
+    type: Literal["TensorSerializer"]
 
 class HDF5BinarySerializerParameters(CustomBaseModel):
     type: Literal["HDF5BinarySerializer"]
@@ -124,7 +134,8 @@ class HDF5BinarySerializerParameters(CustomBaseModel):
     fields: Dict[str, str]
 
 DataSerializerParameters = Annotated[ Union[HDF5BinarySerializerParameters,
-                                            SimplonBinarySerializerParameters],
+                                            SimplonBinarySerializerParameters,
+                                            TensorSerializerParameters],
                                       Field(discriminator="type")]
 
 

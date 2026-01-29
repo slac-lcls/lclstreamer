@@ -1,0 +1,28 @@
+source_identifier: ""
+
+skip_incomplete_events: True
+
+data_sources:
+    input_file:
+        type: FileSource
+        directory_location: "/sdf/home/k/kmecseki/projects/lclstreamer/examples/"
+        file_extensions: ".dset"
+
+event_source:
+    type: FileEventSource
+
+processing_pipeline:
+    type: BatchProcessingPipeline
+    batch_size: 1
+
+data_serializer:
+    type: TensorSerializer
+
+data_handlers:
+  - type: BinaryDataStreamingDataHandler
+    urls: 
+        - "tcp://172.24.49.219:5001"
+    role: client
+    #library: nng 
+    library: zmq
+    socket_type: push
