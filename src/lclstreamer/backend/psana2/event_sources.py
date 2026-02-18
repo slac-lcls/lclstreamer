@@ -1,6 +1,7 @@
 import sys
 from collections.abc import Generator, AsyncIterable, Iterable
-from typing import Any, cast
+from typing import Any, cast, Union
+from stream.core import source
 
 from psana import DataSource  # type: ignore
 
@@ -71,10 +72,10 @@ class Psana2EventSource(EventSourceProtocol):
         del worker_pool_size
         del worker_rank
 
-        data_source_parameters: dict[str, DataSourceParameters] = (
+        data_source_parameters: dict[str, DataSourceParameters | int] = (
             parameters.data_sources
         )
-
+        self.async_on = data_source_parameters["async_on"].async_on
         if "shmem" in parameters.source_identifier:
             log.error(
                 "Shared memory mode is not currently available for the psana2 data "
@@ -97,6 +98,8 @@ class Psana2EventSource(EventSourceProtocol):
         self._data_sources: dict[str, DataSourceProtocol] = {}
         data_source_name: str
         for data_source_name in data_source_parameters:
+            if data_source_name == "async_on":
+                continue
             try:
                 data_source_class: type[DataSourceProtocol] = globals()[
                     data_source_parameters[data_source_name].type
@@ -117,9 +120,10 @@ class Psana2EventSource(EventSourceProtocol):
                 )
                 sys.exit(1)
 
-    async def get_events(
+    @source
+    def get_events_sync(
         self,
-    ) -> AsyncIterable[LossyEvent]:
+    ) -> Generator[dict[str, StrFloatIntNDArray | None]]:
         """
         Retrieves an event from the data source
 
@@ -140,3 +144,35 @@ class Psana2EventSource(EventSourceProtocol):
                 except (TypeError, AttributeError):
                     data[data_source_name] = None
             yield data
+
+    async def get_events_async(
+        self,
+    ) -> AsyncIterable[LossyEvent]:
+        """
+        Retrieves an event from the data source
+
+        Returns:
+
+            data: A dictionary storing data for an event
+        """
+        psana_event: Any
+        for psana_event in self._event_source:
+            data: LossyEvent = {}
+
+            data_source_name: str
+            for data_source_name in self._data_sources:
+                try:
+                    data[data_source_name] = self._data_sources[
+                        data_source_name
+                    ].get_data(event=psana_event)
+                except (TypeError, AttributeError):
+                    data[data_source_name] = None
+            yield data
+
+    def get_events(self) -> Union[Generator, AsyncIterable]:
+
+        if self.async_on:
+            print("Using Async")
+            return self.get_events_async()
+        print("Using NON-Async")
+        return self.get_events_sync()

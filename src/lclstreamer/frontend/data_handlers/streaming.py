@@ -28,12 +28,20 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
 
               parameters: The configuration parameters
         """
+        self.async_on = data_handler_parameters.async_on
+
         if data_handler_parameters.library == "nng":
             self._streaming: (
                 BinaryStreamingPushDataHandlerNng | BinaryStreamingPushDataHandlerZmq
             ) = BinaryStreamingPushDataHandlerNng(data_handler_parameters)
         else:
             self._streaming = BinaryStreamingPushDataHandlerZmq(data_handler_parameters)
+        #if async_on:
+        #    print("picked async")
+        #    self.__call__ = self._asynccall
+        #else:
+        #    print("picked sync")
+        #    self.__call__ = self._synccall
 
     async def __aenter__(self) -> Self:
         await self._streaming.__aenter__()
@@ -42,7 +50,7 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
     async def __aexit__(self, *exc) -> None:
         await self._streaming.__aexit__(*exc)
 
-    async def __call__(self, data: bytes) -> None:
+    async def _asynccall(self, data: bytes) -> None:
         """
         Stream a bytes object through the network socket.
 
@@ -51,6 +59,21 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
             data: A bytes object
         """
         await self._streaming(data)
+
+    def __enter__(self) -> Self:
+        return self
+
+    def __exit__(self, *exc) -> None:
+        pass
+
+    def _synccall(self, data: bytes) -> None:
+        self._streaming(data)
+
+    def __call__(self, data: bytes) -> None:
+        if self.async_on:
+            return self._asynccall(data)
+        else:
+            return self._synccall(data)
 
 
 class BinaryStreamingPushDataHandlerNng:
@@ -70,8 +93,11 @@ class BinaryStreamingPushDataHandlerNng:
                 data_handler
         """
         self.data_handler_parameters = data_handler_parameters
+        self._async_on = data_handler_parameters.async_on
+        if self._async_on == 0:
+            self._setup_socket()
 
-    async def __aenter__(self) -> Self:
+    def _setup_socket(self):
         self._socket: Push0 = Push0()
 
         url: str
@@ -86,10 +112,11 @@ class BinaryStreamingPushDataHandlerNng:
                     f"Unable to connect to the URL {url} due to the following "
                     f"error: {err}"
                 )
-                sys.exit(1)
-        return self
 
-    async def __call__(self, data: bytes) -> None:
+    async def __aenter__(self):
+        self._setup_socket()
+
+    async def _asynccall(self, data: bytes) -> None:
         """
         Sends a binary object through the NNG socket
 
@@ -99,12 +126,33 @@ class BinaryStreamingPushDataHandlerNng:
         """
         await self._socket.asend(data)
 
+    def _synccall(self, data: bytes) -> None:
+        """
+        Sends a binary object through the NNG socket
+
+        Arguments:
+
+            data: a bytes object
+        """
+        return self._socket.send(data)
+
     async def __aexit__(self, exc_type, exc, tb) -> None:
         """
         Destructor
         """
         self._socket.close()
 
+    def __exit__(self, exc_type, exc, tb) -> None:
+        """
+        Destructor
+        """
+        self._socket.close()
+
+    def __call__(self, data: bytes) -> None:
+        if self._async_on:
+            return self._asynccall(data)
+        else:
+            return self._synccall(data)
 
 class BinaryStreamingPushDataHandlerZmq:
     def __init__(
@@ -119,7 +167,31 @@ class BinaryStreamingPushDataHandlerZmq:
                 data_handler
         """
         self.data_handler_parameters = data_handler_parameters
+        self._async_on = data_handler_parameters.async_on
         self._context: Context = Context()
+        if self._async_on == 0:
+            self._socket: Socket = self._context.socket(PUSH)
+            url: str
+            for url in data_handler_parameters.urls:
+                try:
+                    if data_handler_parameters.role == "server":
+                        self._socket.bind(url)
+                    else:
+                        self._socket.connect(url)
+                except ZMQError as err:
+                    log.error(
+                        f"Unable to connect to the URL {url} due to the following "
+                        f"error: {err}"
+                    )
+                    sys.exit(1)
+
+
+
+    def __call__(self, data: bytes) -> None:
+        if self._async_on:
+            return self._asynccall(data)
+        else:
+            return self._synccall(data)
 
     async def __aenter__(self) -> Self:
         self._socket: Socket = self._context.socket(PUSH)
@@ -131,6 +203,7 @@ class BinaryStreamingPushDataHandlerZmq:
                     self._socket.bind(url)
                 else:
                     self._socket.connect(url)
+                print("ZMQ BINARY sending")
             except ZMQError as err:
                 log.error(
                     f"Unable to connect to the URL {url} due to the following "
@@ -139,7 +212,7 @@ class BinaryStreamingPushDataHandlerZmq:
                 sys.exit(1)
         return self
 
-    async def __call__(self, data: bytes) -> None:
+    async def _asynccall(self, data: bytes) -> None:
         """
         Sends a binary object through the ZMQ socket
 
@@ -149,7 +222,23 @@ class BinaryStreamingPushDataHandlerZmq:
         """
         await self._socket.send(data)
 
+    def _synccall(self, data: bytes) -> None:
+        """
+        Sends a binary object through the ZMQ socket
+
+        Arguments:
+
+            data: a bytes object
+        """
+        self._socket.send(data)
+
     async def __aexit__(self, exc_type, exc, tb) -> None:
+        """
+        Destructor
+        """
+        self._socket.close()
+
+    def __exit__(self, exc_type, exc, tb) -> None:
         """
         Destructor
         """

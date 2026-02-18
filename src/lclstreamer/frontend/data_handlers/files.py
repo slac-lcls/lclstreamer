@@ -38,7 +38,7 @@ class BinaryFileWritingDataHandler(DataHandlerProtocol):
 
         self._write_directory.mkdir(exist_ok=True, parents=True)
 
-    async def __call__(self, data: bytes) -> None:
+    async def callasync(self, data: bytes) -> None:
         """
         Writes a bytes object to the filesystem as a single file.
 
@@ -55,3 +55,26 @@ class BinaryFileWritingDataHandler(DataHandlerProtocol):
             fh.write(data)
 
         self._file_counter += 1
+
+    def call(self, data: bytes) -> None:
+        """
+        Writes a bytes object to the filesystem as a single file.
+
+        Arguments:
+
+            data: A bytes object
+        """
+        filename: Path = (
+            self._write_directory
+            / f"{self._prefix}r{self._rank}_{self._file_counter}.{self._suffix}"
+        )
+
+        with open(filename, "wb") as fh:
+            fh.write(data)
+
+        self._file_counter += 1
+
+    def __call__(self, data: bytes, async_on: bool = False) -> None:
+        if async_on:
+            return self.callasync(data)
+        return self.call(data)

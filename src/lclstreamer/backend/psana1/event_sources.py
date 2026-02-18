@@ -1,6 +1,7 @@
 import sys
-from typing import Any, cast
+from typing import Any, cast, Union
 from collections.abc import AsyncIterable, Generator
+from stream.core import source
 
 from psana import DataSource, MPIDataSource  # type: ignore
 
@@ -86,8 +87,35 @@ class Psana1EventSource(EventSourceProtocol):
                     "is not available for backend Psana1EventSource"
                 )
                 sys.exit(1)
+        self.async_on = data_source_parameters["async_on"].async_on
 
-    async def get_events(
+    @source
+    def get_events_sync(
+        self,
+    ) -> Generator[dict[str, StrFloatIntNDArray | None]]:
+        """
+        Retrieves events from the data source
+
+        Yields:
+
+            data: A dictionary storing data for an event
+        """
+        psana_event: Any
+        for psana_event in self._event_source:
+
+            data: dict[str, StrFloatIntNDArray | None] = {}
+            data_source_name: str
+
+            for data_source_name in self._data_sources:
+                try:
+                    data[data_source_name] = self._data_sources[
+                        data_source_name
+                    ].get_data(event=psana_event)
+                except (TypeError, AttributeError):
+                    data[data_source_name] = None
+            yield data
+
+    async def get_events_async(
         self,
     ) -> AsyncIterable[LossyEvent]:
         """
@@ -111,3 +139,9 @@ class Psana1EventSource(EventSourceProtocol):
                 except (TypeError, AttributeError):
                     data[data_source_name] = None
             yield data
+
+    def get_events(self) -> Union[Generator, AsyncIterable]:
+
+        if self.async_on:
+            return self.get_events_async()
+        return self.get_events_sync()

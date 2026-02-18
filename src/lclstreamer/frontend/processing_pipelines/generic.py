@@ -1,6 +1,6 @@
 import sys
 from collections.abc import AsyncIterable, AsyncIterator
-
+from collections.abc import Iterator
 from aiostream import streamcontext, pipable_operator
 
 from ...models.parameters import (
@@ -14,6 +14,7 @@ from ...protocols.frontend import ProcessingPipelineProtocol
 from ...utils.logging_utils import log
 from .preprocessing import NumpyPad, add_channel_dimension
 from .utils import DataStorage
+from typing import Any, Union
 
 class BatchProcessingPipeline(ProcessingPipelineProtocol):
     def __init__(self, parameters: ProcessingPipelineParameters) -> None:
@@ -29,8 +30,16 @@ class BatchProcessingPipeline(ProcessingPipelineProtocol):
 
         assert isinstance(parameters, BatchProcessingPipelineParameters)
         self.batch_size: int = parameters.batch_size
+        self.async_on = parameters.async_on
 
-    async def __call__(self,
+    def __call__(self, source: Union[Iterator[Any], AsyncIterator[Any]]) -> Union[Iterator[Any], AsyncIterator[Any]]:
+        if self.async_on == 1:
+            return self._asynccall(source)
+        else:
+           print("calling synccall!")
+           return self._synccall(source)
+
+    async def _asynccall(self,
         source: AsyncIterable[LossyEvent]
     ) -> AsyncIterator[LossyEvent]:
 
@@ -44,6 +53,25 @@ class BatchProcessingPipeline(ProcessingPipelineProtocol):
                 if len(data_storage) >= self.batch_size:
                     yield data_storage.retrieve_stored_data()
                     data_storage.reset_data_storage()
+
+        if len(data_storage) > 0:
+            yield data_storage.retrieve_stored_data()
+
+    def _synccall(self,
+        stream: Iterator[dict[str, StrFloatIntNDArray | None]]
+    ) -> Iterator[dict[str, StrFloatIntNDArray | None]]:
+        if self.async_on == 1:
+            return self._asynccall(stream)
+        data_storage: DataStorage = DataStorage()
+        data: dict[str, StrFloatIntNDArray | None]
+
+        for data in stream:
+
+            data_storage.add_data(data=data)
+
+            if len(data_storage) >= self.batch_size:
+                yield data_storage.retrieve_stored_data()
+                data_storage.reset_data_storage()
 
         if len(data_storage) > 0:
             yield data_storage.retrieve_stored_data()

@@ -1,9 +1,9 @@
-from typing import Dict, Union
+from typing import Any, Dict, Union
 from collections.abc import AsyncIterable, AsyncIterator
 from time import time
 
-#from stream.core import Stream
-#from stream.ops import fold
+from stream.core import Stream
+from stream.ops import fold
 from aiostream import stream, Stream, pipable_operator
 
 Clock = Dict[str, Union[int, float]]
@@ -49,6 +49,19 @@ def clock(source: AsyncIterable[int]) -> Stream[Clock]:
 
     Returns:
 
-        clock: A Stream objet
+        clock: A Stream object
     """
     return stream.reduce(source, rate_clock, clock0()) # type: ignore[arg-type]
+
+def clocksync() -> Stream[Any, Any]:
+    """
+    Returns a rate clock counting from now.
+
+    This transforms a stream of counts into a stream of dicts(describing the count
+    rate).
+
+    Returns:
+
+        clock: A Stream objet
+    """
+    return fold(rate_clock, clock0())

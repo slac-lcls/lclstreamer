@@ -71,7 +71,7 @@ class Psana2DetectorInterface(DataSourceProtocol):
 
             parameters: The configuration parameters
         """
-        extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
+        extra_parameters: dict[str, Any] | None = dict(parameters)
 
         self._name: str = name
         if extra_parameters is None:

@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 
 import numpy
 from numpy.typing import DTypeLike
-
+from ...protocols.backend import StrFloatIntNDArray
 from ...utils.logging_utils import log
 from ...models.types import LossyEvent, StrFloatIntNDArray
 
@@ -38,7 +38,8 @@ class DataStorage:
     def __len__(self):
         return self._count
 
-    def add_data(self, data: LossyEvent) -> None:
+
+    def add_data(self, data: dict[str, StrFloatIntNDArray | None]) -> dict[str, StrFloatIntNDArray | None]:
         """
         Adds data to the Data Storage object
 
@@ -117,7 +118,8 @@ class DataStorage:
                     data_container.data.append(data_value)
         self._count += 1
 
-    def retrieve_stored_data(self) -> LossyEvent:
+
+    def retrieve_stored_data(self) -> dict[str, StrFloatIntNDArray | None]:
         """
         Retuns the data stored in the Data Storage container object
 
@@ -132,7 +134,9 @@ class DataStorage:
             stored_data: A dictionary containing the data accumulated by the
                 Data Storage container
         """
-        stored_data: LossyEvent = {}
+
+        stored_data: dict[str, StrFloatIntNDArray | None] = {}
+
 
         data_source_name: str
         for data_source_name in self._data_containers:

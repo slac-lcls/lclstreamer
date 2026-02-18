@@ -9,12 +9,16 @@ from typing import (
     Any,
 )
 
+from collections.abc import Iterator
+from stream.core import stream, Source  # type: ignore
+from stream.ops import chop, map, take, tap  # type: ignore
+
 import typer
 from mpi4py import MPI
 from aiostream import Stream, pipable_operator, pipe, streamcontext, async_
 
 from ..backend.event_source import initialize_event_source
-from ..frontend.data_handling import ParallelDataHandler
+from ..frontend.data_handling import initialize_data_handlers, ParallelDataHandler
 from ..frontend.data_serializer import initialize_data_serializer
 from ..frontend.parameters import load_configuration_parameters
 from ..frontend.processing_pipeline import initialize_processing_pipeline
@@ -26,13 +30,13 @@ from ..protocols.frontend import (
     DataSerializerProtocol,
     ProcessingPipelineProtocol,
 )
-from ..utils.stream_utils import clock, Clock
+from ..utils.stream_utils import clock, Clock, clocksync
 
 app = typer.Typer()
 
 
 @pipable_operator
-async def filter_incomplete_events(
+async def filter_incomplete_events_async(
     events: AsyncIterable[LossyEvent], max_consecutive: int = 100
 ) -> AsyncIterator[LossyEvent]:
     """
@@ -74,6 +78,47 @@ async def filter_incomplete_events(
     if num_dropped > 0:
         print(f"Failed detector counts: {nfailed}")
     print(f"Processed {ev_num+1} events with {num_dropped} dropped")
+
+@stream
+def filter_incomplete_events(
+    events: Iterator[dict[str, StrFloatIntNDArray | None]], max_consecutive: int = 100
+) -> Iterator[dict[str, StrFloatIntNDArray | None]]:
+    """
+    Drops events that are incomplete
+
+    Incomplete events are events where the retrieval of one or more data items
+    failed.
+
+    Arguments:
+
+        events: An event iterator
+        max_consecutive (int): maximum number of consecutive frames containing any "missing" value before terminating early
+
+    Returns:
+
+        events: An event iterator
+    """
+    consecutive: int = 0
+    ev_num: int = 0
+    num_dropped: int = 0
+    nfailed: dict[str, int] = {}  # number from each detector
+    for ev_num, event in enumerate(events):
+        if all(v is not None for v in event.values()):
+            yield event
+            consecutive = 0
+            continue
+        for name, v in event.items():
+            if v is None:
+                nfailed[name] = nfailed.get(name, 0) + 1
+        consecutive += 1
+        num_dropped += 1
+        if consecutive >= max_consecutive:
+            break
+    if consecutive >= max_consecutive:
+        print(f"Stopping early after {consecutive} errors.")
+    if num_dropped > 0:
+        print(f"Failed detector counts: {nfailed}.")
+    print(f"Processed {ev_num+1} events with {num_dropped} dropped.")
 
 
 def data_counter(data: bytes) -> int:
@@ -136,7 +181,7 @@ async def amain(
             lossy_events |= pipe.take(num_events)
 
         if parameters.skip_incomplete_events is True:
-            lossy_events |= filter_incomplete_events.pipe(max_consecutive=1)
+            lossy_events |= filter_incomplete_events_async.pipe(max_consecutive=1)
 
         events = lossy_events | run_processing.pipe()
 
@@ -158,6 +203,68 @@ async def amain(
     if mpi_rank == 0:
         print("Hello, I'm done now.  Have a most excellent day!")
 
+def normalmain(
+    config: Path,
+    num_events: int,
+) -> None:
+    # 1. Read and recover configuration parameters
+    mpi_size: int = MPI.COMM_WORLD.Get_size()
+    mpi_rank: int = MPI.COMM_WORLD.Get_rank()
+
+    parameters: Parameters = load_configuration_parameters(filename=config)
+
+    print(f"[Rank {mpi_rank}] Initializing event source....")
+
+    source: EventSourceProtocol = initialize_event_source(
+        parameters=parameters,
+        worker_pool_size=mpi_size,
+        worker_rank=mpi_rank,
+    )
+
+    print(f"[Rank {mpi_rank}] Initializing event source: Done!")
+
+    print(f"[Rank {mpi_rank}] Initializing processing pipeline....")
+    processing_pipeline: ProcessingPipelineProtocol = initialize_processing_pipeline(
+        parameters
+    )
+    print(f"[Rank {mpi_rank}] Initializing processing pipeline: Done!")
+
+    print(f"[Rank {mpi_rank}] Initializing data serializer....")
+    data_serializer: DataSerializerProtocol = initialize_data_serializer(parameters)
+    print(f"[Rank {mpi_rank}] Initializing data serializer: Done!")
+
+    print(f"[Rank {mpi_rank}] Initializing data handlers....")
+    data_handlers: list[DataHandlerProtocol] = initialize_data_handlers(parameters)
+    print(f"[Rank {mpi_rank}] Initializing data handlers: Done!")
+
+
+    workflow: Any = source.get_events()
+
+    if num_events > 0:
+        workflow >>= take(num_events)
+
+
+    if parameters.skip_incomplete_events is True:
+        workflow >>= filter_incomplete_events(max_consecutive=1)
+
+    workflow >>= processing_pipeline
+
+    workflow = Source(workflow)
+    workflow >>= data_serializer
+
+    workflow = Source(workflow)
+    data_handler: DataHandlerProtocol
+    for data_handler in data_handlers:
+        workflow >>= tap(data_handler)
+
+    workflow >>= map(data_counter)
+
+    for stat in workflow >> clocksync():
+        print(f"[Rank {mpi_rank}] {stat}]", flush=True)
+
+
+    print(f"[Rank {mpi_rank}] Hello, I'm done now.  Have a most excellent day!")
+
 @app.command()
 def main(
     config: Annotated[
@@ -175,6 +282,14 @@ def main(
             "--num-events", "-n", help="number of data events to read before stopping"
         ),
     ] = 0,
+    asyncmode: Annotated[
+        int,
+        typer.Option(
+            "--asyncmode",
+            "-a",
+            help="Run async 1 or not 0."
+        ),
+    ] = 0,
 ) -> None:
     """
     An application that retrieves data from an event source, processes it, serializes
@@ -182,4 +297,7 @@ def main(
     applications. The event source, data processing, serialization strategy, and
     further data handling are defined by a configuration file.
     """
-    asyncio.run( amain(config, num_events) )
+    if asyncmode == 1:
+        asyncio.run( amain(config, num_events) )
+    else:
+        normalmain(config, num_events)

@@ -21,57 +21,28 @@ class Psana1EventSourceParameters(CustomBaseModel):
 
 class Psana2EventSourceParameters(CustomBaseModel):
     type: Literal["Psana2EventSource"]
+    async_on: int
 
 EventSource = Annotated[ Union[InternalEventSourceParameters,
                                Psana1EventSourceParameters,
                                Psana2EventSourceParameters],
                          Field(discriminator="type")]
 
+#class LclstreamerParameters(CustomBaseModel):
+#    source_identifier: str
+#    event_source: str
+#    processing_pipeline: str
+#    data_serializer: str
+#    data_handlers: list[str]
+#    skip_incomplete_events: bool
+#    data_sources: list
 
 ###### Data Sources #######
 
-class TimestampParameters(CustomBaseModel):
-    type: str
-
-
-class DetectorDataParameters(CustomBaseModel):
-    type: str
-    psana_name: str
-    psana_fields: str
-
-class PhotonWavelengthParameters(CustomBaseModel):
-    type: str
-    psana_name: str
-
-
-class DetectorGeometryParameters(CustomBaseModel):
-    type: str
-    psana_name: str
-    psana_fields: List[str] = Field(
-        default_factory = list, min_length=2, max_length=3
-    )
-
-
-class BeamPointingParameters(CustomBaseModel):
-    type: str
-    psana_name: str
-    psana_fields: List[str] = Field(
-        default_factory = list, min_length=4, max_length=4
-    )
-
-
-class RunInfoParameters(CustomBaseModel):
-    type: str
-
 class DataSourceParameters(CustomBaseModel):
-    type: str
-    timestamp: TimestampParameters | None = None
-    detector_data: DetectorDataParameters | None = None
-    photon_wavelength: PhotonWavelengthParameters | None = None
-    detector_info: DetectorGeometryParameters | None = None
-    beam_pointing: BeamPointingParameters | None = None
-    run_info: RunInfoParameters | None = None
-
+    type: str = None
+    psana_name: str = None
+    psana_fields: list[str] | str = None
     model_config = ConfigDict(extra="allow")
 
 
@@ -80,7 +51,7 @@ class DataSourceParameters(CustomBaseModel):
 class BatchProcessingPipelineParameters(CustomBaseModel):
     type: Literal["BatchProcessingPipeline"]
     batch_size: int
-
+    async_on: int
 
 class PeaknetPreprocessingPipelineParameters(CustomBaseModel):
     type: Literal["PeaknetPreprocessingPipeline"]
@@ -106,7 +77,7 @@ class SimplonBinarySerializerParameters(CustomBaseModel):
     data_collection_rate: str
     detector_name: str
     detector_type: str
-
+    async_on: int
 
 class HDF5BinarySerializerParameters(CustomBaseModel):
     type: Literal["HDF5BinarySerializer"]
@@ -136,7 +107,7 @@ class BinaryDataStreamingDataHandlerParameters(CustomBaseModel):
     role: Literal["server", "client"] = "server"
     library: Literal["zmq", "nng"] = "nng"
     socket_type: Literal["push"] = "push"
-
+    async_on: int
 
 class BinaryFileWritingDataHandlerParameters(CustomBaseModel):
     type: Literal["BinaryFileWritingDataHandler"]
@@ -165,7 +136,7 @@ class Parameters(CustomBaseModel):
             required_sources = [
                 "timestamp",
                 "detector_data",
-                "photon_wavelength",
+                #"photon_wavelength",
                 "detector_geometry",
                 "run_info"
             ]

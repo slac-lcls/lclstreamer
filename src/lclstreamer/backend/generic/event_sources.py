@@ -1,4 +1,8 @@
 import sys
+
+from collections.abc import Generator
+from stream.core import source
+
 from collections.abc import AsyncIterable
 
 from ...models.parameters import DataSourceParameters, Parameters
@@ -11,6 +15,7 @@ from ...protocols.backend import (
 from ...utils.logging_utils import log
 from .data_sources import FloatValue, GenericRandomNumpyArray, IntValue  # noqa: F401
 
+from typing import Union
 
 class InternalEventSource(EventSourceProtocol):
     """
@@ -69,8 +74,32 @@ class InternalEventSource(EventSourceProtocol):
                     "is not available for backend InternalEventSource"
                 )
                 sys.exit(1)
+        self.async_on = data_source_parameters["async_on"].async_on
 
-    async def get_events(
+    @source
+    def get_events_sync(
+        self,
+    ) -> Generator[dict[str, StrFloatIntNDArray | None]]:
+        """
+        Retrieves an event from the data source
+        Returns:
+            data: A dictionary storing data for an event
+        """
+        for i in range(self.number_of_events_to_generate):
+
+            data: dict[str, StrFloatIntNDArray | None] = {}
+            data_source_name: str
+
+            for data_source_name in self._data_sources:
+                try:
+                    data[data_source_name] = self._data_sources[
+                        data_source_name
+                    ].get_data(event=i)
+                except (TypeError, AttributeError):
+                    data[data_source_name] = None
+            yield data
+
+    async def get_events_async(
         self,
     ) -> AsyncIterable[LossyEvent]:
         """
@@ -91,3 +120,9 @@ class InternalEventSource(EventSourceProtocol):
                 except (TypeError, AttributeError):
                     data[data_source_name] = None
             yield data
+
+def get_events(self) -> Union[Generator, AsyncIterable]:
+
+        if self.async_on:
+            return self.get_events_async()
+        return self.get_events_sync()
