@@ -121,7 +121,7 @@ class InternalEventSource(EventSourceProtocol):
                     data[data_source_name] = None
             yield data
 
-def get_events(self) -> Union[Generator, AsyncIterable]:
+    def get_events(self) -> Union[Generator, AsyncIterable]:
 
         if self.async_on:
             return self.get_events_async()
