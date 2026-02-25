@@ -4,15 +4,13 @@ source_identifier: exp=mfx100852324,run=51
 skip_incomplete_events: True
 
 data_sources:
-    async_on: 
-        async_on: 0
     timestamp:
         type: Psana2Timestamp
 
     detector_data:
         type: Psana2DetectorInterface
         psana_name: jungfrau
-        psana_fields: raw.calib             # Use raw.calib for calibrated data
+        psana_fields: raw.calib # Use raw.calib for calibrated data
 
         #    assembled_detector_data:
         #        type: Psana2DetectorInterface
@@ -27,37 +25,34 @@ data_sources:
         type: Psana2DetectorInterface
         psana_name: "jungfrau"
         psana_fields: [
-            "_detid",                     # Detector ID
-            "raw._det_geotxt_default"     # Geometry data
-        ]
+                "_detid", # Detector ID
+                "raw._det_geotxt_default", # Geometry data
+            ]
         dtype: str
 
-    beam_data:                            # Optional
+    beam_data: # Optional
         type: Psana2DetectorInterface
         psana_name: "ebeamh"
         psana_fields: [
-            "raw.ebeamUndAngX",           # Angle X
-            "raw.ebeamUndAngY",           # Angle Y
-            "raw.ebeamUndPosX",           # Pos X
-            "raw.ebeamUndPosY",           # Pos Y
-            "raw.ebeamL3Energy"           # Beam energy
-        ]
+                "raw.ebeamUndAngX", # Angle X
+                "raw.ebeamUndAngY", # Angle Y
+                "raw.ebeamUndPosX", # Pos X
+                "raw.ebeamUndPosY", # Pos Y
+                "raw.ebeamL3Energy", # Beam energy
+            ]
 
     run_info:
         type: Psana2RunInfo
 
 event_source:
     type: Psana2EventSource
-    async_on: 0
 
 processing_pipeline:
     type: BatchProcessingPipeline
     batch_size: 1
-    async_on: 0
 
 data_serializer:
     type: SimplonBinarySerializer
-    async_on: 0
     data_source_to_serialize: detector_data
     polarization_fraction: 0
     polarization_axis: [1.0, 0.0, 0.0]
@@ -66,11 +61,10 @@ data_serializer:
     detector_type: "AreaDetector"
 
 data_handlers:
-  - type: BinaryDataStreamingDataHandler
-    async_on: 0
-    urls: 
-        - "ipc:///tmp/ipctestfile" #127.0.0.1:12321" #134.79.23.43:5000" #127.0.0.1:12321"
-    role: client
-    library: nng 
-    #library: zmq
-    socket_type: push
+    - type: BinaryDataStreamingDataHandler
+      urls:
+          - "tcp://127.0.0.1:12321" #127.0.0.1:12321" #134.79.23.43:5000" #127.0.0.1:12321"
+      role: client
+      library: zmq
+      #library: zmq
+      socket_type: push

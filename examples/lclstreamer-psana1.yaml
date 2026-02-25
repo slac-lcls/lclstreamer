@@ -37,14 +37,14 @@ data_serializer:
         photon_wavelength: /data/wavelength
 
 data_handlers:
-# - type: BinaryFileWritingDataHandler
-#   file_prefix: ""
-#   file_suffix: h5
-#   write_directory: workspace/output
+    # - type: BinaryFileWritingDataHandler
+    #   file_prefix: ""
+    #   file_suffix: h5
+    #   write_directory: workspace/output
 
-  - type: BinaryDataStreamingDataHandler
-    urls:
-        - "tcp://sdfdtn003:5000"
-    role: client
-    library: nng
-    socket_type: push
+    - type: BinaryDataStreamingDataHandler
+      urls:
+          - "tcp://127.0.0.1:5000"
+      role: client
+      library: zmq
+      socket_type: push

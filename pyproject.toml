@@ -1,8 +1,8 @@
 [project]
 name = "lclstreamer"
-requires-python = ">= 3.11"
+requires-python = ">=3.11,<3.14"
 version = "0.3.0"
-dependencies = ["typer>=0.16.0,<0.17", "numpy", "pydantic>=2.10.6,<3", "aiostream>=0.7.1", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "mkdocs-material>=9.6.11,<10", "mkdocstrings-python>=1.16.10,<2", "rich>=14.0.0,<15"]
+dependencies = ["typer", "numpy", "pydantic", "stream @ git+https://github.com/frobnitzem/stream.py", "aiostream", "pyyaml", "pyzmq", "pynng", "sphinx", "myst-parser", "pydata-sphinx-theme", "sphinx-click", "sphinxcontrib-images", "mypy", "h5py-stubs", "cbor", "bitshuffle"]
 
 [build-system]
 build-backend = "setuptools.build_meta"
@@ -11,10 +11,9 @@ requires = ["setuptools"]
 [project.scripts]
 lclstreamer = "lclstreamer.cmd.lclstreamer:app"
 
-[tool.pyright]
-diagnosticMode = "workspace"
+[tool.basedpyright]
 typeCheckingMode = "strict"
-pythonPath = ".pixi/envs/psana2/bin/python"
+pythonVersion = "3.11"
 
 [tool.isort]
 py_version = 311
@@ -23,7 +22,6 @@ profile = "black"
 [tool.mypy]
 show_error_codes = true
 python_version = 3.11
-python_executable = ".pixi/envs/psana2/bin/python"
 
 [tool.pixi.workspace]
 channels = ["conda-forge"]
@@ -50,28 +48,28 @@ scripts = ["activation-psana1.sh"]
 [tool.pixi.feature.psana2.activation]
 scripts = ["activation-psana2.sh"]
 
+[tool.pixi.dependencies]
+python = ">=3.11,<3.14"
+openmpi = "*"
+mpi4py = "*"
+h5py = "*"
+hdf5plugin = ">=5.1.0"
+
 [tool.pixi.feature.psana1.dependencies]
 python = "3.11.*"
 psana = "==4.0.66"
-openmpi = "*"
-mpi4py = "*"
 
 [tool.pixi.feature.psana2.dependencies]
-python = "3.12.*"
-psana = { version="==4.1.10", channel="lcls-ii" }
-mpi4py = "*"
-openmpi = ">=4.1.6,<5"
+python = "3.13.*"
+psana = { version="==4.2.4", channel="lcls-ii" }
 
 [tool.pixi.feature.test.dependencies]
 pytest = ">=8.4.1,<9"
-mypy = "*"
 pytest-asyncio = ">=1.2.0,<2.0"
-mkdocs-material = ">=9.6.11,<10"
-mkdocstrings-python = ">=1.16.10,<2"
 
 [dependency-groups]
-psana1 = ["typer>=0.16.0,<0.17", "numpy", "pydantic>=2.10.6,<3", "aiostream>=0.7.1,<0.8", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "rich>=14.0.0,<15", "bitshuffle>=0.5.2,<0.6", "cbor>=1.0.0,<2"]
-psana2 = ["typer>=0.16.0,<0.17", "numpy", "pydantic>=2.10.6,<3", "aiostream>=0.7.1,<0.8", "pyyaml>=6.0.2,<7", "hdf5plugin>=5.1.0,<6", "pyzmq", "pynng>=0.8.1,<0.9", "rich>=14.0.0,<15", "bitshuffle>=0.5.2,<0.6", "cbor>=1.0.0,<2"]
+psana1 = ["typer", "numpy", "pydantic", "stream @ git+https://github.com/frobnitzem/stream.py", "aiostream", "pyyaml", "pyzmq", "pynng", "sphinx", "myst-parser", "pydata-sphinx-theme", "sphinx-click", "sphinxcontrib-images", "mypy", "h5py-stubs", "cbor", "bitshuffle"]
+psana2 = ["typer", "numpy", "pydantic", "stream @ git+https://github.com/frobnitzem/stream.py", "aiostream", "pyyaml", "pyzmq", "pynng", "sphinx", "myst-parser", "pydata-sphinx-theme", "sphinx-click", "sphinxcontrib-images", "mypy", "h5py-stubs", "cbor"]
 
 [tool.pixi.tasks]
 

@@ -11,7 +11,7 @@ data_sources:
     detector_data:
         type: Psana2DetectorInterface
         psana_name: jungfrau
-        psana_fields: raw.raw             # Use raw.calib for calibrated data
+        psana_fields: raw.raw # Use raw.calib for calibrated data
 
     #assembled_detector_data:
     #    type: Psana2DetectorInterface
@@ -43,12 +43,12 @@ data_serializer:
         #random: /drandom
 
 data_handlers:
-#  - type: BinaryFileWritingDataHandler
-#    write_directory: workspace/output
+    #  - type: BinaryFileWritingDataHandler
+    #    write_directory: workspace/output
 
- - type: BinaryDataStreamingDataHandler
-   urls:
-       - "tcp://134.79.23.43:5000"
-   role: client
-   library: nng
-   socket_type: push
+    - type: BinaryDataStreamingDataHandler
+      urls:
+          - "tcp://127.0.0.1:12321"
+      role: client
+      library: zmq
+      socket_type: push
