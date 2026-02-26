@@ -1,7 +1,8 @@
 import pytest
-from aiostream import stream
+from stream.core import stream
 
-from lclstreamer.utils.stream_utils import clock
+from lclstreamer.utils.stream import clock
+
 
 @pytest.mark.asyncio
 async def test_clock():
@@ -10,4 +11,4 @@ async def test_clock():
     async with src.stream() as streamer:
         async for c in streamer:
             print(c)
-    assert c["wait"] >= 0.001*30
+    assert c["wait"] >= 0.001 * 30

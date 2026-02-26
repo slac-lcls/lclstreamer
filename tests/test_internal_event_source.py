@@ -1,8 +1,8 @@
-from pathlib import Path
 import traceback
+from pathlib import Path
 
-from pydantic import ValidationError
 from click.testing import Result
+from pydantic import ValidationError
 from typer.testing import CliRunner
 
 from lclstreamer.cmd.lclstreamer import app
@@ -83,12 +83,13 @@ def test_app() -> None:
         result: Result = runner.invoke(app, ["--config", str(configuration_file_name)])
         print("--- Output")
         print(result.output)
-        if result.exception is not None:
+        if result.exception is not None and result.exc_info is not None:
             print("--- Exceptions")
             print(result.exception)
             traceback.print_tb(result.exc_info[2])
 
         assert result.exit_code == 0
+
 
 def test_parse_error() -> None:
     with runner.isolated_filesystem():

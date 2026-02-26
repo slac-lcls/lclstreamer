@@ -4,6 +4,7 @@ import yaml
 
 from lclstreamer.models.parameters import Parameters
 
+
 def test_example_params():
     for path in Path("examples").iterdir():
         if not path.name.endswith(".yaml"):
@@ -11,4 +12,4 @@ def test_example_params():
 
         print(f"Reading example config. {path.name}")
         params = yaml.safe_load(path.read_text())
-        cfg = Parameters.model_validate(params)
+        _ = Parameters.model_validate(params)

@@ -108,7 +108,7 @@ class HDF5BinarySerializer(DataSerializerProtocol):
 
             with BytesIO() as byte_block:
                 with h5py.File(
-                    byte_block,  # pyright: ignore[reportArgumentType]  # ty: ignore[invalid-argument-type]
+                    byte_block,  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]
                     "w",
                 ) as fh:
                     data_block_name: str

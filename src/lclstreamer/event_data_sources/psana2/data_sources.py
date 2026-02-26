@@ -176,7 +176,7 @@ class Psana2RunInfo(DataSourceProtocol):
 
             parameters: The configuration parameters
         """
-        run: dict[str, Any] = additional_info["run"]
+        run: Any = additional_info["run"]
         self._run_data: list[str] = [  # pyright: ignore[reportUnknownMemberType]
             run.expt,  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
             str(run.timestamp),  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]

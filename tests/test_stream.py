@@ -1,13 +1,13 @@
 import multiprocessing
-import os
+import multiprocessing.connection
 import time
-import signal
 import traceback
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Callable, Tuple
+from typing import Any, Callable, cast
 
-from pynng import Pull0, Timeout # type: ignore[import-untyped]
+from pynng import Pull0, Timeout  # pyright: ignore[reportMissingTypeStubs]
 from typer.testing import CliRunner
 
 from lclstreamer.cmd.lclstreamer import app
@@ -48,8 +48,15 @@ data_handlers:
     socket_type: push
 """
 
+
 @contextmanager
-def child_process(target_func, *args):
+def child_process(
+    target_func: Callable[[multiprocessing.connection.Connection[Any, Any], str], None],
+    args: str,
+) -> Generator[  # type: ignore[arg-type]
+    tuple[multiprocessing.connection.Connection[Any, Any], multiprocessing.Process],
+    None,
+]:
     """
     A context manager that sets up a pipe
     and starts a new multiprocessing.Process to run a target function.
@@ -60,71 +67,61 @@ def child_process(target_func, *args):
 
     try:
         parent_conn, child_conn = multiprocessing.Pipe()
-        p = multiprocessing.Process(target=target_func,
-                                    args=(child_conn,)+tuple(args))
+        p = multiprocessing.Process(
+            target=target_func, args=(child_conn,) + tuple(args)
+        )
         p.start()
-        yield parent_conn, p
+        yield parent_conn, p  # pyright: ignore[reportReturnType]
 
     finally:
         # 5. Cleanup block: Ensure the process terminates
         if p is not None:
             p.join(timeout=1.0)
             if p.is_alive():
-                print(f"\n⚠️ Process (PID {p.pid}) did not complete in 1 second. Terminating...")
+                print(
+                    f"\n⚠️ Process (PID {p.pid}) did not complete in 1 second. Terminating..."
+                )
                 p.terminate()
-                p.join() # Wait for the process to be fully terminated
+                p.join()  # Wait for the process to be fully terminated
             else:
                 print(f"\n✅ Process (PID {p.pid}) completed successfully.")
 
-"""Create a child process and run fn.
-    After context completes, the child
-    process is sent a SIGTERM.
-@contextmanager
-def child_process(function: Callable[[str], None], args: list[str]):
 
-    child_pid = os.fork()
-    if child_pid:  # parent process yields
-        try:
-            yield
-        finally:
-            os.kill(child_pid, signal.SIGTERM)
-    else:  # child process
-        function(*args)
-"""
-
-
-def run_pull(conn, uri: str) -> None:
+def run_pull(conn: multiprocessing.connection.Connection, uri: str) -> None:
     count = 0
     done = 0
     started = 0
-    def show_open(pipe):
+
+    def show_open():
         nonlocal started
         print("Pull: pipe opened")
         started += 1
-    def show_close(pipe):
+
+    def show_close():
         nonlocal done
         print("Pull: pipe closed")
         done += 1
 
     try:
         with Pull0(listen=uri, recv_timeout=500) as pull:
-            pull.add_post_pipe_connect_cb(show_open)
-            pull.add_post_pipe_remove_cb(show_close)
+            pull.add_post_pipe_connect_cb(show_open)  # pyright: ignore[reportUnknownMemberType]
+            pull.add_post_pipe_remove_cb(show_close)  # pyright: ignore[reportUnknownMemberType]
             while started == 0 or (done != started):
                 try:
-                    _: bytes = pull.recv()
+                    _: bytes = cast(bytes, pull.recv())
                     count += 1
                     time.sleep(0.001)
                 except Timeout:
                     pass
     except Exception as e:
-        print("Pull raised error: {e}")
+        print(f"Pull raised error: {e}")
         pass
     conn.send(count)
     conn.close()
 
+
 def test_app() -> None:
-    with child_process(run_pull, "tcp://127.0.0.1:50101") as (conn, p):
+    with child_process(run_pull, "tcp://127.0.0.1:50101") as (conn, _):
         with runner.isolated_filesystem():
             current_directory: Path = Path.cwd()
             configuration_file_name: Path = current_directory / "lclstreamer.yaml"
@@ -132,10 +129,10 @@ def test_app() -> None:
             result = runner.invoke(app, ["--config", str(configuration_file_name)])
             print("--- Output")
             print(result.output)
-            if result.exception is not None:
+            if result.exception is not None and result.exc_info is not None:
                 print("--- Exceptions")
                 print(result.exception)
-                #print(result.exc_info)
+                # print(result.exc_info)
                 traceback.print_tb(result.exc_info[2])
 
             assert result.exit_code == 0

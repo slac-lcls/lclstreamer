@@ -6,7 +6,7 @@ from typing import cast
 
 import hdf5plugin  # pyright: ignore[reportUnusedImport]  # noqa: F401
 from h5py import Dataset, File, Group
-from pynng import Pull0  # pyright: ignore[reportMissingTypeStubs]
+from zmq import PULL, Context, Socket
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(
@@ -23,14 +23,15 @@ parser.add_argument(
 args = parser.parse_args()
 
 # Listen as server to receive data from multiple MPI clients
-listen_address: str = f"tcp://{args.hostname}:{args.port}"
-print(f"Listening on {listen_address}")
-pull_socket = Pull0(listen=listen_address)
+context: Context[Socket[bytes]] = Context()
+pull_socket: Socket[bytes] = context.socket(PULL)
+pull_socket.bind("tcp://127.0.0.1:12321")
 
 count: int = 0
+print("Listening....")
 while True:
-    msg = cast(bytes, pull_socket.recv())
-    fh = File(BytesIO(msg))  # pyright: ignore[reportArgumentType,reportArgumentType]  # ty: ignore[invalid-argument-type]
+    msg: bytes = pull_socket.recv()
+    fh: File = File(BytesIO(msg))  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType,reportArgumentType]
 
     # Print available datasets in the HDF5 structure
     print(f"Available datasets: {list(fh.keys())}")
@@ -39,11 +40,11 @@ while True:
     if "/data/data" in fh:  # detector_data
         dataset: Dataset = cast(Dataset, fh["/data/data"])
         print(
-            f"Dataset info: compression={dataset.compression},"  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]  # ty: ignore[unresolved-attribute]
+            f"Dataset info: compression={dataset.compression},"  # type: ignore[attr-defined]  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]  # ty: ignore[unresolved-attribute]
             f"shape={dataset.shape}"
         )
         try:
-            detector_shape = dataset[:].shape
+            detector_shape: tuple[int] = dataset[:].shape
             print(f"Detector data shape: {detector_shape}")
         except OSError as e:
             print(f"Error reading data: {e}")
@@ -65,7 +66,7 @@ while True:
     # Fallback to original logic for other data structures
     if "/data/data" not in fh and cast(Group, fh["/"]).keys():
         first_key: str = list(fh.keys())[0]
-        content = cast(Dataset, fh[first_key])[:].shape[0]
+        content: int = cast(Dataset, fh[first_key])[:].shape[0]
         count += content
         print(f"Received {count} messages from dataset: {first_key}")
 

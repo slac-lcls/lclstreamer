@@ -1,10 +1,12 @@
 import sys
 from typing import Any, cast
 
-from cbor import (  # pyright: ignore[reportMissingTypeStubs]
+from cbor import (  # type: ignore[import-untyped]  # pyright: ignore[reportMissingTypeStubs] # ty: ignore[unused-ignore-comment]
     loads,  # pyright: ignore[reportUnknownVariableType]
 )
-from pynng import Pull0  # pyright: ignore[reportMissingTypeStubs]
+from pynng import (  # type: ignore[import-untyped]  # pyright: ignore[reportMissingTypeStubs]# ty: ignore[unused-ignore-comment]
+    Pull0,
+)
 
 socket: Pull0 = Pull0(listen="tcp://127.0.0.1:12321")
 count: int = 0

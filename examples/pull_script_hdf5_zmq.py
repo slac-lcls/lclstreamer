@@ -13,7 +13,7 @@ count = 0
 print("Listening....")
 while True:
     msg = socket.recv()
-    fh: File = File(BytesIO(msg))  # pyright: ignore[reportArgumentType,reportArgumentType]  # ty: ignore[invalid-argument-type]
+    fh: File = File(BytesIO(msg))  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]
     dataset: Dataset = cast(Dataset, fh[list(fh.keys())[0]])
     content: int = dataset[:].shape[0]
     fh.close()

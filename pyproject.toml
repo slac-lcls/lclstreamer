@@ -2,7 +2,27 @@
 name = "lclstreamer"
 requires-python = ">=3.11,<3.14"
 version = "0.3.0"
-dependencies = ["typer", "numpy", "pydantic", "stream @ git+https://github.com/frobnitzem/stream.py", "aiostream", "pyyaml", "pyzmq", "pynng", "sphinx", "myst-parser", "pydata-sphinx-theme", "sphinx-click", "sphinxcontrib-images", "mypy", "h5py-stubs", "cbor", "bitshuffle"]
+dependencies = [
+    "typer",
+    "numpy",
+    "pydantic",
+    "stream @ git+https://github.com/frobnitzem/stream.py",
+    "aiostream",
+    "pyyaml",
+    "pyzmq",
+    "pynng",
+    "sphinx",
+    "myst-parser",
+    "pydata-sphinx-theme",
+    "sphinx-click",
+    "sphinxcontrib-images",
+    "mypy",
+    "h5py-stubs",
+    "cbor",
+    "bitshuffle",
+    "pytest",
+    "types-PyYAML"
+]
 
 [build-system]
 build-backend = "setuptools.build_meta"
@@ -39,8 +59,6 @@ lclstreamer = { path = ".", editable = true }
 [tool.pixi.environments]
 psana1 = ["psana1"]
 psana2 = ["psana2"]
-test1 = ["psana1", "test"]
-test2 = ["psana2", "test"]
 
 [tool.pixi.feature.psana1.activation]
 scripts = ["activation-psana1.sh"]
@@ -63,13 +81,49 @@ psana = "==4.0.66"
 python = "3.13.*"
 psana = { version="==4.2.4", channel="lcls-ii" }
 
-[tool.pixi.feature.test.dependencies]
-pytest = ">=8.4.1,<9"
-pytest-asyncio = ">=1.2.0,<2.0"
-
 [dependency-groups]
-psana1 = ["typer", "numpy", "pydantic", "stream @ git+https://github.com/frobnitzem/stream.py", "aiostream", "pyyaml", "pyzmq", "pynng", "sphinx", "myst-parser", "pydata-sphinx-theme", "sphinx-click", "sphinxcontrib-images", "mypy", "h5py-stubs", "cbor", "bitshuffle"]
-psana2 = ["typer", "numpy", "pydantic", "stream @ git+https://github.com/frobnitzem/stream.py", "aiostream", "pyyaml", "pyzmq", "pynng", "sphinx", "myst-parser", "pydata-sphinx-theme", "sphinx-click", "sphinxcontrib-images", "mypy", "h5py-stubs", "cbor"]
+psana1 = [
+    "typer",
+    "numpy",
+    "pydantic",
+    "stream @ git+https://github.com/frobnitzem/stream.py",
+    "aiostream",
+    "pyyaml",
+    "pyzmq",
+    "pynng",
+    "sphinx",
+    "myst-parser",
+    "pydata-sphinx-theme",
+    "sphinx-click",
+    "sphinxcontrib-images",
+    "mypy",
+    "h5py-stubs",
+    "cbor",
+    "bitshuffle",
+    "pytest",
+    "types-PyYAML"
+]
+psana2 = [
+    "typer",
+    "numpy",
+    "pydantic",
+    "stream @ git+https://github.com/frobnitzem/stream.py",
+    "aiostream",
+    "pyyaml",
+    "pyzmq",
+    "pynng",
+    "sphinx",
+    "myst-parser",
+    "pydata-sphinx-theme",
+    "sphinx-click",
+    "sphinxcontrib-images",
+    "mypy",
+    "h5py-stubs",
+    "cbor",
+    "bitshuffle",
+    "pytest",
+    "types-PyYAML"
+]
 
 [tool.pixi.tasks]
 
