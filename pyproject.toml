@@ -73,6 +73,8 @@ openmpi = "*"
 mpi4py = "*"
 h5py = "*"
 hdf5plugin = ">=5.1.0"
+cuda-nvtx = "*"
+cupy = ">=13.6.0,<14"
 
 [tool.pixi.feature.psana1.dependencies]
 python = "3.11.*"
@@ -81,6 +83,8 @@ psana = "==4.0.66"
 [tool.pixi.feature.psana2.dependencies]
 python = "3.13.*"
 psana = { version="==4.2.4", channel="lcls-ii" }
+nvtx = ">=0.2.14,<0.3"
+cupy = ">=13.6.0,<14"
 
 [dependency-groups]
 psana1 = [
@@ -103,7 +107,8 @@ psana1 = [
     "cbor",
     "bitshuffle",
     "pytest",
-    "types-PyYAML"
+    "types-PyYAML",
+    "rich"
 ]
 psana2 = [
     "typer",
@@ -125,7 +130,10 @@ psana2 = [
     "cbor",
     "bitshuffle",
     "pytest",
-    "types-PyYAML"
+    "types-PyYAML",
+    "rich",
+    "pyfai>=2025.3.0,<2026",
+    "pyopencl>=2025.2.7"
 ]
 
 [tool.pixi.tasks]

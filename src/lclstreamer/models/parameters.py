@@ -295,6 +295,10 @@ class BinaryDataStreamingDataHandlerParameters(_CustomBaseModel):
     role: Literal["server", "client"] = "server"
     library: Literal["zmq"] = "zmq"
     socket_type: Literal["push"] = "push"
+    # Network tuning options
+    send_buffer_size: int = 8  # Number of messages to buffer (NNG)
+    tcp_nodelay: bool = True   # Disable Nagle's algorithm for lower latency
+    send_timeout_ms: int = 0   # Send timeout in ms (0 = infinite)
 
 
 class BinaryFileWritingDataHandlerParameters(_CustomBaseModel):

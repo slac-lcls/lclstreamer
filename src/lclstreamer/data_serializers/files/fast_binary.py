@@ -29,6 +29,7 @@ Binary format (version 1):
 """
 
 import struct
+import time
 from collections.abc import Iterator
 
 import numpy as np
@@ -55,6 +56,12 @@ except ImportError:
 
 MAGIC = 0x4E504159  # "NPAY" in hex
 VERSION = 1
+
+# Pre-pack the header for speed
+_HEADER_PACK = struct.Struct("<III")  # magic, version, n_fields
+_FIELD_META_PACK = struct.Struct("<I")  # length prefix
+_SHAPE_DIM_PACK = struct.Struct("<q")  # single dimension
+_COMPRESSION_PACK = struct.Struct("<BQQ")  # compression_type, uncompressed_size, compressed_size
 
 
 class FastBinarySerializer(DataSerializerProtocol):
@@ -174,6 +181,78 @@ class FastBinarySerializer(DataSerializerProtocol):
 
         return b"".join(parts)
 
+    def _serialize_array_fast(
+        self,
+        name_bytes: bytes,
+        dtype_bytes: bytes,
+        arr: np.ndarray,
+        buffer: np.ndarray,
+        offset: int,
+    ) -> int:
+        """
+        Serialize array directly into pre-allocated numpy buffer. Returns new offset.
+
+        This avoids intermediate allocations by writing directly into the buffer.
+        Uses numpy operations for SIMD-optimized memory copies.
+        """
+        # Field name
+        name_len = len(name_bytes)
+        buffer[offset : offset + 4].view(np.uint32)[0] = name_len
+        offset += 4
+        buffer[offset : offset + name_len] = np.frombuffer(name_bytes, dtype=np.uint8)
+        offset += name_len
+
+        # Dtype
+        dtype_len = len(dtype_bytes)
+        buffer[offset : offset + 4].view(np.uint32)[0] = dtype_len
+        offset += 4
+        buffer[offset : offset + dtype_len] = np.frombuffer(
+            dtype_bytes, dtype=np.uint8
+        )
+        offset += dtype_len
+
+        # Shape: ndim + dimensions
+        buffer[offset : offset + 4].view(np.uint32)[0] = arr.ndim
+        offset += 4
+        for dim in arr.shape:
+            buffer[offset : offset + 8].view(np.int64)[0] = dim
+            offset += 8
+
+        # Assume array is C-contiguous (psana raw data always is)
+        # Skip the check to avoid overhead - will fail loudly if assumption is wrong
+        data_size = arr.nbytes
+
+        # Compression info: type(1) + uncompressed(8) + compressed(8) = 17 bytes
+        buffer[offset] = 0  # no compression
+        offset += 1
+        buffer[offset : offset + 8].view(np.uint64)[0] = data_size
+        offset += 8
+        buffer[offset : offset + 8].view(np.uint64)[0] = data_size
+        offset += 8
+
+        # Copy array data using numpy (SIMD optimized)
+        # View the source array as uint8 and copy directly
+        arr_flat = arr.view(np.uint8).ravel()
+        buffer[offset : offset + data_size] = arr_flat
+        offset += data_size
+
+        return offset
+
+    def _calc_array_size(
+        self, name_bytes: bytes, dtype_bytes: bytes, arr: np.ndarray
+    ) -> int:
+        """Calculate serialized size of an array without compression."""
+        return (
+            4
+            + len(name_bytes)  # name
+            + 4
+            + len(dtype_bytes)  # dtype
+            + 4
+            + arr.ndim * 8  # shape
+            + 17  # compression header
+            + arr.nbytes  # data
+        )
+
     def __call__(
         self, stream: Iterator[dict[str, StrFloatIntNDArray | None]]
     ) -> Iterator[bytes]:
@@ -186,33 +265,107 @@ class FastBinarySerializer(DataSerializerProtocol):
         Yields:
             Binary blob for each event
         """
+        serialize_times: list[float] = []
+        event_count = 0
+
+        # Pre-encode field names for speed (cache on first use)
+        field_name_cache: dict[str, bytes] = {}
+        dtype_cache: dict[str, bytes] = {}
+
+        # Reusable numpy buffer - will grow as needed (numpy for SIMD-optimized copies)
+        buffer: np.ndarray | None = None
+        buffer_size = 0
+
+        # Pre-packed header values
+        header_bytes = struct.pack("<II", MAGIC, VERSION)
+
+        # Use fast path only when no compression
+        use_fast_path = self._compression_byte == 0
+
         for data in stream:
-            parts = []
+            t0 = time.perf_counter()
 
-            # Header
-            parts.append(struct.pack("<I", MAGIC))
-            parts.append(struct.pack("<I", VERSION))
+            # Collect valid fields and their arrays
+            valid_fields = []
+            for name, hdf5_path in self._fields.items():
+                if name in data and data[name] is not None:
+                    arr = data[name]
+                    if not isinstance(arr, np.ndarray):
+                        arr = np.array(arr)
 
-            # Count valid fields
-            valid_fields = [
-                (name, hdf5_path)
-                for name, hdf5_path in self._fields.items()
-                if name in data and data[name] is not None
-            ]
-            parts.append(struct.pack("<I", len(valid_fields)))
+                    # Cache encoded names
+                    if hdf5_path not in field_name_cache:
+                        field_name_cache[hdf5_path] = hdf5_path.encode("utf-8")
 
-            # Serialize each field
-            for name, hdf5_path in valid_fields:
-                arr = data[name]
-                if isinstance(arr, np.ndarray):
-                    # Use the HDF5 path as the field name (for compatibility)
-                    parts.append(self._serialize_array(hdf5_path, arr))
-                else:
-                    # Wrap scalar in array
-                    arr = np.array(arr)
-                    parts.append(self._serialize_array(hdf5_path, arr))
+                    dtype_key = arr.dtype.str
+                    if dtype_key not in dtype_cache:
+                        dtype_cache[dtype_key] = dtype_key.encode("utf-8")
 
-            yield b"".join(parts)
+                    valid_fields.append(
+                        (field_name_cache[hdf5_path], dtype_cache[dtype_key], arr)
+                    )
+
+            if use_fast_path and valid_fields:
+                # FAST PATH: Pre-allocate numpy buffer and write directly
+
+                # Calculate total size needed
+                total_size = 12  # header: magic + version + n_fields
+                for name_bytes, dtype_bytes, arr in valid_fields:
+                    total_size += self._calc_array_size(name_bytes, dtype_bytes, arr)
+
+                # Allocate or resize buffer (numpy uint8 array for SIMD copies)
+                if buffer is None or total_size > buffer_size:
+                    buffer_size = (
+                        max(total_size, buffer_size * 2) if buffer_size > 0 else total_size
+                    )
+                    buffer = np.empty(buffer_size, dtype=np.uint8)
+
+                # Write header using numpy views
+                buffer[0:8] = np.frombuffer(header_bytes, dtype=np.uint8)
+                buffer[8:12].view(np.uint32)[0] = len(valid_fields)
+                offset = 12
+
+                # Write each field directly into buffer
+                for name_bytes, dtype_bytes, arr in valid_fields:
+                    offset = self._serialize_array_fast(
+                        name_bytes, dtype_bytes, arr, buffer, offset
+                    )
+
+                # Return bytes - single copy here
+                result = buffer[:offset].tobytes()
+
+            else:
+                # SLOW PATH: Original implementation (for compression or empty)
+                parts = []
+                parts.append(struct.pack("<I", MAGIC))
+                parts.append(struct.pack("<I", VERSION))
+                parts.append(struct.pack("<I", len(valid_fields)))
+
+                for name_bytes, dtype_bytes, arr in valid_fields:
+                    parts.append(
+                        self._serialize_array(name_bytes.decode("utf-8"), arr)
+                    )
+
+                result = b"".join(parts)
+
+            t1 = time.perf_counter()
+            serialize_times.append(t1 - t0)
+            event_count += 1
+
+            # Log every 100 events
+            if event_count % 100 == 0:
+                avg_ms = (
+                    sum(serialize_times[-100:])
+                    / min(100, len(serialize_times))
+                    * 1000
+                )
+                avg_hz = 1000 / avg_ms if avg_ms > 0 else 0
+                log.info(
+                    f"[Serializer] {event_count}: avg={avg_ms:.2f}ms "
+                    f"({avg_hz:.0f} Hz), size={len(result)/1e6:.1f}MB"
+                )
+
+            yield result
 
 
 def fast_deserialize(data: bytes) -> dict[str, np.ndarray]:
