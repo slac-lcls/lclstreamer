@@ -112,7 +112,7 @@ class BinaryDataStreamingDataHandlerParameters(CustomBaseModel):
     type: Literal["BinaryDataStreamingDataHandler"]
     urls: List[str]
     role: Literal["server", "client"] = "server"
-    library: Literal["zmq", "nng"] = "nng"
+    library: Literal["zmq"] = "zmq"
     socket_type: Literal["push"] = "push"
 
 

@@ -41,9 +41,9 @@ data_serializer:
         photon_wavelength: /data/wavelength
 
 data_handlers:
-  - type: BinaryDataStreamingDataHandler
-    urls:
-        - "tcp://sdfada001:12321"
-    role: client
-    library: nng
-    socket_type: push
+    - type: BinaryDataStreamingDataHandler
+      urls:
+          - "tcp://sdfada001:12321"
+      role: client
+      library: zmq
+      socket_type: push

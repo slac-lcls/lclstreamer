@@ -172,5 +172,3 @@ def main(
         print(f"[Rank {mpi_rank}] {stat}]", flush=True)
 
     print(f"[Rank {mpi_rank}] Hello, I'm done now.  Have a most excellent day!")
-
-    main(config, num_events)

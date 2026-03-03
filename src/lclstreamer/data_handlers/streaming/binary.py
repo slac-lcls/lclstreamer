@@ -1,7 +1,7 @@
 import sys
+import time
 
-from pynng import ConnectionRefused, Push0  # pyright: ignore[reportMissingTypeStubs]
-from zmq import PUSH, Context, Socket, ZMQError
+from zmq import LINGER, PUSH, SNDTIMEO, Context, Socket, ZMQError
 
 from ...models.parameters import (
     BinaryDataStreamingDataHandlerParameters,
@@ -27,58 +27,15 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
 
               parameters: The configuration parameters
         """
-        if data_handler_parameters.library == "nng":
-            self._streaming: (
-                BinaryStreamingPushDataHandlerNng | BinaryStreamingPushDataHandlerZmq
-            ) = BinaryStreamingPushDataHandlerNng(data_handler_parameters)
+        if data_handler_parameters.library == "zmq":
+            self._streaming: BinaryStreamingPushDataHandlerZmq = (
+                BinaryStreamingPushDataHandlerZmq(data_handler_parameters)
+            )
         else:
             self._streaming = BinaryStreamingPushDataHandlerZmq(data_handler_parameters)
 
     def __call__(self, data: bytes) -> None:
         self._streaming(data)
-
-
-class BinaryStreamingPushDataHandlerNng:
-    """
-    See documentation of the `__init__` function.
-    """
-
-    def __init__(
-        self, data_handler_parameters: BinaryDataStreamingDataHandlerParameters
-    ) -> None:
-        """
-        Initializes an NNG binary data streaming socket
-
-        Arguments:
-
-            data_handler_parameters: The configuration parameters for the streaming
-                data_handler
-        """
-        self.data_handler_parameters = data_handler_parameters
-        self._socket: Push0 = Push0()
-
-        url: str
-        for url in self.data_handler_parameters.urls:
-            try:
-                if self.data_handler_parameters.role == "server":
-                    self._socket.listen(url)  # pyright: ignore[reportUnknownMemberType]
-                else:
-                    self._socket.dial(url, block=True)  # pyright: ignore[reportUnknownMemberType]
-            except ConnectionRefused as err:
-                log.error(
-                    f"Unable to connect to the URL {url} due to the following "
-                    f"error: {err}"
-                )
-
-    def __call__(self, data: bytes) -> None:
-        """
-        Sends a binary object through the NNG socket
-
-        Arguments:
-
-            data: a bytes object
-        """
-        return self._socket.send(data)  # pyright: ignore[reportUnknownMemberType]
 
 
 class BinaryStreamingPushDataHandlerZmq:
@@ -96,6 +53,10 @@ class BinaryStreamingPushDataHandlerZmq:
         self.data_handler_parameters = data_handler_parameters
         self._context: Context[Socket[bytes]] = Context()
         self._socket: Socket[bytes] = self._context.socket(PUSH)
+        # Set send timeout to 5 seconds to prevent indefinite blocking
+        self._socket.setsockopt(SNDTIMEO, 5000)
+        # Set linger to 0 so socket closes immediately without waiting
+        self._socket.setsockopt(LINGER, 0)
         url: str
         for url in data_handler_parameters.urls:
             try:
@@ -103,6 +64,8 @@ class BinaryStreamingPushDataHandlerZmq:
                     self._socket.bind(url)
                 else:
                     self._socket.connect(url)
+                    # Add delay to allow ZMQ connection to fully establish (slow joiner fix)
+                    time.sleep(1.0)
             except ZMQError as err:
                 log.error(
                     f"Unable to connect to the URL {url} due to the following "
@@ -120,5 +83,14 @@ class BinaryStreamingPushDataHandlerZmq:
         """
         self._socket.send(data)
 
+    def close(self) -> None:
+        """Explicitly close the socket and context with timeout"""
+        try:
+            self._socket.close(linger=0)
+            self._context.term()
+        except Exception:
+            pass
+
     def __del__(self) -> None:
-        self._context.destroy()
+        """Cleanup on deletion"""
+        self.close()

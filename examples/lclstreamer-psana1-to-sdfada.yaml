@@ -12,7 +12,6 @@ data_sources:
         type: Psana1AssembledAreaDetector
         psana_name: epix10k2M
 
-
     photon_wavelength:
         type: Psana1PV
         psana_name: "SIOC:SYS0:ML00:AO192"
@@ -40,5 +39,5 @@ data_handlers:
       urls:
           - "tcp://sdfada001:12321"
       role: client
-      library: nng
+      library: zmq
       socket_type: push

@@ -35,9 +35,9 @@ data_handlers:
     #      file_prefix: ""
     #      file_suffix: h5
     #      write_directory: workspace/output
-    type: BinaryDataStreamingDataHandler
-    urls:
-        - "tcp://127.0.0.1:12321"
-    role: client
-    library: zmq
-    socket_type: push
+    - type: BinaryDataStreamingDataHandler
+      urls:
+          - "tcp://127.0.0.1:12321"
+      role: client
+      library: zmq
+      socket_type: push

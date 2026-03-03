@@ -66,5 +66,5 @@ data_handlers:
 #   urls:
 #       - "tcp://sdfdtn003:5000"
 #   role: client
-#   library: nng
+#   library: zmq
 #   socket_type: push

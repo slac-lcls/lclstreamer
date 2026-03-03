@@ -15,7 +15,7 @@ data_sources:
     detector_data:
         type: Psana1DetectorInterface
         psana_name: jungfrau
-        psana_fields: raw.raw             # Use raw.calib for calibrated data
+        psana_fields: raw.raw # Use raw.calib for calibrated data
 
     assembled_detector_data:
         type: Psana1DetectorInterface
@@ -30,21 +30,21 @@ data_sources:
         type: Psana1DetectorInterface
         psana_name: "jungfrau1"
         psana_fields: [
-            "_detid",                     # Detector ID
-            "raw._det_geotxt_default"     # Geometry data
-            #"raw._pixel_coords"          # Pixel coordinates (optional)
-        ]
+                "_detid", # Detector ID
+                "raw._det_geotxt_default", # Geometry data
+                #"raw._pixel_coords"          # Pixel coordinates (optional)
+            ]
 
-    beam_data:                         # Optional
+    beam_data: # Optional
         type: Psana2DetectorInterface
         psana_name: "ebeamh"
         psana_fields: [
-            "raw.ebeamUndAngX",        # Angle X
-            "raw.ebeamUndAngY",        # Angle Y
-            "raw.ebeamUndPosX",        # Pos X
-            "raw.ebeamUndPosY",        # Pos Y
-            "raw.ebeamL3Energy"        # Beam energy
-        ]
+                "raw.ebeamUndAngX", # Angle X
+                "raw.ebeamUndAngY", # Angle Y
+                "raw.ebeamUndPosX", # Pos X
+                "raw.ebeamUndPosY", # Pos Y
+                "raw.ebeamL3Energy", # Beam energy
+            ]
 
     run_info:
         type: Psana2RunInfo
@@ -70,6 +70,5 @@ data_handlers:
         urls:
             - "tcp://134.79.23.43:5000" #127.0.0.1:12321"
         role: client
-        library: nng 
-        #library: zmq
+        library: zmq
         socket_type: push
