@@ -1,13 +1,14 @@
 import multiprocessing
-import multiprocessing.connection
 import time
 import traceback
 from collections.abc import Generator
 from contextlib import contextmanager
+from multiprocessing import Queue
 from pathlib import Path
-from typing import Any, Callable, cast
+from queue import Empty
+from typing import Callable, cast
 
-from pynng import Pull0, Timeout  # pyright: ignore[reportMissingTypeStubs]
+from click.testing import Result
 from typer.testing import CliRunner
 
 from lclstreamer.cmd.lclstreamer import app
@@ -44,21 +45,24 @@ data_handlers:
     urls:
         - "tcp://127.0.0.1:50101"
     role: client
-    library: nng
+    library: zmq
     socket_type: push
 """
 
 
 @contextmanager
-def child_process(
-    target_func: Callable[[multiprocessing.connection.Connection[Any, Any], str], None],
-    args: str,
-) -> Generator[  # type: ignore[arg-type]
-    tuple[multiprocessing.connection.Connection[Any, Any], multiprocessing.Process],
+def child_process(  # pyright: ignore[reportUnknownParameterType]
+    target_func: Callable[  # pyright: ignore[reportUnknownParameterType]
+        [Queue, str],  # pyright: ignore[reportMissingTypeArgument]
+        None,
+    ],
+    *args: str,
+) -> Generator[
+    tuple[Queue, multiprocessing.Process],  # pyright: ignore[reportMissingTypeArgument]
     None,
 ]:
     """
-    A context manager that sets up a pipe
+    A context manager that sets up a queue
     and starts a new multiprocessing.Process to run a target function.
 
     It ensures the process is terminated after a timeout upon exit.
@@ -66,67 +70,98 @@ def child_process(
     p = None
 
     try:
-        parent_conn, child_conn = multiprocessing.Pipe()
-        p = multiprocessing.Process(
-            target=target_func, args=(child_conn,) + tuple(args)
+        # Use spawn method for better process isolation
+        ctx = multiprocessing.get_context("spawn")
+        queue: Queue = ctx.Queue()  # pyright: ignore[reportMissingTypeArgument]
+        p = ctx.Process(
+            target=target_func,  # pyright: ignore[reportUnknownArgumentType]
+            args=(queue,) + tuple(args),  # pyright: ignore[reportUnknownArgumentType]
         )
         p.start()
-        yield parent_conn, p  # pyright: ignore[reportReturnType]
+        yield queue, p  # pyright: ignore[reportReturnType]
 
     finally:
-        # 5. Cleanup block: Ensure the process terminates
         if p is not None:
-            p.join(timeout=1.0)
+            p.join(timeout=15.0)
             if p.is_alive():
-                print(
-                    f"\n⚠️ Process (PID {p.pid}) did not complete in 1 second. Terminating..."
-                )
                 p.terminate()
-                p.join()  # Wait for the process to be fully terminated
-            else:
-                print(f"\n✅ Process (PID {p.pid}) completed successfully.")
+                p.join()
 
 
-def run_pull(conn: multiprocessing.connection.Connection, uri: str) -> None:
-    count = 0
-    done = 0
-    started = 0
+def run_pull(
+    queue: Queue,  # pyright: ignore[reportMissingTypeArgument, reportUnknownParameterType]
+    uri: str,
+) -> None:
+    import traceback
 
-    def show_open():
-        nonlocal started
-        print("Pull: pipe opened")
-        started += 1
+    from zmq import PULL, RCVTIMEO, Again, Context, ZMQError
 
-    def show_close():
-        nonlocal done
-        print("Pull: pipe closed")
-        done += 1
+    count: int = 0
+    expected_count: int = 101
 
     try:
-        with Pull0(listen=uri, recv_timeout=500) as pull:
-            pull.add_post_pipe_connect_cb(show_open)  # pyright: ignore[reportUnknownMemberType]
-            pull.add_post_pipe_remove_cb(show_close)  # pyright: ignore[reportUnknownMemberType]
-            while started == 0 or (done != started):
-                try:
-                    _: bytes = cast(bytes, pull.recv())
-                    count += 1
-                    time.sleep(0.001)
-                except Timeout:
-                    pass
-    except Exception as e:
-        print(f"Pull raised error: {e}")
-        pass
-    conn.send(count)
-    conn.close()
+        with Context() as context:
+            with context.socket(PULL) as socket:
+                socket.setsockopt(RCVTIMEO, 10000)
+                socket.bind("tcp://*:50101")
+                queue.put({"ready": True})  # pyright: ignore[reportUnknownMemberType]
+                while True:
+                    try:
+                        _: bytes = socket.recv()
+                        count += 1
+                        if count >= expected_count:
+                            break
+                        time.sleep(0.001)
+                    except Again:
+                        break
+
+        if count < expected_count:
+            queue.put(  # pyright: ignore[reportUnknownMemberType]
+                {
+                    "success": False,
+                    "message": f"Timeout: received {count} messages, expected {expected_count}",
+                },
+                timeout=5.0,
+            )
+        else:
+            queue.put(  # pyright: ignore[reportUnknownMemberType]
+                {"success": True, "message:": f"Only received {count} messages"},
+                timeout=5.0,
+            )
+    except ZMQError as exception:
+        queue.put(  # pyright: ignore[reportUnknownMemberType]
+            {
+                "success": False,
+                "message": f"{str(exception)}\n{traceback.format_exc()}",
+            },
+            timeout=5.0,
+        )
 
 
 def test_app() -> None:
-    with child_process(run_pull, "tcp://127.0.0.1:50101") as (conn, _):
+    with child_process(run_pull, "tcp://127.0.0.1:50101") as (
+        queue,  # pyright: ignore[reportUnknownVariableType]
+        _,
+    ):
+        # Wait for the server to be ready before starting the client
+        try:
+            ready_msg: dict[str, bool | str] = cast(
+                dict[str, bool | str], queue.get(timeout=15.0)
+            )
+            if not ready_msg.get("ready"):
+                assert False, "Server did not report ready within 15 seconds"
+        except Empty:
+            assert False, "Server did not start within 15 seconds"
+
+        # Add extra delay to ensure server socket is fully ready to receive
+        time.sleep(1.0)
+
         with runner.isolated_filesystem():
             current_directory: Path = Path.cwd()
             configuration_file_name: Path = current_directory / "lclstreamer.yaml"
             configuration_file_name.write_text(configuration, "utf-8")
-            result = runner.invoke(app, ["--config", str(configuration_file_name)])
+            absolute_config_path: Path = configuration_file_name.resolve()
+            result: Result = runner.invoke(app, ["--config", str(absolute_config_path)])
             print("--- Output")
             print(result.output)
             if result.exception is not None and result.exc_info is not None:
@@ -135,12 +170,18 @@ def test_app() -> None:
                 # print(result.exc_info)
                 traceback.print_tb(result.exc_info[2])
 
-            assert result.exit_code == 0
+            assert result.exit_code == 0, (
+                f"Client failed with exit code {result.exit_code}"
+            )
 
-            if conn.poll(2.0):
-                count = conn.recv()
-                print(f"Receiver counted {count} messages")
-                assert count == 101
-            else:
-                assert False, "Receiver did not report before its timeout."
-    pass
+            try:
+                server_result: dict[str, bool | str] = cast(
+                    dict[str, bool | str], queue.get(timeout=10.0)
+                )
+                if server_result.get("success"):
+                    print("Succeeded! Expected 101 messages, got 101")
+                else:
+                    print("Failed! Subprocess error:")
+                    print(server_result["message"])
+            except Empty:
+                assert False, "Server did not report results within 15 seconds"
