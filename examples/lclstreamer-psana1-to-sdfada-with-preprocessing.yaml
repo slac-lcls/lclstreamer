@@ -9,8 +9,9 @@ data_sources:
         type: Psana1Timestamp
 
     detector_data:
-        type: Psana1AssembledAreaDetector
+        type: Psana1DetectorInterface
         psana_name: epix10k2M
+        psana_fields: image
 
     random:
         type: GenericRandomNumpyArray
@@ -18,7 +19,7 @@ data_sources:
         array_dtype: float32
 
     photon_wavelength:
-        type: Psana1PV
+        type: Psana1DetectorInterface
         psana_name: "SIOC:SYS0:ML00:AO192"
 
 processing_pipeline:

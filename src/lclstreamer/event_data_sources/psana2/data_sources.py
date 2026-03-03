@@ -90,7 +90,7 @@ class Psana2DetectorInterface(DataSourceProtocol):
                 )
         else:
             fields: list[str] | str = extra_parameters["psana_fields"]
-            self._det_params: list[str] = (
+            self._det_fields: list[str] = (
                 [fields] if isinstance(fields, str) else fields
             )
 
@@ -126,9 +126,9 @@ class Psana2DetectorInterface(DataSourceProtocol):
             base = self._detector_interface
             data.append(base(event))
         else:
-            for param in self._det_params:
+            for psana_field in self._det_fields:
                 base = self._detector_interface
-                subfields: list[str] = param.split(".")
+                subfields: list[str] = psana_field.split(".")
                 for field in subfields:
                     if hasattr(base, field):
                         base = getattr(base, field)
@@ -151,9 +151,7 @@ class Psana2DetectorInterface(DataSourceProtocol):
                     f"Data for the psana2 data source {self._name} has "
                     "the format of a dictionary!"
                 )
-            else:
-                return numpy.array(data, dtype=numpy.float64)
-        return numpy.array(data, dtype=numpy.float64)
+        return numpy.array(data, dtype=self.dtype)
 
 
 class Psana2RunInfo(DataSourceProtocol):

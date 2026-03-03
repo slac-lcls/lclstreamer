@@ -10,28 +10,10 @@ from ...utils.protocols import DataSourceProtocol, EventSourceProtocol
 from ...utils.typing import StrFloatIntNDArray
 from ..generic.data_sources import GenericRandomNumpyArray as GenericRandomNumpyArray
 from .data_sources import (
-    Psana1AreaDetector as Psana1AreaDetector,
-)
-from .data_sources import (
-    Psana1AssembledAreaDetector as Psana1AssembledAreaDetector,
-)
-from .data_sources import (
-    Psana1BbmonDetectorTotalIntensity as Psana1BbmonDetectorTotalIntensity,
-)
-from .data_sources import (
-    Psana1EvrCodes as Psana1EvrCodes,
-)
-from .data_sources import (
-    Psana1IpmDetector as Psana1IpmDetector,
-)
-from .data_sources import (
-    Psana1PV as Psana1PV,
+    Psana1DetectorInterface as Psana1DetectorInterface,
 )
 from .data_sources import (
     Psana1Timestamp as Psana1Timestamp,
-)
-from .data_sources import (
-    Psana1UsdUsbDetector as Psana1UsdUsbDetector,
 )
 
 
