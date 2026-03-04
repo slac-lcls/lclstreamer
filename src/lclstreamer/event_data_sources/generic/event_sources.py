@@ -24,7 +24,7 @@ from .data_sources import (
 
 class InternalEventSource(EventSourceProtocol):
     """
-    See documentation of the `__init__` function.
+    See documentation of the `__init__` function
     """
 
     def __init__(
@@ -36,15 +36,15 @@ class InternalEventSource(EventSourceProtocol):
         worker_rank: int,
     ) -> None:
         """
-        Initializes an internal event source
+        Initializes an Internal Event Source
 
-        This event source does not rely on any external framework to generate events
+        This Event Source does not rely on any external framework to generate events
         and is only compatible with data sources that don't use any external
         framework to generate data. It is intended mainly for testing
 
         Arguments:
 
-            parameters: The configuration parameters
+            parameters: The event source configuration parameters
 
             worker_pool_size: The size of the worker pool
 
@@ -52,7 +52,7 @@ class InternalEventSource(EventSourceProtocol):
         """
         del worker_pool_size
         del worker_rank
-        
+
         if parameters.type != "InternalEventSource":
             log_error_and_exit("Event source parameters do not match the expected type")
 

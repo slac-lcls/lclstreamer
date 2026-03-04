@@ -24,7 +24,7 @@ def initialize_event_source(
     worker_rank: int,
 ) -> EventSourceProtocol:
     """
-    Initializes the Event Source specified by the configuration parameters
+    Initializes the event source specified by the configuration parameters
 
     Arguments:
 

@@ -24,9 +24,9 @@ from .data_sources import (
 
 
 def _parse_source_identifier(source_identifier: str) -> dict[str, str | int]:
-    """
-    Parses a source identifier string into an argument dict
-    """
+    # Parses a source identifier string into a keyword-argument dictionary
+    # The source identifier is a comma-separated string of key=value pairs
+
     source_dict: dict[str, str | int] = {}
     source_items: list[str] = source_identifier.split(",")
     item: str
@@ -66,11 +66,11 @@ class Psana2EventSource(EventSourceProtocol):
         worker_rank: int,
     ) -> None:
         """
-        Initializes a psana2 event source
+        Initializes a Psana2 Event Source
 
         Arguments:
 
-            parameters: The configuration parameters
+            parameters: The event source configuration parameters
 
             worker_pool_size: The size of the worker pool
 

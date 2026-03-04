@@ -21,6 +21,10 @@ from ...utils.typing import StrFloatIntNDArray
 
 
 class SimplonBinarySerializer(DataSerializerProtocol):
+    """
+    See documentation of the `__init__` function.
+    """
+
     def __init__(self, parameters: SimplonBinarySerializerParameters) -> None:
         """
         Initializes a Simplon data serializer
@@ -31,7 +35,7 @@ class SimplonBinarySerializer(DataSerializerProtocol):
 
         Arguments:
 
-            parameters: The configuration parameters
+            parameters: The data serializer configuration parameters
         """
         if parameters.type != "SimplonBinarySerializer":
             log_error_and_exit(
@@ -57,11 +61,11 @@ class SimplonBinarySerializer(DataSerializerProtocol):
 
         Arguments:
 
-            source: A stream of Event information (dictionary storing numpy arrays)
+            source: A dictionary storing event data
 
         Yields:
 
-            byte_block: A binary blob (a bytes object)
+            byte_block: A bytes object
         """
 
         must_send_first_message: bool = False

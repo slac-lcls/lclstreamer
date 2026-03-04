@@ -12,20 +12,20 @@ from ...utils.protocols import DataHandlerProtocol
 
 class BinaryDataStreamingDataHandler(DataHandlerProtocol):
     """
-    See documentation of the `__init__` function.
+    See documentation of the `__init__` function
     """
 
     def __init__(
         self, data_handler_parameters: BinaryDataStreamingDataHandlerParameters
     ) -> None:
         """
-        Initializes a binary data streaming data handler
+        Initializes a Binary Data Streaming Data Handler
 
-        This data handler sends a byte object through a ZMQ or NNG socket.
+        This data handler sends a byte object through a network socket
 
         Arguments:
 
-              parameters: The configuration parameters
+              parameters: The data handler configuration parameters
         """
         if data_handler_parameters.library == "zmq":
             self._streaming: BinaryStreamingPushDataHandlerZmq = (
@@ -35,10 +35,21 @@ class BinaryDataStreamingDataHandler(DataHandlerProtocol):
             self._streaming = BinaryStreamingPushDataHandlerZmq(data_handler_parameters)
 
     def __call__(self, data: bytes) -> None:
+        """
+        Forwards a binary object to the underlying streaming transport
+
+        Arguments:
+
+            data: A bytes object containing serialized event data
+        """
         self._streaming(data)
 
 
 class BinaryStreamingPushDataHandlerZmq:
+    """
+    See documentation of the `__init__` function
+    """
+
     def __init__(
         self, data_handler_parameters: BinaryDataStreamingDataHandlerParameters
     ) -> None:
@@ -79,7 +90,7 @@ class BinaryStreamingPushDataHandlerZmq:
 
         Arguments:
 
-            data: a bytes object
+            data: A bytes object containing serialized event data
         """
         self._socket.send(data)
 

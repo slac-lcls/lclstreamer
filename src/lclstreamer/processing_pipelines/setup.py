@@ -11,7 +11,7 @@ def initialize_processing_pipeline(
     parameters: Parameters,
 ) -> ProcessingPipelineProtocol:
     """
-    Initializes the Processing Pipeline specified by the configuration parameters
+    Initializes the processing pipeline specified by the configuration parameters
 
     Arguments:
 
@@ -19,7 +19,7 @@ def initialize_processing_pipeline(
 
     Returns:
 
-        data_handlers: An initialized Processing Pipeline
+        data_handlers: An initialized processing pipeline
     """
     try:
         processing_pipeline: ProcessingPipelineProtocol = globals()[

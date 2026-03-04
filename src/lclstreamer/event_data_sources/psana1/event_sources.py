@@ -19,7 +19,7 @@ from .data_sources import (
 
 class Psana1EventSource(EventSourceProtocol):
     """
-    See documentation of the `__init__` function.
+    See documentation of the `__init__` function
     """
 
     def __init__(
@@ -31,11 +31,11 @@ class Psana1EventSource(EventSourceProtocol):
         worker_rank: int,
     ) -> None:
         """
-        Initializes a psana1 event source
+        Initializes a Psana1 Event Source
 
         Arguments:
 
-            parameters: The configuration parameters
+            parameters: The event source configuration parameters
 
             worker_pool_size: The size of the worker pool
 

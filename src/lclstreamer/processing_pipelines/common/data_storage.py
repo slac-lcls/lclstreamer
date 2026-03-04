@@ -12,6 +12,14 @@ from ...utils.typing import StrFloatIntNDArray
 class DataContainer:
     """
     Dataclass used to store accumulated numpy arrays
+
+    Attributes:
+
+        data: A list of numpy arrays accumulated so far for this data source
+
+        dtype: The numpy dtype of the arrays, inferred from the first array added
+
+        shape: The shape of each individual array, inferred from the first array added
     """
 
     data: list[StrFloatIntNDArray] = field(default_factory=list)
@@ -21,7 +29,7 @@ class DataContainer:
 
 class DataStorage:
     """
-    See documentation of the `__init__` function.
+    See documentation of the `__init__` function
     """
 
     def __init__(self) -> None:
@@ -29,13 +37,21 @@ class DataStorage:
         Initializes a Data Storage object
 
         Data Storage objects are containers that can store numpy arrays and allow
-        bulk retrieval of the stored data.
+        bulk retrieval of the stored data
         """
 
         self._data_containers: dict[str, DataContainer] = {}
         self._count: int = 0
 
-    def __len__(self):
+    def __len__(self) -> int:
+        """
+        Returns the number of data entries currently stored
+
+        Returns:
+
+            count: The number of times `add_data` has been called since the last
+                reset
+        """
         return self._count
 
     def add_data(self, data: dict[str, StrFloatIntNDArray | None]) -> None:
@@ -53,7 +69,7 @@ class DataStorage:
 
         Arguments:
 
-            data: a dictionary storing numpy arrays.
+            data: a dictionary storing numpy arrays
         """
         if len(self._data_containers) == 0:
             data_source_name: str
@@ -130,8 +146,8 @@ class DataStorage:
         The data is returned as dictionary of numpy arrays. The keys of the
         dictionary match the labels of the stored data. The array associated
         with each label stores the accumulated data, with the fist axis
-        representing each subsequent data addition, and the rest of the axes
-        representing the data.
+        representing each subsequent data item added, and the rest of the axes
+        representing the accumulated data
 
         Returns:
 
@@ -150,8 +166,14 @@ class DataStorage:
         return stored_data
 
     def reset_data_storage(self) -> None:
-        "Resets the Data Storage container"
+        """
+        Resets the Data Storage container
 
+        Clears all accumulated arrays from every data container and resets the
+        internal event counter to zero. The container labels and dtypes inferred
+        from the first event are preserved so that the storage can be reused for
+        a new batch without re-initialization
+        """
         data_source_name: str
         for data_source_name in self._data_containers:
             self._data_containers[data_source_name].data = []

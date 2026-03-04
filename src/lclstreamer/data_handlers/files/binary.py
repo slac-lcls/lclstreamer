@@ -10,20 +10,20 @@ from ...utils.protocols import DataHandlerProtocol
 
 class BinaryFileWritingDataHandler(DataHandlerProtocol):
     """
-    See documentation of the `__init__` function.
+    See documentation of the `__init__` function
     """
 
     def __init__(
         self, data_handler_parameters: BinaryFileWritingDataHandlerParameters
     ) -> None:
         """
-        Initializes a binary file writing data handler
+        Initializes a Binary File Writing Data Handler
 
-        This data handler writes byte objects to the filesystem as a files.
+        This data handler writes byte objects to the filesystem as a files
 
         Arguments:
 
-              parameters: The configuration parameters
+              parameters: The data handler configuration parameters
         """
         self._rank: int = MPI.COMM_WORLD.Get_rank()
         self._prefix: str = data_handler_parameters.file_prefix
@@ -39,7 +39,7 @@ class BinaryFileWritingDataHandler(DataHandlerProtocol):
 
     def __call__(self, data: bytes) -> None:
         """
-        Writes a bytes object to the filesystem as a single file.
+        Writes a bytes object to the filesystem as a single file
 
         Arguments:
 

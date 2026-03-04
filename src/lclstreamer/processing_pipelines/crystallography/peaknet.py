@@ -15,15 +15,7 @@ from ..common.data_storage import DataStorage
 
 class _NumpyPad:
     """
-    Pads numpy arrays to a specified target size.
-
-    This class handles padding of 2D numpy arrays (H, W) to target dimensions.
-    It supports different padding styles and uses zero-padding.
-
-    Args:
-        target_height: Target height after padding
-        target_width: Target width after padding
-        pad_style: Padding style - "center" or "bottom-right"
+    See documentation of the `__init__` function
     """
 
     def __init__(
@@ -32,6 +24,20 @@ class _NumpyPad:
         target_width: int,
         pad_style: Literal["center", "bottom-right"] = "center",
     ):
+        """
+        Initializes a numpy array padder to a specified target size
+
+        This class handles padding of 2D numpy arrays (H, W) to target dimensions
+        It supports different padding styles and uses zero-padding
+
+        Arguments:
+
+            target_height: Target height after padding
+
+            target_width: Target width after padding
+
+            pad_style: Padding style - either "center" or "bottom-right"
+        """
         self.target_height = target_height
         self.target_width = target_width
         self.pad_style = pad_style
@@ -40,13 +46,15 @@ class _NumpyPad:
         self, img: NDArray[numpy.floating[Any]]
     ) -> tuple[tuple[int, int], tuple[int, int]]:
         """
-        Calculate padding widths for the given image.
+        Calculates padding widths for the given image
 
-        Args:
+        Arguments:
+
             img: Input image array with shape (H, W)
 
         Returns:
-            Padding widths in format ((top, bottom), (left, right))
+
+            pad_width: Padding widths in format ((top, bottom), (left, right))
         """
         H_img, W_img = img.shape
 
@@ -75,13 +83,15 @@ class _NumpyPad:
         img: NDArray[numpy.floating[Any]],
     ) -> NDArray[numpy.floating[Any]]:
         """
-        Apply padding to the input image.
+        Applies padding to the input image
 
-        Args:
+        Arguments:
+
             img: Input image array with shape (H, W)
 
         Returns:
-            Padded image array with shape (target_height, target_width)
+
+            img_padded: Padded image array with shape (target_height, target_width)
         """
         pad_width = self.calc_pad_width(img)
         img_padded: NDArray[numpy.floating[Any]] = numpy.pad(
@@ -92,30 +102,34 @@ class _NumpyPad:
 
 
 def _add_channel_dimension(
-    batch_array: StrFloatIntNDArray, num_channels: int = 1
+    array: StrFloatIntNDArray, num_channels: int = 1
 ) -> StrFloatIntNDArray:
     """
-    Add channel dimension to batched array.
+    Adds a channel dimension to a batched array
 
-    Converts (B, H, W) format to (B, C, H, W) format by adding a channel dimension.
+    Converts (B, H, W) format to (B, C, H, W) format by inserting a channel
+    dimension at axis 1. If `num_channels` is greater than 1, the new axis is
+    tiled by repeating the data along that dimension
 
-    Args:
-        batch_array: Input batched array with shape (B, H, W)
-        num_channels: Number of channels to add (default: 1)
+    Arguments:
+
+        array: Input array with shape (B, H, W)
+
+        num_channels: Number of channels to produce (default: 1)
 
     Returns:
-        Array with added channel dimension (B, C, H, W)
+
+        result: Array with an added channel dimension of shape (B, C, H, W)
 
     Raises:
-        ValueError: If input array doesn't have expected 3D shape
+
+        ValueError: If the input array does not have exactly 3 dimensions
     """
-    if len(batch_array.shape) != 3:
-        raise ValueError(
-            f"Expected 3D input array (B, H, W), got shape {batch_array.shape}"
-        )
+    if len(array.shape) != 3:
+        raise ValueError(f"Expected 3D input array (B, H, W), got shape {array.shape}")
 
     # Add channel dimension at position 1: (B, H, W) -> (B, 1, H, W)
-    result: StrFloatIntNDArray = numpy.expand_dims(batch_array, axis=1)
+    result: StrFloatIntNDArray = numpy.expand_dims(array, axis=1)
 
     # If num_channels > 1, repeat along channel dimension
     if num_channels > 1:
@@ -125,39 +139,34 @@ def _add_channel_dimension(
 
 
 def _is_image_data(data_key: str, data_value: StrFloatIntNDArray | None) -> bool:
-    """
-    Determine if a data entry represents image data that should be preprocessed.
-
-    Args:
-        data_key: The key/name of the data entry
-        data_value: The data array
-
-    Returns:
-        True if this looks like image data that should be preprocessed
-    """
+    # Determines if a data entry represents image data that should be preprocessed
     # Heuristic: 2D arrays are likely images
     # You may want to refine this logic based on your specific data keys
     return isinstance(data_value, numpy.ndarray) and len(data_value.shape) == 2
 
 
 class PeaknetPreprocessingPipeline(ProcessingPipelineProtocol):
+    """
+    See documentation of the `__init__` function
+    """
+
     def __init__(self, parameters: PeaknetPreprocessingPipelineParameters) -> None:
         """
-        Initializes a PeakNet preprocessing pipeline.
-        This processes the data stream with preprocessing and batching.
+        Initializes a PeakNet Preprocessing Pipeline
+
+        This pipeline applies image preprocessing and batching in the following
+        order:
+
+        1. Pad individual images to the configured target size (before batching)
+        2. Accumulate padded images into batches of `batch_size`
+        3. Add a channel dimension to the batched image data (after batching)
+
+        Non-image data (timestamps, scalars, etc.) is passed through unchanged
+        at every stage
 
         Arguments:
-            parameters: The configuration parameters
 
-        A processing pipeline that applies preprocessing (padding, channel dimension) and batching.
-
-        This pipeline performs the following operations in order:
-        1. Pad individual images to target size (before batching)
-        2. Batch the padded images
-        3. Add channel dimension to batched data (after batching)
-
-        The preprocessing is applied to detector image data while other data types
-        (timestamps, scalars, etc.) are passed through unchanged.
+            parameters: The processing pipeline configuration parameters
         """
 
         if parameters.type != "PeaknetPreprocessingPipeline":
@@ -168,7 +177,7 @@ class PeaknetPreprocessingPipeline(ProcessingPipelineProtocol):
         self._batch_size: int = parameters.batch_size
 
         # Initialize padding utility
-        self._padder = _NumpyPad(
+        self._padder: _NumpyPad = _NumpyPad(
             target_height=parameters.target_height,
             target_width=parameters.target_width,
             pad_style=parameters.pad_style,
@@ -181,7 +190,21 @@ class PeaknetPreprocessingPipeline(ProcessingPipelineProtocol):
     def __call__(
         self, stream: Iterator[dict[str, StrFloatIntNDArray | None]]
     ) -> Iterator[dict[str, StrFloatIntNDArray | None]]:
+        """
+        Applies the PeakNet Preprocessing Pipeline to incoming event data
 
+        For each event, the steps of the processing pipeline are applied to the
+        incoming data. Any remaining events that do not fill a complete batch at
+        the end of the data stream are yielded as a partial batch.
+
+        Arguments:
+
+            stream: A dictionary storing event data
+
+        Yields:
+
+            batch: A dictionary of processed and batched events
+        """
         data_storage: DataStorage = DataStorage()
 
         data: dict[str, StrFloatIntNDArray | None]

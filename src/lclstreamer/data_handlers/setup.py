@@ -17,13 +17,13 @@ def initialize_data_handlers(
     parameters: Parameters,
 ) -> list[DataHandlerProtocol]:
     """
-    Initializes the Data Handlers specified by the configuration parameters
+    Initializes the data handlers specified by the configuration parameters
 
     Arguments:
     parameters: The configuration parameters
 
     Returns:
-        data_handlers: A list of initialized Data Handlers
+        data_handlers: A list of initialized data handlers
     """
     data_handlers: list[DataHandlerProtocol] = []
 

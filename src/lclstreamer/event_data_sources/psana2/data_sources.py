@@ -7,14 +7,10 @@ from ...models.parameters import DataSourceParameters
 from ...utils.logging import log_error_and_exit
 from ...utils.protocols import DataSourceProtocol
 
-# Note: smalldata provides a "data producer"
-# that shows interfaces to psana2 detectors here:
-# https://github.com/slac-lcls/smalldata_tools/blob/master/lcls2_producers/smd_producer.py
-
 
 class Psana2Timestamp(DataSourceProtocol):
     """
-    See documentation of the `__init__` function.
+    See documentation of the `__init__` function
     """
 
     def __init__(
@@ -24,13 +20,13 @@ class Psana2Timestamp(DataSourceProtocol):
         additional_info: dict[str, Any],
     ):
         """
-        Initializes a psana2 Timestamp data source.
+        Initializes a psana2 Timestamp Data Source
 
         Arguments:
 
             name: An identifier for the data source
 
-            parameters: The configuration parameters
+            parameters: The data source configuration parameters
         """
         pass
 
@@ -52,7 +48,7 @@ class Psana2Timestamp(DataSourceProtocol):
 
 class Psana2DetectorInterface(DataSourceProtocol):
     """
-    See documentation of the `__init__` function.
+    See documentation of the `__init__` function
     """
 
     def __init__(
@@ -62,13 +58,13 @@ class Psana2DetectorInterface(DataSourceProtocol):
         additional_info: dict[str, Any],
     ):
         """
-        Initializes a psana2 Detector values data source.
+        Initializes a psana2 Detector values data source
 
         Arguments:
 
             name: An identifier for the data source
 
-            parameters: The configuration parameters
+            parameters: The data source configuration parameters
         """
         extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
         self._name: str = name
@@ -114,9 +110,7 @@ class Psana2DetectorInterface(DataSourceProtocol):
 
          Returns:
 
-            value: The retrieved data is a list of object, such as:
-            [Object1, Object2, Object3, ...]
-            in the format of a numpy array.
+            value: The retrieved data in the format of a numpy array
         """
 
         data: list[Any] = []
@@ -156,7 +150,7 @@ class Psana2DetectorInterface(DataSourceProtocol):
 
 class Psana2RunInfo(DataSourceProtocol):
     """
-    See documentation of the `__init__` function.
+    See documentation of the `__init__` function
     """
 
     def __init__(
@@ -166,13 +160,13 @@ class Psana2RunInfo(DataSourceProtocol):
         additional_info: dict[str, Any],
     ):
         """
-        Initializes a psana2 run info data source.
+        Initializes a Psana2 Run Info Data Source
 
         Arguments:
 
             name: An identifier for the data source
 
-            parameters: The configuration parameters
+            parameters: The data source configuration parameters
         """
         run: Any = additional_info["run"]
         self._run_data: list[str] = [  # pyright: ignore[reportUnknownMemberType]
@@ -192,8 +186,7 @@ class Psana2RunInfo(DataSourceProtocol):
 
          Returns:
 
-            value: A list of the experiment's name, run start's timestamp,
-            run number and source identifier.
+            value: The retrieved data in the format of a numpy array
         """
 
         return numpy.array(self._run_data, dtype=numpy.str_)

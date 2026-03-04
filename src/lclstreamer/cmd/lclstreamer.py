@@ -33,14 +33,14 @@ app = typer.Typer()
 
 
 @stream
-def filter_incomplete_events(
+def _filter_incomplete_events(
     events: Iterator[dict[str, StrFloatIntNDArray | None]], max_consecutive: int = 100
 ) -> Iterator[dict[str, StrFloatIntNDArray | None]]:
     """
     Drops events that are incomplete
 
     Incomplete events are events where the retrieval of one or more data items
-    failed.
+    failed
 
     Arguments:
 
@@ -74,7 +74,7 @@ def filter_incomplete_events(
     print(f"Processed {ev_num + 1} events with {num_dropped} dropped.")
 
 
-def data_counter(data: bytes) -> int:
+def _data_counter(data: bytes) -> int:
     """
     Computes the size of the input data
 
@@ -106,16 +106,12 @@ def main(
             "--num-events", "-n", help="number of data events to read before stopping"
         ),
     ] = 0,
-    asyncmode: Annotated[
-        int,
-        typer.Option("--asyncmode", "-a", help="Run async 1 or not 0."),
-    ] = 0,
 ) -> None:
     """
     An application that retrieves data from an event source, processes it, serializes
     it, and passes it to a series of data handlers that forwards it to external
     applications. The event source, data processing, serialization strategy, and
-    further data handling are defined by a configuration file.
+    further data handling are defined by the content of a configuration file
     """
 
     # 1. Read and recover configuration parameters
@@ -154,7 +150,7 @@ def main(
         workflow >>= take(num_events)
 
     if parameters.skip_incomplete_events is True:
-        workflow >>= filter_incomplete_events(max_consecutive=1)
+        workflow >>= _filter_incomplete_events(max_consecutive=1)
 
     workflow >>= processing_pipeline
 
@@ -166,7 +162,7 @@ def main(
     for data_handler in data_handlers:
         workflow >>= tap(data_handler)
 
-    workflow >>= map(data_counter)
+    workflow >>= map(_data_counter)
 
     for stat in workflow >> clock():
         print(f"[Rank {mpi_rank}] {stat}]", flush=True)

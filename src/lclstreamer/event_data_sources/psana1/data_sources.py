@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Any
 
 import numpy
 from numpy.typing import NDArray
@@ -11,7 +11,7 @@ from ...utils.protocols import DataSourceProtocol
 
 class Psana1Timestamp(DataSourceProtocol):
     """
-    See documentation of the `__init__` function.
+    See documentation of the `__init__` function
     """
 
     def __init__(
@@ -21,13 +21,13 @@ class Psana1Timestamp(DataSourceProtocol):
         additional_info: dict[str, Any],
     ):
         """
-        Initializes a psana1 Timestamp data source.
+        Initializes a Psana1 Timestamp Data Source
 
         Arguments:
 
             name: An identifier for the data source
 
-            parameters: The configuration parameters
+            parameters: The data source configuration parameters
         """
         del name
         del parameters
@@ -54,9 +54,10 @@ class Psana1Timestamp(DataSourceProtocol):
             str(timestamp_epoch_format[0]) + "." + str(timestamp_epoch_format[1])
         )
 
+
 class Psana1DetectorInterface(DataSourceProtocol):
     """
-    See documentation of the `__init__` function.
+    See documentation of the `__init__` function
     """
 
     def __init__(
@@ -66,13 +67,13 @@ class Psana1DetectorInterface(DataSourceProtocol):
         additional_info: dict[str, Any],
     ):
         """
-        Initializes a psana1 Detector values data source.
+        Initializes Psana1 Detector Interface Data Source
 
         Arguments:
 
             name: An identifier for the data source
 
-            parameters: The configuration parameters
+            parameters: The data source configuration parameters
         """
         del additional_info
         extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
@@ -106,13 +107,11 @@ class Psana1DetectorInterface(DataSourceProtocol):
         else:
             self.dtype = extra_parameters["dtype"]
 
-        self._detector_interface: Any = Detector(
-            extra_parameters["psana_name"]
-        )
+        self._detector_interface: Any = Detector(extra_parameters["psana_name"])
 
     def get_data(self, event: Any) -> NDArray[Any]:
         """
-        Retrieves Detector values from a psana1 event
+        Retrieves data via the Detector Interface from a psana1 event
 
         Arguments:
 
@@ -120,9 +119,7 @@ class Psana1DetectorInterface(DataSourceProtocol):
 
          Returns:
 
-            value: The retrieved data is a list of object, such as:
-            [Object1, Object2, Object3, ...]
-            in the format of a numpy array.
+            value: The retrieved data in the format of a numpy array
         """
 
         data: list[Any] = []
@@ -133,11 +130,12 @@ class Psana1DetectorInterface(DataSourceProtocol):
             data.append(base(event))
         else:
             for param in self._det_params:
-                if param == "eventCodes": 
+                if param == "eventCodes":
                     # special case for event codes
                     data = numpy.ndarray([0] * 256, dtype=numpy.float64)
                     data = numpy.array(evr_codes, dtype=numpy.float64)
-                    return numpy.pad(current_evr_codes,
+                    return numpy.pad(
+                        current_evr_codes,
                         pad_width=(0, 256 - len(current_evr_codes)),
                         mode="constant",
                         constant_values=(0, 0),

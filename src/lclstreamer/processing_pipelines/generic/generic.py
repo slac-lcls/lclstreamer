@@ -10,6 +10,10 @@ from ..common.data_storage import DataStorage
 
 
 class BatchProcessingPipeline(ProcessingPipelineProtocol):
+    """
+    See documentation of the `__init__` function
+    """
+
     def __init__(self, parameters: BatchProcessingPipelineParameters) -> None:
         """
         Initializes a batching pipeline
@@ -18,7 +22,7 @@ class BatchProcessingPipeline(ProcessingPipelineProtocol):
 
         Arguments:
 
-            parameters: The configuration parameters
+            parameters: The processing pipeline configuration parameters
         """
         if parameters.type != "BatchProcessingPipeline":
             log_error_and_exit(
@@ -30,7 +34,21 @@ class BatchProcessingPipeline(ProcessingPipelineProtocol):
     def __call__(
         self, stream: Iterator[dict[str, StrFloatIntNDArray | None]]
     ) -> Iterator[dict[str, StrFloatIntNDArray | None]]:
+        """
+        Applies the batching pipeline to incoming event data
 
+        Accumulates individual events into batches. Once a full batch has been
+        collected it is returned. Any remaining events that do not fill a
+        complete batch at the end of the stream  are yielded as a partial batch
+
+        Arguments:
+
+            stream: A dictionary storing event data
+
+        Yields:
+
+            batch: A dictionary of processed and batched events
+        """
         data_storage: DataStorage = DataStorage()
 
         data: dict[str, StrFloatIntNDArray | None]

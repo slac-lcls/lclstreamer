@@ -16,7 +16,7 @@ from ..utils.typing import StrFloatIntNDArray
 
 class EventSourceProtocol(Protocol):
     """
-    See documentation of the `__init__` function.
+    See documentation of the `__init__` function
     """
 
     def __init__(
@@ -42,7 +42,7 @@ class EventSourceProtocol(Protocol):
 
 class DataSourceProtocol(Protocol):
     """
-    See documentation of the `__init__` function.
+    See documentation of the `__init__` function
     """
 
     def __init__(
@@ -61,7 +61,7 @@ class DataSourceProtocol(Protocol):
 
 class ProcessingPipelineProtocol(Protocol):
     """
-    See documentation of the `__init__` function.
+    See documentation of the `__init__` function
     """
 
     def __init__(
@@ -79,19 +79,46 @@ class ProcessingPipelineProtocol(Protocol):
 
 
 class DataSerializerProtocol(Protocol):
+    """
+    See documentation of the `__init__` function
+    """
+
     def __init__(self, parameters: DataSerializerParameters):
         """Initializes the data serializers"""
         ...
 
     def __call__(
         self, stream: Iterator[dict[str, StrFloatIntNDArray | None]]
-    ) -> Iterator[bytes]: ...
+    ) -> Iterator[bytes]:
+        """
+        Serializes a stream of event data dictionaries into a stream of byte objects
+
+        Arguments:
+
+            stream: An iterator of event data dictionaries mapping data source names
+                to arrays
+
+        Returns:
+
+            bytes_stream: An iterator of serialized byte objects
+        """
+        ...
 
 
 class DataHandlerProtocol(Protocol):
+    """
+    See documentation of the `__init__` function
+    """
+
     def __init__(self, parameters: DataHandlerParameters):
         """Initializes the data handler"""
         ...
 
     def __call__(self, data: bytes) -> None:
-        """Handles the data"""
+        """
+        Handles a serialized byte object, forwarding it to an external destination
+
+        Arguments:
+
+            data: A bytes object containing serialized event data
+        """

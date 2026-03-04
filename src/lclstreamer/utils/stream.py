@@ -7,7 +7,9 @@ from stream.ops import fold
 Clock = Dict[str, Union[int, float]]
 
 
-def clock0() -> Clock:
+def _clock_init() -> Clock:
+    # Returns the initial state of a rate clock
+
     return {
         "count": 0,
         "size": 0,
@@ -16,19 +18,10 @@ def clock0() -> Clock:
     }
 
 
-def rate_clock(state: Clock, sz: int) -> Clock:
-    """
-    Implements a rate clock
+def _rate_clock(state: Clock, sz: int) -> Clock:
+    # Implements a rate clock for a data stream
+    # sz is the size to add in the current step
 
-    Arguments:
-
-        clock: the values of the clock at the previous step of the stream
-        sz: size to add to state["size"]
-
-    Returns:
-
-        clock: the values of the clock at the current step of the stream
-    """
     t = time()
     return {
         "count": state["count"] + 1,
@@ -40,13 +33,13 @@ def rate_clock(state: Clock, sz: int) -> Clock:
 
 def clock() -> Stream[Any, Any]:
     """
-    Returns a rate clock counting from now.
+    Returns a rate clock counting from now
 
-    This transforms a stream of counts into a stream of dicts(describing the count
-    rate).
+    This transforms a stream of counts into a stream of dicts (describing the count
+    rate)
 
     Returns:
 
         clock: A Stream objet
     """
-    return fold(rate_clock, clock0())
+    return fold(_rate_clock, _clock_init())

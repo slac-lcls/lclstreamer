@@ -20,7 +20,7 @@ class FloatValue(DataSourceProtocol):
         additional_info: dict[str, Any],
     ):
         """
-        Initializes a Float Value data source
+        Initializes a Float Value Data Source
 
         Arguments:
 
@@ -73,7 +73,7 @@ class IntValue(DataSourceProtocol):
         additional_info: dict[str, Any],
     ):
         """
-        Initializes a Int Value data source
+        Initializes a Int Value Data Source
 
         Arguments:
 
@@ -126,7 +126,7 @@ class GenericRandomNumpyArray(DataSourceProtocol):
         additional_info: dict[str, Any],
     ):
         """
-        Initializes a Generic Random Numpy Array data source.
+        Initializes a Generic Random Numpy Array Data Source.
 
         Arguments:
 
@@ -205,13 +205,17 @@ class SourceIdentifier(DataSourceProtocol):
         additional_info: dict[str, Any],
     ):
         """
-        Initializes a Generic Random Numpy Array data source.
+        Initializes a Source Identifier Data Source.
 
         Arguments:
 
             name: An identifier for the data source
 
             parameters: The configuration parameters
+
+            additional_info: A dictionary of additional information, expected to
+                contain a ``source_identifier`` key whose value is stored and
+                returned by `get_data`
         """
         del name
         del parameters
@@ -221,15 +225,15 @@ class SourceIdentifier(DataSourceProtocol):
 
     def get_data(self, event: Any) -> NDArray[numpy.str_]:
         """
-        Retrieves an array of int of float random numbers
+        Retrieves the source identifier as a numpy string array.
 
         Arguments:
 
-            event: A psana1 event
+            event: An event object (unused)
 
         Returns:
 
-            random: an array of the type and size requested by the user, containing
-            random data (either of integer or floating type)
+            source_identifier: A 0-dimensional numpy string array containing the
+                source identifier defined at initialization
         """
         return self._source_identifier
