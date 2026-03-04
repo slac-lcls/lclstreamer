@@ -18,6 +18,11 @@ data_sources:
         array_shape: 4,4,4
         array_dtype: float32
 
+    eventcodes:
+        type: Psana1DetectorInterface
+        psana_name: "evr0"
+        psana_fields: eventCodes
+
     photon_wavelength:
         type: Psana1DetectorInterface
         psana_name: "SIOC:SYS0:ML00:AO192"
@@ -29,7 +34,7 @@ processing_pipeline:
 data_serializer:
     type: HDF5BinarySerializer
     compression_level: 3
-    compression: zfp
+    compression: null
     fields:
         timestamp: /data/timestamp
         detector_data: /data/data

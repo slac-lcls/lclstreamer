@@ -130,18 +130,9 @@ class Psana1DetectorInterface(DataSourceProtocol):
             data.append(base(event))
         else:
             for param in self._det_params:
-                if param == "eventCodes":
-                    # special case for event codes
-                    data = numpy.ndarray([0] * 256, dtype=numpy.float64)
-                    data = numpy.array(evr_codes, dtype=numpy.float64)
-                    return numpy.pad(
-                        current_evr_codes,
-                        pad_width=(0, 256 - len(current_evr_codes)),
-                        mode="constant",
-                        constant_values=(0, 0),
-                    )
 
                 base = self._detector_interface
+
                 subfields: list[str] = param.split(".")
                 for field in subfields:
                     if hasattr(base, field):
@@ -164,4 +155,11 @@ class Psana1DetectorInterface(DataSourceProtocol):
                     f"Data for the psana2 data source {self._name} has "
                     "the format of a dictionary!"
                 )
+            if param == "eventCodes":
+                # special case for event codes
+                return numpy.pad(data,
+                        pad_width=(0, 256 - len(data)),
+                        mode="constant",
+                        constant_values=(0, 0),
+                    )
         return numpy.array(data, dtype=self.dtype)
