@@ -3,4 +3,4 @@
 .pixi
 *.egg-info
 __pycache__
-
+docs/build/
