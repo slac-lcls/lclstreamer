@@ -6,9 +6,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>Introduction &#8212; LCLStreamer: Data Retrieval and Streaming at LCLS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Search - LCLStreamer: Data Retrieval and Streaming at LCLS</title>
   
   
   
@@ -481,11 +479,13 @@ mermaid.initialize(
 
 window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
-    <link rel="canonical" href="https://slac-lcls.github.io/lclstreamer/index.html" />
+    <script>DOCUMENTATION_OPTIONS.pagename = 'search';</script>
+  <script src="_static/searchtools.js"></script>
+  <script src="_static/language_data.js"></script>
+  <script src="searchindex.js"></script>
+    <link rel="canonical" href="https://slac-lcls.github.io/lclstreamer/search.html" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Installation" href="installation.html" />
+    <link rel="search" title="Search" href="#" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -507,7 +507,7 @@ window.runMermaid = runMermaid;</script>
   <dialog id="pst-search-dialog">
     
 <form class="bd-search d-flex align-items-center"
-      action="search.html"
+      action="#"
       method="get">
   <i class="fa-solid fa-magnifying-glass"></i>
   <input type="search"
@@ -543,7 +543,7 @@ window.runMermaid = runMermaid;</script>
     
   
 
-<a class="navbar-brand logo" href="#">
+<a class="navbar-brand logo" href="index.html">
   
   
   
@@ -734,85 +734,42 @@ window.runMermaid = runMermaid;</script>
               <div class="bd-header-article d-print-none"></div>
               
               
-              
-                
-<div id="searchbox"></div>
-                <article class="bd-article">
-                  
-  <section id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h1>
-<p>LCLStreamer is an application that reads LCLS data in parallel as fast as possible. After
-some rapid calibration and/or pre-processing (and possibly batching), the data is serialized,
-and finally passed to one or more handlers that transfer it to external applications.</p>
-<p>LCLStreamer has several components:</p>
-<ul class="simple">
-<li><p>An <em>event source</em> (that retrieves the data from a data source)</p></li>
-<li><p>A <em>processing pipeline</em> (for data reduction, pre-processing, etc.)</p></li>
-<li><p>A <em>serializer</em> (that turns the data into a binary blob of bytes)</p></li>
-<li><p>One or more <em>handlers</em> (that write the bytes to files, send them through network
-sockets, etc)</p></li>
-</ul>
-<p>The data flows through all the components in the following way:</p>
-<pre  class="mermaid">
-        flowchart LR
-    A[Source] --&gt; B[Processing Pipeline]
-    B --&gt; C[Serializer]
-    C --&gt; D[Handler 1]
-    C --&gt; E[Handler 2]
-    C --&gt; F[...]
+  <div class="bd-search-container">
+    <h1>Search</h1>
+    <noscript>
+      <div class="admonition error">
+        <p class="admonition-title">Error</p>
+        <p>Please activate JavaScript to enable the search functionality.</p>
+      </div>
+    </noscript>
+    
+<form class="bd-search d-flex align-items-center"
+      action="#"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    <div id="search-results"></div>
+  </div>
+  <script>
+    // Activate the search field on page load
+    let searchInput = document.querySelector("form.bd-search input");
+    if (searchInput) {
+        searchInput.focus();
+        searchInput.select();
+        console.log("[PST]: Set focus on search field.");
+    }
+  </script>
 
-    classDef source   fill:lightsteelblue,stroke:slategray,color:black
-    classDef pipeline fill:peachpuff,stroke:sandybrown,color:black
-    classDef serial   fill:honeydew,stroke:mediumseagreen,color:black
-    classDef handler  fill:thistle,stroke:mediumorchid,color:black
-
-    class A source
-    class B pipeline
-    class C serial
-    class D,E,F handler
-    </pre><p>LCLStreamer can be run using different implementations of all its components, depending
-on the data source, the type of preprocessing that is performed on the data, and the
-format and final destination of the processed data (a file, a network socket).</p>
-</section>
-<section id="documentation-contents">
-<h1>Documentation Contents<a class="headerlink" href="#documentation-contents" title="Link to this heading">#</a></h1>
-<div class="toctree-wrapper compound">
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">User Guide</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-lclstreamer">Installing LCLStreamer</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#basic-usage">Basic Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#running-lclstreamer-with-the-psana1-and-psana2-frameworks">Running LCLStreamer with the psana1 and psana2 frameworks</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="configuration.html#configuring-the-lclstreamer-application">Configuring the LCLStreamer Application</a></li>
-<li class="toctree-l2"><a class="reference internal" href="configuration.html#configuring-lclstreamer-s-components">Configuring LCLStreamer’s components</a></li>
-<li class="toctree-l2"><a class="reference internal" href="configuration.html#configuring-the-data-sources">Configuring the data sources</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html#configuration-options">Configuration Options</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="configuration_event_sources.html">Event Sources</a></li>
-<li class="toctree-l2"><a class="reference internal" href="configuration_processing_pipelines.html">Processing Pipelines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="configuration_data_serializers.html">Data Serializers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="configuration_data_handlers.html">Data Handlers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="configuration_data_sources.html">Data Sources</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Topics</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="advanced.html#the-lclstreamer-data-workflow">The LCLStreamer Data Workflow</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
-
-
-                </article>
-              
               
               
               
