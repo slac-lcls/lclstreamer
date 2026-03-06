@@ -54,9 +54,6 @@ autoclass_content: str = "init"
 
 html_theme: str = "pydata_sphinx_theme"
 
-html_static_path: list[str] = ["_static/css"]
-html_css_files: list[str] = ["custom.css"]
-
 html_show_sourcelink = False
 
 html_sidebars: dict[str, list[str]] = {"**": []}
