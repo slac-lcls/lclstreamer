@@ -235,7 +235,6 @@ class HDF5BinarySerializerParameters(_CustomBaseModel):
         ]
         | None
     ) = None
-    fields: Dict[str, str]
 
 
 DataSerializerParameters = Annotated[

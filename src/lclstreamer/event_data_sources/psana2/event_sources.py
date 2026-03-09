@@ -11,6 +11,7 @@ from ...utils.protocols import (
     EventSourceProtocol,
 )
 from ...utils.typing import StrFloatIntNDArray
+from ...utils.logging import log_info
 from ..generic.data_sources import GenericRandomNumpyArray as GenericRandomNumpyArray
 from .data_sources import (
     Psana2DetectorInterface as Psana2DetectorInterface,
@@ -107,8 +108,6 @@ class Psana2EventSource(EventSourceProtocol):
         self._data_sources: dict[str, DataSourceProtocol] = {}
         data_source_name: str
         for data_source_name in data_source_parameters:
-            if data_source_name == "async_on":
-                continue
             try:
                 data_source_class: type[DataSourceProtocol] = globals()[
                     data_source_parameters[data_source_name].type
@@ -141,7 +140,7 @@ class Psana2EventSource(EventSourceProtocol):
         """
         psana_event: Any
         for psana_event in self._event_source:
-            data: dict[str, StrFloatIntNDArray | None] = {}
+            data: dict[str, Any | None] = {}
 
             data_source_name: str
             for data_source_name in self._data_sources:
@@ -149,6 +148,7 @@ class Psana2EventSource(EventSourceProtocol):
                     data[data_source_name] = self._data_sources[
                         data_source_name
                     ].get_data(event=psana_event)
-                except (TypeError, AttributeError):
+                except (TypeError, AttributeError) as e:
+                    log_info(e)
                     data[data_source_name] = None
             yield data

@@ -88,6 +88,7 @@ class Psana1DetectorInterface(DataSourceProtocol):
             log_error_and_exit(
                 f"Entry 'psana_name' is not defined for data source {name}"
             )
+        self._detector_name = extra_parameters["psana_name"]
         if "psana_fields" not in extra_parameters:
             if ":" in extra_parameters["psana_name"]:
                 self._is_pv: bool = True
@@ -97,9 +98,10 @@ class Psana1DetectorInterface(DataSourceProtocol):
                 )
         else:
             fields: list[str] | str = extra_parameters["psana_fields"]
-            self._det_params: list[str] = (
+            det_fields: list[str] = (
                 [fields] if isinstance(fields, str) else fields
             )
+            self._det_fields = [f.split(".") for f in det_fields]
 
         self.dtype: type
         if "dtype" not in extra_parameters:
@@ -122,19 +124,19 @@ class Psana1DetectorInterface(DataSourceProtocol):
             value: The retrieved data in the format of a numpy array
         """
 
-        data: list[Any] = []
+        data: dict[str, Any] = {}
 
         base: Any
         if getattr(self, "_is_pv", False):
             base = self._detector_interface
-            data.append(base(event))
+            data[self._detector_name] = numpy.array(base(event), dtype=self.dtype)
         else:
-            for param in self._det_params:
-
+            for psana_fields in self._det_fields:
+                # TODO: check call signature at init only once
+                psana_field: str = ".".join([self._detector_name, *psana_fields])
                 base = self._detector_interface
 
-                subfields: list[str] = param.split(".")
-                for field in subfields:
+                for field in psana_fields:
                     if hasattr(base, field):
                         base = getattr(base, field)
                     else:
@@ -144,22 +146,20 @@ class Psana1DetectorInterface(DataSourceProtocol):
                         base = base(event)
                     except TypeError:
                         base = base()
-                    data.append(base)
-                else:
-                    data.append(base)
+                if isinstance(base, dict):
+                    log_error_and_exit(
+                        f"Data for the psana2 data source {self._name} has "
+                        "the format of a dictionary! HSD detectors are not supported yet."
+                    )
 
-        if len(data) == 1:
-            data = data[0]
-            if isinstance(data, dict):
-                log_error_and_exit(
-                    f"Data for the psana2 data source {self._name} has "
-                    "the format of a dictionary!"
-                )
-            if param == "eventCodes":
-                # special case for event codes
-                return numpy.pad(data,
-                        pad_width=(0, 256 - len(data)),
+                if psana_fields == ["eventCodes"]:
+                    # special case for event codes
+                    base = numpy.pad(base,
+                        pad_width=(0, 256 - len(base)),
                         mode="constant",
                         constant_values=(0, 0),
                     )
-        return numpy.array(data, dtype=self.dtype)
+                    self.dtype = numpy.int64
+                data[psana_field] = numpy.array(base, dtype=self.dtype)
+
+        return data

@@ -77,8 +77,9 @@ class Psana2DetectorInterface(DataSourceProtocol):
             log_error_and_exit(
                 f"Entry 'psana_name' is not defined for data source {name}"
             )
+        self._detector_name = extra_parameters["psana_name"]
         if "psana_fields" not in extra_parameters:
-            if ":" in extra_parameters["psana_name"]:
+            if ":" in self._detector_name:
                 self._is_pv: bool = True
             else:
                 log_error_and_exit(
@@ -86,9 +87,10 @@ class Psana2DetectorInterface(DataSourceProtocol):
                 )
         else:
             fields: list[str] | str = extra_parameters["psana_fields"]
-            self._det_fields: list[str] = (
+            det_fields: list[str] = (
                 [fields] if isinstance(fields, str) else fields
             )
+            self._det_fields = [f.split(".") for f in det_fields]
 
         self.dtype: type
         if "dtype" not in extra_parameters:
@@ -97,7 +99,7 @@ class Psana2DetectorInterface(DataSourceProtocol):
             self.dtype = extra_parameters["dtype"]
 
         self._detector_interface: Any = additional_info["run"].Detector(
-            extra_parameters["psana_name"]
+            self._detector_name
         )
 
     def get_data(self, event: Any) -> NDArray[Any]:
@@ -113,17 +115,19 @@ class Psana2DetectorInterface(DataSourceProtocol):
             value: The retrieved data in the format of a numpy array
         """
 
-        data: list[Any] = []
+        data: dict[str, Any] = {}
 
         base: Any
         if getattr(self, "_is_pv", False):
             base = self._detector_interface
-            data.append(base(event))
+            data[self._detector_name] = numpy.array(base(event), dtype=self.dtype)
         else:
-            for psana_field in self._det_fields:
+            for psana_fields in self._det_fields:
+                # TODO: check call signature at init only once
+                psana_field: str = ".".join([self._detector_name, *psana_fields])
                 base = self._detector_interface
-                subfields: list[str] = psana_field.split(".")
-                for field in subfields:
+
+                for field in psana_fields:
                     if hasattr(base, field):
                         base = getattr(base, field)
                     else:
@@ -133,19 +137,14 @@ class Psana2DetectorInterface(DataSourceProtocol):
                         base = base(event)
                     except TypeError:
                         base = base()
-                    data.append(base)
-                else:
-                    data.append(base)
+                if isinstance(base, dict):
+                    log_error_and_exit(
+                        f"Data for the psana2 data source {self._name} has "
+                        "the format of a dictionary! HSD detectors are not supported yet."
+                    )
+                data[psana_field] = numpy.array(base, dtype=self.dtype)
 
-        # TODO: Streamline logic
-        if len(data) == 1:
-            data = data[0]
-            if isinstance(data, dict):
-                log_error_and_exit(
-                    f"Data for the psana2 data source {self._name} has "
-                    "the format of a dictionary!"
-                )
-        return numpy.array(data, dtype=self.dtype)
+        return data
 
 
 class Psana2RunInfo(DataSourceProtocol):
@@ -169,14 +168,14 @@ class Psana2RunInfo(DataSourceProtocol):
             parameters: The data source configuration parameters
         """
         run: Any = additional_info["run"]
-        self._run_data: list[str] = [  # pyright: ignore[reportUnknownMemberType]
-            run.expt,  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
-            str(run.timestamp),  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]
-            str(run.runnum),  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]
-            additional_info["source_identifier"],
-        ]
+        self._run_data: dict[str, NDArray[numpy.str_]] = {  # pyright: ignore[reportUnknownMemberType]
+            "experiment": numpy.array(run.expt, dtype=numpy.str_),  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+            "run_timestamp": numpy.array(str(run.timestamp), dtype=numpy.str_),  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]
+            "run_number": numpy.array(str(run.runnum), dtype=numpy.str_),  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]
+            "source_identifier": numpy.array(additional_info["source_identifier"], dtype=numpy.str_),
+        }
 
-    def get_data(self, event: Any) -> NDArray[numpy.str_]:
+    def get_data(self, event: Any) -> dict[str, NDArray[numpy.str_]]:
         """
         Retrieves the detector info from a psana2 event
 
@@ -189,4 +188,4 @@ class Psana2RunInfo(DataSourceProtocol):
             value: The retrieved data in the format of a numpy array
         """
 
-        return numpy.array(self._run_data, dtype=numpy.str_)
+        return self._run_data
