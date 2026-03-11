@@ -35,21 +35,16 @@ data_serializer:
     type: HDF5BinarySerializer
     compression_level: 3
     compression: null
-    fields:
-        timestamp: /data/timestamp
-        detector_data: /data/data
-        random: /data/random
-        photon_wavelength: /data/wavelength
 
 data_handlers:
-    # - type: BinaryFileWritingDataHandler
-    #   file_prefix: ""
-    #   file_suffix: h5
-    #   write_directory: workspace/output
+     - type: BinaryFileWritingDataHandler
+       file_prefix: ""
+       file_suffix: h5
+       write_directory: workspace/output
 
-    - type: BinaryDataStreamingDataHandler
-      urls:
-          - "tcp://127.0.0.1:5000"
-      role: client
-      library: zmq
-      socket_type: push
+    #- type: BinaryDataStreamingDataHandler
+    #  urls:
+    #      - "tcp://127.0.0.1:5000"
+    #  role: client
+    #  library: zmq
+    #  socket_type: push

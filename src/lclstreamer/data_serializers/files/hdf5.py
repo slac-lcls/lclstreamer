@@ -67,8 +67,6 @@ class HDF5BinarySerializer(DataSerializerProtocol):
         else:
             self._compression_options = {}
 
-        self._hdf5_fields: dict[str, str] = parameters.fields
-
     def __call__(
         self, stream: Iterator[dict[str, StrFloatIntNDArray | None]]
     ) -> Iterator[bytes]:
@@ -97,15 +95,6 @@ class HDF5BinarySerializer(DataSerializerProtocol):
                     "different depths"
                 )
 
-            mismatching_entries: set[str] = data.keys() - self._hdf5_fields.keys()
-
-            if len(mismatching_entries) != 0:
-                log_error_and_exit(
-                    "The Hdf5BinarySerializer is asked to serialize the following data "
-                    "entries but data for these entries is not available: "
-                    f"{' '.join(list(mismatching_entries))}"
-                )
-
             with BytesIO() as byte_block:
                 with h5py.File(
                     byte_block,  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]
@@ -113,12 +102,9 @@ class HDF5BinarySerializer(DataSerializerProtocol):
                 ) as fh:
                     data_block_name: str
                     for data_block_name in data:
-                        if (
-                            data_block_name in self._hdf5_fields
-                            and (data_block := data[data_block_name]) is not None
-                        ):
+                        if (data_block := data[data_block_name]) is not None:
                             fh.create_dataset(
-                                name=self._hdf5_fields[data_block_name],
+                                name=data_block_name,
                                 shape=data_block.shape,
                                 dtype=data_block.dtype,
                                 chunks=(1,) + data_block[0].shape,

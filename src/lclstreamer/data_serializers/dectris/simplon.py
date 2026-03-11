@@ -96,16 +96,10 @@ class SimplonBinarySerializer(DataSerializerProtocol):
                     "or float, as required by the SimplonBinarySerializer"
                 )
 
-            experiment_data: NDArray[numpy.str_] = cast(
-                NDArray[numpy.str_], data["run_info"]
-            )[-1]
-            run_number = experiment_data[2]
+            run_number: str = data["run_number"][-1]
 
             if self._node_rank == self._node_pool_size - 1:
                 if must_send_first_message:
-                    detector_geometry: NDArray[numpy.str_] = cast(
-                        NDArray[numpy.str_], data["detector_geometry"]
-                    )[-1]
 
                     yield b"".join(
                         (
@@ -116,10 +110,10 @@ class SimplonBinarySerializer(DataSerializerProtocol):
                                     {
                                         "type": "start",
                                         "run_number": run_number,
-                                        "start_time": experiment_data[1],
+                                        "start_time": data["run_timestamp"][-1],
                                         "duration": "N/A",
-                                        "beamline": experiment_data[3][4:7].upper(),
-                                        "experiment": experiment_data[0],
+                                        "beamline": data["source_identifier"][-1][3][4:7].upper(),
+                                        "experiment": data["experiment"][-1],
                                         "beam_type": "X-ray",
                                         "polarization": {
                                             "fraction": self._polarization.get(
@@ -135,14 +129,13 @@ class SimplonBinarySerializer(DataSerializerProtocol):
                                         "algorithm": "bitshuffle-lz4",
                                         "detector": {
                                             "name": self._detector_name,
-                                            "id": detector_geometry[0],
+                                            "id": data["jungfrau._detid"][-1],
                                             "type": self._detector_type,
-                                            "geometry": detector_geometry[1],
+                                            "geometry": data["jungfrau.raw._det_geotxt_default"][-1],
                                             "pixel_coords": numpy.array(
-                                                detector_geometry[2]
+                                                data["jungfrau.raw._pixel_coords"][-1]
                                             ).tobytes()
-                                            if len(detector_geometry) > 2
-                                            else "",
+                                            if "jungfrau.raw._pixel_coords" in data else "",
                                             "material": "???",
                                             "thickness": "???",
                                         },
@@ -165,17 +158,14 @@ class SimplonBinarySerializer(DataSerializerProtocol):
 
             beam_data_dict: dict[str, Any] = {}
             try:
-                beam_data: NDArray[numpy.floating[Any]] = cast(
-                    NDArray[numpy.floating[Any]], data["beam_data"]
-                )[-1]
                 beam_data_dict = {
                     "beam_direction": {
-                        "angle_x": beam_data[0],
-                        "angle_y": beam_data[1],
-                        "position_x": beam_data[2],
-                        "position_y": beam_data[3],
+                        "angle_x": data["ebeamh.raw.ebeamUndAngX"][-1],
+                        "angle_y": data["ebeamh.raw.ebeamUndAngY"][-1],
+                        "position_x": data["ebeamh.raw.ebeamUndPosX"][-1],
+                        "position_y": data["ebeamh.raw.ebeamUndPosY"][-1],
                     },
-                    "photon_energy": beam_data[4],
+                    "photon_energy": data["ebeamh.raw.ebeamL3Energy"][-1],
                     "photon_wavelength": 0,  # data["photon_wavelength"][-1]
                 }
             except KeyError as e:
