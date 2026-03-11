@@ -5,8 +5,8 @@ event_source:
     type: Psana1EventSource
 
 data_sources:
-    timestamp:
-        type: Psana1Timestamp
+    #timestamp:
+    #    type: Psana1Timestamp
 
     detector_data:
         type: Psana1DetectorInterface
