@@ -7,7 +7,7 @@ from psana import Detector, EventId  # type: ignore
 from ...models.parameters import DataSourceParameters
 from ...utils.logging import log_error_and_exit
 from ...utils.protocols import DataSourceProtocol
-
+from ..generic.data_sources import BaseDetectorInterface
 
 class Psana1Timestamp(DataSourceProtocol):
     """
@@ -55,7 +55,7 @@ class Psana1Timestamp(DataSourceProtocol):
         )
 
 
-class Psana1DetectorInterface(DataSourceProtocol):
+class Psana1DetectorInterface(BaseDetectorInterface):
     """
     See documentation of the `__init__` function
     """
@@ -74,92 +74,27 @@ class Psana1DetectorInterface(DataSourceProtocol):
             name: An identifier for the data source
 
             parameters: The data source configuration parameters
+
+            additional_info: Contains run information etc. (not used for psana1)
         """
+
+        super().__init__(name, parameters, additional_info)
         del additional_info
-        extra_parameters: dict[str, Any] | None = parameters.__pydantic_extra__
 
-        self._name: str = name
-        if extra_parameters is None:
-            log_error_and_exit(
-                f"Entries needed by the {name} data source are not defined"
-            )
-            return  # For the type checker
-        if "psana_name" not in extra_parameters:
-            log_error_and_exit(
-                f"Entry 'psana_name' is not defined for data source {name}"
-            )
-        if "psana_fields" not in extra_parameters:
-            if ":" in extra_parameters["psana_name"]:
-                self._is_pv: bool = True
-            else:
-                log_error_and_exit(
-                    f"Entry 'psana_fields' is not defined for data source {name}"
-                )
-        else:
-            fields: list[str] | str = extra_parameters["psana_fields"]
-            self._det_params: list[str] = (
-                [fields] if isinstance(fields, str) else fields
-            )
+    def _create_detector(self):
+        return Detector(self._detector_name)
 
-        self.dtype: type
-        if "dtype" not in extra_parameters:
-            self.dtype = numpy.float64
-        else:
-            self.dtype = extra_parameters["dtype"]
+    def _setup_special_fields(self, psana_fields, data_caller):
+        if psana_fields == ["eventCodes"]:
+            data_caller = self._get_evr_codes
+            self.dtype = numpy.int64
+        return data_caller
 
-        self._detector_interface: Any = Detector(extra_parameters["psana_name"])
-
-    def get_data(self, event: Any) -> NDArray[Any]:
-        """
-        Retrieves data via the Detector Interface from a psana1 event
-
-        Arguments:
-
-            event: A psana1 event
-
-         Returns:
-
-            value: The retrieved data in the format of a numpy array
-        """
-
-        data: list[Any] = []
-
-        base: Any
-        if getattr(self, "_is_pv", False):
-            base = self._detector_interface
-            data.append(base(event))
-        else:
-            for param in self._det_params:
-
-                base = self._detector_interface
-
-                subfields: list[str] = param.split(".")
-                for field in subfields:
-                    if hasattr(base, field):
-                        base = getattr(base, field)
-                    else:
-                        log_error_and_exit(f"Detector {base} has no parameter {field}")
-                if callable(base):
-                    try:
-                        base = base(event)
-                    except TypeError:
-                        base = base()
-                    data.append(base)
-                else:
-                    data.append(base)
-
-        if len(data) == 1:
-            data = data[0]
-            if isinstance(data, dict):
-                log_error_and_exit(
-                    f"Data for the psana2 data source {self._name} has "
-                    "the format of a dictionary!"
-                )
-            if param == "eventCodes":
-                # special case for event codes
-                return numpy.pad(data,
-                        pad_width=(0, 256 - len(data)),
-                        mode="constant",
-                        constant_values=(0, 0),
-                    )
-        return numpy.array(data, dtype=self.dtype)
+    def _get_evr_codes(self, name, base, event):
+        evr_codes: list[numpy.int64] = base(event)
+        data: list[numpy.int64] = numpy.pad(evr_codes,
+            pad_width=(0, 256 - len(evr_codes)),
+            mode="constant",
+            constant_values=(0, 0),
+        )
+        return (name, numpy.array(data, dtype=self.dtype))

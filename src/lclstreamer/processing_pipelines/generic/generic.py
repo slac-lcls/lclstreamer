@@ -51,7 +51,7 @@ class BatchProcessingPipeline(ProcessingPipelineProtocol):
         """
         data_storage: DataStorage = DataStorage()
 
-        data: dict[str, StrFloatIntNDArray | None]
+        data: dict[str, StrFloatIntNDArray | dict[str, StrFloatIntNDArray] | None]
         for data in stream:
             data_storage.add_data(data=data)
 

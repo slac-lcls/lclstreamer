@@ -13,9 +13,7 @@ source.
 
 This Data Source class retrieves timestamp information from a psana1 data event.
 
-* The timestamp information is returned as a numpy array of type `float64`. The array
-  encodes the timestamp in epoch format as a string of the form
-  `<seconds>.<nanoseconds>`.
+* The timestamp information is returned as a numpy array of type `uint64`. where seconds are stored in the upper 32 bits and nanoseconds in the lower 32 bits.
 
 #### *Configuration Parameters for Psana1Timestamp*
 
