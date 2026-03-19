@@ -7,21 +7,26 @@ dependencies = [
     "numpy",
     "pydantic",
     "stream @ git+https://github.com/frobnitzem/stream.py",
-    "aiostream",
     "pyyaml",
     "pyzmq",
-    "pynng",
+    "cbor",
+    "bitshuffle",
+    "rich"
+]
+
+[project.optional-dependencies]
+docs = [
     "sphinx",
     "myst-parser",
     "pydata-sphinx-theme",
     "sphinx-click",
     "sphinxcontrib-images",
-    "sphinxcontrib-mermaid",
+    "sphinxcontrib-mermaid"
+]
+dev = [
     "mypy",
-    "h5py-stubs",
-    "cbor",
-    "bitshuffle",
     "pytest",
+    "h5py-stubs",
     "types-PyYAML"
 ]
 
@@ -73,8 +78,6 @@ openmpi = "*"
 mpi4py = "*"
 h5py = "*"
 hdf5plugin = ">=5.1.0"
-cuda-nvtx = "*"
-cupy = ">=13.6.0,<14"
 
 [tool.pixi.feature.psana1.dependencies]
 python = "3.11.*"
@@ -83,8 +86,6 @@ psana = "==4.0.66"
 [tool.pixi.feature.psana2.dependencies]
 python = "3.13.*"
 psana = { version="==4.2.4", channel="lcls-ii" }
-nvtx = ">=0.2.14,<0.3"
-cupy = ">=13.6.0,<14"
 
 [dependency-groups]
 psana1 = [
@@ -92,22 +93,10 @@ psana1 = [
     "numpy",
     "pydantic",
     "stream @ git+https://github.com/frobnitzem/stream.py",
-    "aiostream",
     "pyyaml",
     "pyzmq",
-    "pynng",
-    "sphinx",
-    "myst-parser",
-    "pydata-sphinx-theme",
-    "sphinx-click",
-    "sphinxcontrib-images",
-    "sphinxcontrib-mermaid",
-    "mypy",
-    "h5py-stubs",
     "cbor",
     "bitshuffle",
-    "pytest",
-    "types-PyYAML",
     "rich"
 ]
 psana2 = [
@@ -115,25 +104,11 @@ psana2 = [
     "numpy",
     "pydantic",
     "stream @ git+https://github.com/frobnitzem/stream.py",
-    "aiostream",
     "pyyaml",
     "pyzmq",
-    "pynng",
-    "sphinx",
-    "myst-parser",
-    "pydata-sphinx-theme",
-    "sphinx-click",
-    "sphinxcontrib-images",
-    "sphinxcontrib-mermaid",
-    "mypy",
-    "h5py-stubs",
     "cbor",
     "bitshuffle",
-    "pytest",
-    "types-PyYAML",
-    "rich",
-    "pyfai>=2025.3.0,<2026",
-    "pyopencl>=2025.2.7"
+    "rich"
 ]
 
 [tool.pixi.tasks]
