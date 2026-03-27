@@ -1,7 +1,7 @@
 import sys
 import time
 
-from zmq import LINGER, PUSH, SNDTIMEO, Context, Socket, ZMQError
+from zmq import LINGER, PUSH, SNDHWM, Context, Socket, ZMQError
 
 from ...models.parameters import (
     BinaryDataStreamingDataHandlerParameters,
@@ -64,10 +64,10 @@ class BinaryStreamingPushDataHandlerZmq:
         self.data_handler_parameters = data_handler_parameters
         self._context: Context[Socket[bytes]] = Context()
         self._socket: Socket[bytes] = self._context.socket(PUSH)
-        # Set send timeout to 5 seconds to prevent indefinite blocking
-        self._socket.setsockopt(SNDTIMEO, 5000)
         # Set linger to 0 so socket closes immediately without waiting
         self._socket.setsockopt(LINGER, 0)
+        # Queue 5 messages if there is no receiver
+        self._socket.setsockopt(SNDHWM, 5)
         url: str
         for url in data_handler_parameters.urls:
             try:
@@ -92,7 +92,10 @@ class BinaryStreamingPushDataHandlerZmq:
 
             data: A bytes object containing serialized event data
         """
-        self._socket.send(data)
+        try:
+            self._socket.send(data)
+        except ZMQError as e:
+            log.error("ZMQ Send failed: %s", e)
 
     def close(self) -> None:
         """Explicitly close the socket and context with timeout"""
